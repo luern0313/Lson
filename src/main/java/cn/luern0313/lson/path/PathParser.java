@@ -5,15 +5,9 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 
-import static cn.luern0313.lson.path.Status.STATUS_EXPECT_COLON;
-import static cn.luern0313.lson.path.Status.STATUS_EXPECT_COMMA;
-import static cn.luern0313.lson.path.Status.STATUS_EXPECT_END_DOCUMENT;
-import static cn.luern0313.lson.path.Status.STATUS_EXPECT_EXPRESSION_END;
-import static cn.luern0313.lson.path.Status.STATUS_EXPECT_EXPRESSION_START;
-import static cn.luern0313.lson.path.Status.STATUS_EXPECT_JSON_ROOT;
-import static cn.luern0313.lson.path.Status.STATUS_EXPECT_NUMBER;
-import static cn.luern0313.lson.path.Status.STATUS_EXPECT_PATH;
-import static cn.luern0313.lson.path.Status.STATUS_EXPECT_POINT;
+import cn.luern0313.lson.exception.PathParseException;
+
+import static cn.luern0313.lson.path.Status.*;
 
 /**
  * 被 luern0313 创建于 2020/8/8.
@@ -43,7 +37,7 @@ public class PathParser
         TokenReader reader = new TokenReader(new CharReader(r));
         ArrayList<Object> pathArrayList = new ArrayList<>();
         Stack stack = new Stack();
-        int status = STATUS_EXPECT_JSON_ROOT.index | STATUS_EXPECT_EXPRESSION_START.index | STATUS_EXPECT_PATH.index;
+        int status = STATUS_EXPECT_JSON_ROOT.index | STATUS_EXPECT_EXPRESSION_START.index | STATUS_EXPECT_PATH_POINT.index;
         while (true)
         {
             TokenType currentToken = reader.readNextToken();
@@ -60,16 +54,24 @@ public class PathParser
                 case SPLIT_POINT:
                     if(hasStatus(status, STATUS_EXPECT_POINT.index))
                     {
-                        status = STATUS_EXPECT_PATH.index;
+                        status = STATUS_EXPECT_PATH_POINT.index;
                         continue;
                     }
                     throw new PathParseException("Unexpected .", reader.reader.readed);
                 case STRING:
-                    if(hasStatus(status, STATUS_EXPECT_PATH.index))
+                    if(hasStatus(status, STATUS_EXPECT_PATH_POINT.index))
                     {
-                        String path = reader.readString();
+                        String path = reader.readString(false);
                         pathArrayList.add(new PathType.PathPath(path));
                         status = STATUS_EXPECT_POINT.index | STATUS_EXPECT_EXPRESSION_START.index | STATUS_EXPECT_END_DOCUMENT.index;
+                        continue;
+                    }
+                    else if(hasStatus(status, STATUS_EXPECT_PATH_EXPRESSION.index))
+                    {
+                        String path = reader.readString(true);
+                        stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().mode = StackValue.Expression.MODE_PATH;
+                        stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().path = path;
+                        status = STATUS_EXPECT_EXPRESSION_END.index;
                         continue;
                     }
                     throw new PathParseException("Unexpected String", reader.reader.readed);
@@ -77,7 +79,7 @@ public class PathParser
                     if(hasStatus(status, STATUS_EXPECT_EXPRESSION_START.index))
                     {
                         stack.push(StackValue.newExpression());
-                        status = STATUS_EXPECT_NUMBER.index | STATUS_EXPECT_COLON.index;
+                        status = STATUS_EXPECT_NUMBER.index | STATUS_EXPECT_COLON.index | STATUS_EXPECT_PATH_EXPRESSION.index;
                         continue;
                     }
                     throw new PathParseException("Unexpected [", reader.reader.readed);
@@ -94,7 +96,7 @@ public class PathParser
                 case SPLIT_COLON: // :
                     if(hasStatus(status, STATUS_EXPECT_COLON.index))
                     {
-                        stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().isIndex = true;
+                        stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().mode = StackValue.Expression.MODE_INDEX;
                         if(stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().isJustColon)
                             stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().index.add(Integer.MIN_VALUE);
                         else
@@ -106,7 +108,7 @@ public class PathParser
                 case SPLIT_COMMA: // ,
                     if(hasStatus(status, STATUS_EXPECT_COMMA.index))
                     {
-                        if(!stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().isIndex)
+                        if(stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().mode == StackValue.Expression.MODE_INDEX_ARRAY)
                         {
                             status = STATUS_EXPECT_NUMBER.index;
                             continue;
@@ -118,7 +120,7 @@ public class PathParser
                     {
                         StackValue.Expression expression = stack.pop(StackValue.TYPE_EXPRESSION).valueAsExpression();
                         status = STATUS_EXPECT_POINT.index | STATUS_EXPECT_EXPRESSION_START.index | STATUS_EXPECT_END_DOCUMENT.index;
-                        if(expression.isIndex)
+                        if(expression.mode == StackValue.Expression.MODE_INDEX)
                         {
                             switch (expression.index.size())
                             {
@@ -133,9 +135,14 @@ public class PathParser
                                     continue;
                             }
                         }
-                        else
+                        else if(expression.mode == StackValue.Expression.MODE_INDEX_ARRAY)
                         {
                             pathArrayList.add(new PathType.PathIndexArray(expression.index));
+                            continue;
+                        }
+                        else if(expression.mode == StackValue.Expression.MODE_PATH)
+                        {
+                            pathArrayList.add(new PathType.PathPath(expression.path));
                             continue;
                         }
                     }

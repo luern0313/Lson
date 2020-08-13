@@ -47,8 +47,14 @@ class StackValue
 
     static class Expression
     {
+        static final int MODE_INDEX_ARRAY = 0;
+        static final int MODE_INDEX = 1;
+        static final int MODE_PATH = 2;
+
+        int mode = MODE_INDEX_ARRAY;
+
         ArrayList<Integer> index = new ArrayList<>();
-        boolean isIndex = false;
         boolean isJustColon = true;
+        String path;
     }
 }

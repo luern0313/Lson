@@ -10,7 +10,8 @@ enum Status
     STATUS_EXPECT_POINT,
     STATUS_EXPECT_COLON,
     STATUS_EXPECT_COMMA,
-    STATUS_EXPECT_PATH,
+    STATUS_EXPECT_PATH_POINT,
+    STATUS_EXPECT_PATH_EXPRESSION,
     STATUS_EXPECT_EXPRESSION_START,
     STATUS_EXPECT_EXPRESSION_END,
     STATUS_EXPECT_NUMBER,
@@ -18,7 +19,7 @@ enum Status
 
     int index;
 
-    private Status()
+    Status()
     {
         this.index = 1 << ordinal();
     }

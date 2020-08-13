@@ -52,7 +52,7 @@ enum TokenType
     NUMBER,
 
     /**
-     * EOF of Path document.
+     * path结束
      */
     END_DOCUMENT
 }

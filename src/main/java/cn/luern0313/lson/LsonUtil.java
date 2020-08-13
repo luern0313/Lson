@@ -334,7 +334,7 @@ public class LsonUtil
                                 return list;
                     }
                 }
-                else if(json instanceof LsonObjectUtil)
+                else
                 {
                     return LsonUtil.fromJson((LsonObjectUtil) rootJson, c, t, paths);
                 }
@@ -377,16 +377,22 @@ public class LsonUtil
         return null;
     }
 
+    private static Object getJsonObjectData(Object json)
+    {
+        while (json instanceof LsonArrayUtil)
+        {
+            if(((LsonArrayUtil) json).size() > 0)
+                json = ((LsonArrayUtil) json).get(0);
+        }
+        return json;
+    }
+
     private static Object getJsonPrimitiveData(Class<?> c, Object json)
     {
         while (json instanceof LsonArrayUtil)
         {
-            if(((LsonArrayUtil) json).size() > 0 && ((LsonArrayUtil) json).get(0) instanceof LsonPrimitiveUtil)
+            if(((LsonArrayUtil) json).size() > 0)
                 json = ((LsonArrayUtil) json).get(0);
-            else if(((LsonArrayUtil) json).size() > 0 && ((LsonArrayUtil) json).get(0) instanceof LsonArrayUtil)
-                json = ((LsonArrayUtil) json).getAsJsonArray(0);
-            else
-                break;
         }
         if(json instanceof LsonPrimitiveUtil)
             return getJsonPrimitiveData(c, (LsonPrimitiveUtil) json);

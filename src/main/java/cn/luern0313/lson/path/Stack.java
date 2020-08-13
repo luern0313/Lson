@@ -1,5 +1,7 @@
 package cn.luern0313.lson.path;
 
+import cn.luern0313.lson.exception.PathParseException;
+
 /**
  * 被 luern0313 创建于 2020/8/10.
  */
@@ -25,7 +27,7 @@ class Stack
     {
         if(pos == SIZE)
         {
-            throw new StackOverflowError("Maximum depth reached when parse JSON string.");
+            throw new PathParseException("Maximum depth reached.");
         }
         array[pos] = obj;
         pos++;
@@ -53,7 +55,7 @@ class Stack
         {
             return obj;
         }
-        throw new PathParseException("Unmatched object or array.");
+        throw new PathParseException("Unmatched type.");
     }
 
     Class<?> getTopValueClass()
@@ -79,6 +81,6 @@ class Stack
         {
             return obj;
         }
-        throw new PathParseException("Unmatched object or array.");
+        throw new PathParseException("Unmatched type.");
     }
 }

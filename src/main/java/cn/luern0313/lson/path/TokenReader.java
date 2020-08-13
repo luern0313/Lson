@@ -1,5 +1,6 @@
 package cn.luern0313.lson.path;
 
+import cn.luern0313.lson.exception.PathParseException;
 import cn.luern0313.lson.util.DataProcessUtil;
 
 /**
@@ -57,8 +58,6 @@ class TokenReader
             case ']':
                 reader.next(); // skip
                 return TokenType.EXPRESSION_END;
-            case '\'':
-                return TokenType.STRING;
             case '-':
                 return TokenType.NUMBER;
         }
@@ -66,12 +65,11 @@ class TokenReader
             return TokenType.NUMBER;
         else
             return TokenType.STRING;
-        //throw new PathParseException("Parse error when try to guess next token.", reader.readed);
     }
 
-    String readString()
+    String readString(boolean isRemoveQuotationMarks)
     {
-        Character[] safeChar = new Character[]{'.', ',', ':', '[', ']', '(', ')', '*', '-', '<', '>', '?', '@', '$', '\'', '"', '~', '=', '!', '/'};
+        Character[] safeChar = new Character[]{'.', ',', ':', '[', ']', '(', ')', '*', '-', '<', '>', '?', '@', '$', '~', '=', '!', '/'};
         StringBuilder sb = new StringBuilder(16);
         char ch;
         while (reader.hasMore())
@@ -85,6 +83,15 @@ class TokenReader
                 sb.append(ch);
             }
         }
+
+        if(isRemoveQuotationMarks)
+        {
+            if((sb.charAt(0) == '\'' && sb.charAt(sb.length() - 1) == '\'') || (sb.charAt(0) == '"' && sb.charAt(sb.length() - 1) == '"'))
+            {
+                sb.deleteCharAt(0);
+                sb.deleteCharAt(sb.length() - 1);
+            }
+        }
         return sb.toString();
     }
 
@@ -96,7 +103,6 @@ class TokenReader
         StringBuilder intPart = null;
         char ch = reader.peek();
         boolean minusSign = ch == '-';
-        boolean expMinusSign = false;
         if(minusSign)
         {
             reader.next();
@@ -136,8 +142,6 @@ class TokenReader
         }
     }
 
-
-    // parse "0123" as 123:
     long string2Long(CharSequence cs, int readed)
     {
         if(cs.length() > 16)
