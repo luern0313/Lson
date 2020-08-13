@@ -32,9 +32,19 @@ public class LsonObjectUtil
         return jsonObject.has(key);
     }
 
-    public JsonElement get(String key)
+    public Object get(String key)
     {
-        return jsonObject.get(key);
+        JsonElement jsonElement = jsonObject.get(key);
+        if(jsonElement != null)
+        {
+            if(jsonElement.isJsonObject())
+                return new LsonObjectUtil(jsonElement);
+            else if(jsonElement.isJsonArray())
+                return new LsonArrayUtil(jsonElement);
+            else if(jsonElement.isJsonPrimitive())
+                return new LsonPrimitiveUtil(jsonElement);
+        }
+        return new LsonNullUtil();
     }
 
     public String[] getKeys()
@@ -102,5 +112,11 @@ public class LsonObjectUtil
     public JsonObject getJsonObject()
     {
         return jsonObject;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "LsonObjectUtil{" + "jsonObject=" + jsonObject + '}';
     }
 }

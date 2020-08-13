@@ -1,9 +1,7 @@
 package cn.luern0313.lson.util;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Locale;
 
 
@@ -42,6 +40,16 @@ public class DataProcessUtil
 
         if(hour.equals("00")) return min + ":" + sec;
         else return hour + ":" + min + ":" + sec;
+    }
+
+    public static <T> int getIndex(T object, T[] array)
+    {
+        for (int i = 0; i < array.length; i++)
+        {
+            if(object == array[i] || object.equals(array[i]))
+                return i;
+        }
+        return -1;
     }
 
     /**

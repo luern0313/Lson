@@ -33,9 +33,19 @@ public class LsonArrayUtil
         return jsonArray.size();
     }
 
-    public JsonElement get(int key)
+    public Object get(int index)
     {
-        return jsonArray.get(key);
+        if(index >= 0 && index < jsonArray.size())
+        {
+            JsonElement jsonElement = jsonArray.get(index);
+            if(jsonElement.isJsonObject())
+                return new LsonObjectUtil(jsonElement);
+            else if(jsonElement.isJsonArray())
+                return new LsonArrayUtil(jsonElement);
+            else if(jsonElement.isJsonPrimitive())
+                return new LsonPrimitiveUtil(jsonElement);
+        }
+        return null;
     }
 
     public boolean getAsBoolean(int key)
@@ -95,8 +105,26 @@ public class LsonArrayUtil
             return new LsonObjectUtil(jsonElement.getAsJsonObject());
     }
 
+    public void add(Object object)
+    {
+        if(object instanceof LsonObjectUtil)
+            jsonArray.add(((LsonObjectUtil) object).getJsonObject());
+        else if(object instanceof LsonArrayUtil)
+            jsonArray.add(((LsonArrayUtil) object).getJsonArray());
+        else if(object instanceof LsonPrimitiveUtil)
+            jsonArray.add(((LsonPrimitiveUtil) object).getJsonElement());
+        else
+            jsonArray.add(JsonNull.INSTANCE);
+    }
+
     public JsonArray getJsonArray()
     {
         return jsonArray;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "LsonArrayUtil{" + "jsonArray=" + jsonArray + '}';
     }
 }
