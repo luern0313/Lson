@@ -16,6 +16,7 @@ import java.util.Map;
 import cn.luern0313.lson.annotation.LsonAddPrefix;
 import cn.luern0313.lson.annotation.LsonAddSuffix;
 import cn.luern0313.lson.annotation.LsonDateFormat;
+import cn.luern0313.lson.annotation.LsonNumberFormat;
 import cn.luern0313.lson.annotation.LsonPath;
 import cn.luern0313.lson.annotation.LsonReplaceAll;
 import cn.luern0313.lson.path.PathParser;
@@ -52,6 +53,7 @@ public class LsonUtil
         add(LsonAddPrefix.class.getName());
         add(LsonAddSuffix.class.getName());
         add(LsonDateFormat.class.getName());
+        add(LsonNumberFormat.class.getName());
         add(LsonReplaceAll.class.getName());
     }};
 
@@ -108,37 +110,40 @@ public class LsonUtil
                         for (Annotation annotation : annotations)
                         {
                             LsonDefinedAnnotation lsonDefinedAnnotation = annotation.annotationType().getAnnotation(LsonDefinedAnnotation.class);
-                            if(lsonDefinedAnnotation != null)
+                            if(lsonDefinedAnnotation != null && !annotation.annotationType().getName().equals(LsonPath.class.getName()))
                             {
                                 if(isArrayTypeClass(value.getClass()) && !lsonDefinedAnnotation.isIgnoreArray())
                                 {
                                     for (int i = 0; i < ((Object[]) value).length; i++)
                                     {
-                                        if(BUILT_IN_ANNOTATION.contains(annotation.getClass().getName()))
-                                            ((Object[]) value)[i] = handleBuiltInAnnotation(((Object[]) value)[i], annotation);
+                                        if(BUILT_IN_ANNOTATION.contains(annotation.annotationType().getName()))
+                                            ((Object[]) value)[i] = handleBuiltInAnnotation(((Object[]) value)[i], annotation, field);
                                         else if(lsonAnnotationListener != null)
-                                            ((Object[]) value)[i] = lsonAnnotationListener.handleAnnotation(((Object[]) value)[i], annotation);
+                                            ((Object[]) value)[i] = lsonAnnotationListener.handleAnnotation(((Object[]) value)[i], annotation, field);
                                     }
                                 }
                                 else if(isListTypeClass(value.getClass()) && !lsonDefinedAnnotation.isIgnoreArray())
                                 {
                                     for (int i = 0; i < ((List<Object>) value).size(); i++)
                                     {
-                                        if(BUILT_IN_ANNOTATION.contains(annotation.getClass().getName()))
-                                            ((List<Object>) value).set(i, handleBuiltInAnnotation(((List<Object>) value).get(i), annotation));
+                                        if(BUILT_IN_ANNOTATION.contains(annotation.annotationType().getName()))
+                                            ((List<Object>) value).set(i, handleBuiltInAnnotation(((List<Object>) value).get(i), annotation, field));
                                         else if(lsonAnnotationListener != null)
-                                            ((List<Object>) value).set(i, lsonAnnotationListener.handleAnnotation(((List<Object>) value).get(i), annotation));
+                                            ((List<Object>) value).set(i, lsonAnnotationListener.handleAnnotation(((List<Object>) value).get(i), annotation, field));
                                     }
                                 }
                                 else
                                 {
-                                    if(BUILT_IN_ANNOTATION.contains(annotation.getClass().getName()))
-                                        value = handleBuiltInAnnotation(value, annotation);
+                                    if(BUILT_IN_ANNOTATION.contains(annotation.annotationType().getName()))
+                                        value = handleBuiltInAnnotation(value, annotation, field);
                                     else if(lsonAnnotationListener != null)
-                                        value = lsonAnnotationListener.handleAnnotation(value, annotation);
+                                        value = lsonAnnotationListener.handleAnnotation(value, annotation,field);
                                 }
                             }
                         }
+
+                        if(value instanceof Double)
+                            value = doubleNumberHandle(value, field);
 
                         field.setAccessible(true);
                         field.set(t, value);
@@ -359,32 +364,25 @@ public class LsonUtil
         return object;
     }
 
-    private static Object handleBuiltInAnnotation(Object value, Annotation annotation)
+    private static Object handleBuiltInAnnotation(Object value, Annotation annotation, Field field)
     {
-        if(LsonDateFormat.class.getName().equals(annotation.getClass().getName()))
+        if(LsonDateFormat.class.getName().equals(annotation.annotationType().getName()))
             return DataProcessUtil.getTime(Integer.parseInt((String) value), ((LsonDateFormat) annotation).value());
-        else if(LsonAddPrefix.class.getName().equals(annotation.getClass().getName()))
+        else if(LsonAddPrefix.class.getName().equals(annotation.annotationType().getName()))
             return ((LsonAddPrefix) annotation).value() + value;
-        else if(LsonAddSuffix.class.getName().equals(annotation.getClass().getName()))
+        else if(LsonAddSuffix.class.getName().equals(annotation.annotationType().getName()))
             return value + ((LsonAddSuffix) annotation).value();
-        else if(LsonReplaceAll.class.getName().equals(annotation.getClass().getName()))
+        else if(LsonNumberFormat.class.getName().equals(annotation.annotationType().getName()))
+            return DataProcessUtil.getNumberFormat(value, ((LsonNumberFormat) annotation).digit(), ((LsonNumberFormat) annotation).mode(), field.getType());
+        else if(LsonReplaceAll.class.getName().equals(annotation.annotationType().getName()))
         {
             String[] regexArray = ((LsonReplaceAll) annotation).regex();
             String[] replacementArray = ((LsonReplaceAll) annotation).replacement();
             for (int i = 0; i < regexArray.length; i++)
                 value = ((String) value).replaceAll(regexArray[i], replacementArray[i]);
+            return value;
         }
-        return null;
-    }
-
-    private static Object getJsonObjectData(Object json)
-    {
-        while (json instanceof LsonArrayUtil)
-        {
-            if(((LsonArrayUtil) json).size() > 0)
-                json = ((LsonArrayUtil) json).get(0);
-        }
-        return json;
+        return value;
     }
 
     private static Object getJsonPrimitiveData(Class<?> c, Object json)
@@ -407,26 +405,33 @@ public class LsonUtil
             return jsonPrimitive.getAsString();
         else if(jsonPrimitive.isNumber())
         {
-            switch (c.getName())
+            return jsonPrimitive.getAsDouble();
+
+        }
+        return null;
+    }
+
+    private static Object doubleNumberHandle(Object number, Field field)
+    {
+        if(number instanceof Double)
+        {
+            switch (field.getType().getName())
             {
                 case "int":
                 case "java.lang.Integer":
-                    return jsonPrimitive.getAsInt();
+                    return ((Double) number).intValue();
                 case "short":
                 case "java.lang.Short":
-                    return jsonPrimitive.getAsShort();
+                    return ((Double) number).shortValue();
                 case "long":
                 case "java.lang.Long":
-                    return jsonPrimitive.getAsLong();
+                    return ((Double) number).longValue();
                 case "float":
                 case "java.lang.Float":
-                    return jsonPrimitive.getAsFloat();
-                case "double":
-                case "java.lang.Double":
-                    return jsonPrimitive.getAsDouble();
+                    return ((Double) number).floatValue();
             }
         }
-        return null;
+        return number;
     }
 
     /**
@@ -494,10 +499,11 @@ public class LsonUtil
          *
          * @param value 处理前的值。
          * @param annotation 开发者自定义的注解实例。
+         * @param field 要填充数据的目标变量，你可以获取该变量的类型等。
          * @return 处理完成的值。
          *
          * @author luern0313
          */
-        Object handleAnnotation(Object value, Annotation annotation);
+        Object handleAnnotation(Object value, Annotation annotation, Field field);
     }
 }
