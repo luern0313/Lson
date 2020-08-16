@@ -58,6 +58,18 @@ class TokenReader
             case ']':
                 reader.next(); // skip
                 return TokenType.EXPRESSION_END;
+            case '*':
+                reader.next();
+                return TokenType.SYNTAX_ASTERISK;
+            case '?':
+                if(reader.peek() == '(')
+                {
+                    reader.next();
+                    return TokenType.FILTER_START;
+                }
+            case ')':
+                reader.next();
+                return TokenType.FILTER_END;
             case '-':
                 return TokenType.NUMBER;
         }

@@ -42,6 +42,21 @@ enum TokenType
     EXPRESSION_END,
 
     /**
+     * 过滤器开始符: ?(
+     */
+    FILTER_START,
+
+    /**
+     * 过滤器结束符: )
+     */
+    FILTER_END,
+
+    /**
+     * 星号: *
+     */
+    SYNTAX_ASTERISK,
+
+    /**
      * 字符串: "xxx"
      */
     STRING,

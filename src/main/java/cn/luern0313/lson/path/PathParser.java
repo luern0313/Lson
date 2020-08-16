@@ -46,9 +46,12 @@ public class PathParser
                 case JSON_ROOT:
                     if(hasStatus(status, STATUS_EXPECT_JSON_ROOT.index))
                     {
-                        pathArrayList.add(new PathType.PathJsonRoot());
-                        status = STATUS_EXPECT_POINT.index | STATUS_EXPECT_EXPRESSION_START.index | STATUS_EXPECT_END_DOCUMENT.index;
-                        continue;
+                        if(stack.getTopValueType() != StackValue.TYPE_FILTER)
+                        {
+                            pathArrayList.add(new PathType.PathJsonRoot());
+                            status = STATUS_EXPECT_POINT.index | STATUS_EXPECT_EXPRESSION_START.index | STATUS_EXPECT_END_DOCUMENT.index;
+                            continue;
+                        }
                     }
                     throw new PathParseException("Unexpected $", reader.reader.readed);
                 case SPLIT_POINT:
@@ -69,7 +72,7 @@ public class PathParser
                     else if(hasStatus(status, STATUS_EXPECT_PATH_EXPRESSION.index))
                     {
                         String path = reader.readString(true);
-                        stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().mode = StackValue.Expression.MODE_PATH;
+                        stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().mode = StackValue.Expression.ExpressionMode.PATH;
                         stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().path = path;
                         status = STATUS_EXPECT_EXPRESSION_END.index;
                         continue;
@@ -79,7 +82,7 @@ public class PathParser
                     if(hasStatus(status, STATUS_EXPECT_EXPRESSION_START.index))
                     {
                         stack.push(StackValue.newExpression());
-                        status = STATUS_EXPECT_NUMBER.index | STATUS_EXPECT_COLON.index | STATUS_EXPECT_PATH_EXPRESSION.index;
+                        status = STATUS_EXPECT_NUMBER.index | STATUS_EXPECT_COLON.index | STATUS_EXPECT_PATH_EXPRESSION.index | STATUS_EXPECT_SYNTAX_ASTERISK.index;
                         continue;
                     }
                     throw new PathParseException("Unexpected [", reader.reader.readed);
@@ -96,7 +99,7 @@ public class PathParser
                 case SPLIT_COLON: // :
                     if(hasStatus(status, STATUS_EXPECT_COLON.index))
                     {
-                        stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().mode = StackValue.Expression.MODE_INDEX;
+                        stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().mode = StackValue.Expression.ExpressionMode.INDEX;
                         if(stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().isJustColon)
                             stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().index.add(Integer.MIN_VALUE);
                         else
@@ -108,42 +111,69 @@ public class PathParser
                 case SPLIT_COMMA: // ,
                     if(hasStatus(status, STATUS_EXPECT_COMMA.index))
                     {
-                        if(stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().mode == StackValue.Expression.MODE_INDEX_ARRAY)
+                        if(stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().mode == StackValue.Expression.ExpressionMode.INDEX_ARRAY)
                         {
                             status = STATUS_EXPECT_NUMBER.index;
                             continue;
                         }
                     }
                     throw new PathParseException("Unexpected ,", reader.reader.readed);
+                case SYNTAX_ASTERISK: // *
+                    if(hasStatus(status, STATUS_EXPECT_SYNTAX_ASTERISK.index))
+                    {
+                        stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().index.add(0);
+                        stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().index.add(Integer.MAX_VALUE);
+                        stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().mode = StackValue.Expression.ExpressionMode.INDEX;
+                        status = STATUS_EXPECT_EXPRESSION_END.index;
+                        continue;
+                    }
+                case FILTER_START:
+                    if(hasStatus(status, STATUS_EXPECT_FILTER_START.index))
+                    {
+                        stack.push(StackValue.newFilter());
+                        status = STATUS_EXPECT_JSON_ROOT.index | STATUS_EXPECT_JSON_CURRENT.index | STATUS_EXPECT_PATH_POINT.index | STATUS_EXPECT_EXPRESSION_START.index;
+                        continue;
+                    }
+                case FILTER_END:
+                    if(hasStatus(status, STATUS_EXPECT_FILTER_END.index))
+                    {
+                        if(stack.getTopValueType() == StackValue.TYPE_FILTER)
+                        {
+
+                        }
+                    }
                 case EXPRESSION_END:
                     if(hasStatus(status, STATUS_EXPECT_EXPRESSION_END.index))
                     {
-                        StackValue.Expression expression = stack.pop(StackValue.TYPE_EXPRESSION).valueAsExpression();
-                        status = STATUS_EXPECT_POINT.index | STATUS_EXPECT_EXPRESSION_START.index | STATUS_EXPECT_END_DOCUMENT.index;
-                        if(expression.mode == StackValue.Expression.MODE_INDEX)
+                        if(stack.getTopValueType() == StackValue.TYPE_EXPRESSION)
                         {
-                            switch (expression.index.size())
+                            StackValue.Expression expression = stack.pop(StackValue.TYPE_EXPRESSION).valueAsExpression();
+                            status = STATUS_EXPECT_POINT.index | STATUS_EXPECT_EXPRESSION_START.index | STATUS_EXPECT_END_DOCUMENT.index;
+                            if(expression.mode == StackValue.Expression.ExpressionMode.INDEX)
                             {
-                                case 3:
-                                    pathArrayList.add(new PathType.PathIndex(expression.index.get(0), expression.index.get(1), expression.index.get(2)));
-                                    continue;
-                                case 2:
-                                    pathArrayList.add(new PathType.PathIndex(expression.index.get(0), expression.index.get(1)));
-                                    continue;
-                                case 1:
-                                    pathArrayList.add(new PathType.PathIndex(expression.index.get(0)));
-                                    continue;
+                                switch (expression.index.size())
+                                {
+                                    case 3:
+                                        pathArrayList.add(new PathType.PathIndex(expression.index.get(0), expression.index.get(1), expression.index.get(2)));
+                                        continue;
+                                    case 2:
+                                        pathArrayList.add(new PathType.PathIndex(expression.index.get(0), expression.index.get(1)));
+                                        continue;
+                                    case 1:
+                                        pathArrayList.add(new PathType.PathIndex(expression.index.get(0)));
+                                        continue;
+                                }
                             }
-                        }
-                        else if(expression.mode == StackValue.Expression.MODE_INDEX_ARRAY)
-                        {
-                            pathArrayList.add(new PathType.PathIndexArray(expression.index));
-                            continue;
-                        }
-                        else if(expression.mode == StackValue.Expression.MODE_PATH)
-                        {
-                            pathArrayList.add(new PathType.PathPath(expression.path));
-                            continue;
+                            else if(expression.mode == StackValue.Expression.ExpressionMode.INDEX_ARRAY)
+                            {
+                                pathArrayList.add(new PathType.PathIndexArray(expression.index));
+                                continue;
+                            }
+                            else if(expression.mode == StackValue.Expression.ExpressionMode.PATH)
+                            {
+                                pathArrayList.add(new PathType.PathPath(expression.path));
+                                continue;
+                            }
                         }
                     }
                     throw new PathParseException("Unexpected ]", reader.reader.readed);

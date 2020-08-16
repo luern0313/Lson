@@ -79,30 +79,10 @@ public class DataProcessUtil
         }
     }
 
-    public static Object getNumberFormat(Object value, int digit, LsonNumberFormat.NumberFormatMode mode, Class<?> fieldClass)
+    public static Object getNumberFormat(Object value, int digit, LsonNumberFormat.NumberFormatMode mode)
     {
         BigDecimal bigDecimal = new BigDecimal(String.valueOf(value));
         bigDecimal = bigDecimal.setScale(digit, LsonNumberFormat.NumberFormatMode.modeIntegerMap.get(mode));
-        switch (fieldClass.getName())
-        {
-            case "java.lang.String":
-                return bigDecimal.toPlainString();
-            case "int":
-            case "java.lang.Integer":
-                return bigDecimal.intValue();
-            case "short":
-            case "java.lang.Short":
-                return bigDecimal.shortValue();
-            case "long":
-            case "java.lang.Long":
-                return bigDecimal.longValue();
-            case "float":
-            case "java.lang.Float":
-                return bigDecimal.floatValue();
-            case "double":
-            case "java.lang.Double":
-                return bigDecimal.doubleValue();
-        }
-        return value;
+        return bigDecimal.doubleValue();
     }
 }

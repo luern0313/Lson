@@ -66,8 +66,12 @@ class Stack
 
     int getTopValueType()
     {
-        StackValue obj = array[pos - 1];
-        return obj.type;
+        if(array.length > 0)
+        {
+            StackValue obj = array[pos - 1];
+            return obj.type;
+        }
+        return -1;
     }
 
     StackValue peek(int type)

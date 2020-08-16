@@ -9,6 +9,7 @@ import java.util.ArrayList;
 class StackValue
 {
     static final int TYPE_EXPRESSION = 0;
+    static final int TYPE_FILTER = 1;
 
     final int type;
     final Object value;
@@ -22,6 +23,11 @@ class StackValue
     static StackValue newExpression()
     {
         return new StackValue(TYPE_EXPRESSION, new Expression());
+    }
+
+    static StackValue newFilter()
+    {
+        return new StackValue(TYPE_FILTER, new Filter());
     }
 
     String valueAsString()
@@ -45,16 +51,57 @@ class StackValue
         return (Expression) value;
     }
 
+    Filter valueAsFilter()
+    {
+        return (Filter) value;
+    }
+
     static class Expression
     {
-        static final int MODE_INDEX_ARRAY = 0;
-        static final int MODE_INDEX = 1;
-        static final int MODE_PATH = 2;
-
-        int mode = MODE_INDEX_ARRAY;
+        ExpressionMode mode = ExpressionMode.INDEX_ARRAY;
 
         ArrayList<Integer> index = new ArrayList<>();
         boolean isJustColon = true;
         String path;
+
+        enum ExpressionMode
+        {
+            INDEX_ARRAY,
+            INDEX,
+            PATH
+        }
+    }
+
+    static class Filter
+    {
+        FilterComparator comparator = FilterComparator.EXISTENCE;
+        FilterPart left;
+        FilterPart right;
+
+        enum FilterComparator
+        {
+            EXISTENCE,
+            EQUAL,
+            NOT_EQUAL,
+            LESS,
+            LESS_EQUAL,
+            GREATER,
+            GREATER_EQUAL,
+            REGULAR,
+            IN,
+            NOT_IN;
+        }
+
+        static class FilterPart
+        {
+            FilterPartMode mode = FilterPartMode.PATH;
+            ArrayList<Object> part;
+
+            enum FilterPartMode
+            {
+                PATH,
+                ARRAY;
+            }
+        }
     }
 }
