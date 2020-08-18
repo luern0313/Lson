@@ -74,6 +74,7 @@ class StackValue
 
     static class Filter
     {
+
         FilterComparator comparator = FilterComparator.EXISTENCE;
         FilterPart left;
         FilterPart right;

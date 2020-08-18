@@ -66,7 +66,7 @@ class Stack
 
     int getTopValueType()
     {
-        if(array.length > 0)
+        if(pos > 0)
         {
             StackValue obj = array[pos - 1];
             return obj.type;

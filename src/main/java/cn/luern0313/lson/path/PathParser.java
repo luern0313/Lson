@@ -52,6 +52,10 @@ public class PathParser
                             status = STATUS_EXPECT_POINT.index | STATUS_EXPECT_EXPRESSION_START.index | STATUS_EXPECT_END_DOCUMENT.index;
                             continue;
                         }
+                        else
+                        {
+                            //stack.peek(StackValue.TYPE_FILTER).valueAsFilter().
+                        }
                     }
                     throw new PathParseException("Unexpected $", reader.reader.readed);
                 case SPLIT_POINT:
