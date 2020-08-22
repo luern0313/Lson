@@ -36,7 +36,7 @@ public class LsonPrimitiveUtil
 
     public boolean isString()
     {
-        return jsonPrimitive.isBoolean();
+        return jsonPrimitive.isString();
     }
 
     public String getAsString()

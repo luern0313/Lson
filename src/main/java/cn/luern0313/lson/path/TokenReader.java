@@ -62,6 +62,7 @@ class TokenReader
                 reader.next();
                 return TokenType.SYNTAX_ASTERISK;
             case '?':
+                reader.next();
                 if(reader.peek() == '(')
                 {
                     reader.next();
@@ -73,8 +74,11 @@ class TokenReader
             case '-':
                 return TokenType.NUMBER;
         }
+        Character[] comparison = new Character[]{'=', '<', '>', '!'};
         if(ch >= '0' && ch <= '9')
             return TokenType.NUMBER;
+        else if(DataProcessUtil.getIndex(ch, comparison) > -1)
+            return TokenType.FILTER_COMPARISON;
         else
             return TokenType.STRING;
     }
@@ -107,6 +111,41 @@ class TokenReader
         return sb.toString();
     }
 
+    PathType.PathFilter.FilterComparator readComparator()
+    {
+        char ch = reader.next();
+        switch (ch)
+        {
+            case '<':
+                if(reader.peek() == '=')
+                {
+                    reader.next();
+                    return PathType.PathFilter.FilterComparator.LESS_EQUAL;
+                }
+                return PathType.PathFilter.FilterComparator.LESS;
+            case '>':
+                if(reader.peek() == '=')
+                {
+                    reader.next();
+                    return PathType.PathFilter.FilterComparator.GREATER_EQUAL;
+                }
+                return PathType.PathFilter.FilterComparator.GREATER;
+            case '=':
+                if(reader.peek() == '=')
+                {
+                    reader.next();
+                    return PathType.PathFilter.FilterComparator.EQUAL;
+                }
+            case '!':
+                if(reader.peek() == '=')
+                {
+                    reader.next();
+                    return PathType.PathFilter.FilterComparator.NOT_EQUAL;
+                }
+        }
+        throw new PathParseException("Unexpected char: " + reader.next(), reader.readed);
+    }
+
     static final int READ_NUMBER_INT_PART = 0;
     static final int READ_NUMBER_END = 1;
 
@@ -116,9 +155,7 @@ class TokenReader
         char ch = reader.peek();
         boolean minusSign = ch == '-';
         if(minusSign)
-        {
             reader.next();
-        }
         int status = READ_NUMBER_INT_PART;
         while (true)
         {

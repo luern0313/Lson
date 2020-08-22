@@ -52,6 +52,11 @@ enum TokenType
     FILTER_END,
 
     /**
+     * 比较符
+     */
+    FILTER_COMPARISON,
+
+    /**
      * 星号: *
      */
     SYNTAX_ASTERISK,

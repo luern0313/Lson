@@ -2,22 +2,35 @@ package cn.luern0313.lson.path;
 
 import java.util.ArrayList;
 
+import cn.luern0313.lson.exception.PathParseException;
+
 /**
  * 被 luern0313 创建于 2020/8/10.
  */
 
 class StackValue
 {
-    static final int TYPE_EXPRESSION = 0;
-    static final int TYPE_FILTER = 1;
+    static final int TYPE_BASE_PATH = 0;
+    static final int TYPE_EXPRESSION = 1;
+    static final int TYPE_FILTER = 2;
 
     final int type;
-    final Object value;
+    final StackValueObject value;
 
-    private StackValue(int type, Object value)
+    private StackValue(int type, StackValueObject value)
     {
         this.type = type;
         this.value = value;
+    }
+
+    public void add(Object path)
+    {
+        value.add(path);
+    }
+
+    static StackValue newBasePath()
+    {
+        return new StackValue(TYPE_BASE_PATH, new BasePath());
     }
 
     static StackValue newExpression()
@@ -30,20 +43,9 @@ class StackValue
         return new StackValue(TYPE_FILTER, new Filter());
     }
 
-    String valueAsString()
+    BasePath valueAsBasePath()
     {
-        return (String) value;
-    }
-
-    int valueAsInt()
-    {
-        return (int) value;
-    }
-
-    @SuppressWarnings("unchecked")
-    ArrayList<Object> valueAsList()
-    {
-        return (ArrayList<Object>) value;
+        return (BasePath) value;
     }
 
     Expression valueAsExpression()
@@ -56,52 +58,81 @@ class StackValue
         return (Filter) value;
     }
 
-    static class Expression
+    static abstract class StackValueObject
+    {
+        abstract void add(Object path);
+    }
+
+    static class BasePath extends StackValueObject
+    {
+        ArrayList<Object> paths = new ArrayList<>();
+
+        @Override
+        void add(Object path)
+        {
+            paths.add(path);
+        }
+    }
+
+    static class Expression extends StackValueObject
     {
         ExpressionMode mode = ExpressionMode.INDEX_ARRAY;
 
         ArrayList<Integer> index = new ArrayList<>();
         boolean isJustColon = true;
         String path;
+        Filter filter;
+
+        @Override
+        void add(Object path)
+        {
+            index.add((Integer) path);
+        }
 
         enum ExpressionMode
         {
             INDEX_ARRAY,
             INDEX,
-            PATH
+            PATH,
+            FILTER;
         }
     }
 
-    static class Filter
+    static class Filter extends StackValueObject
     {
+        int index = 0;
+        PathType.PathFilter.FilterComparator comparator = PathType.PathFilter.FilterComparator.EXISTENCE;
+        FilterPart left = new FilterPart();
+        FilterPart right = new FilterPart();
 
-        FilterComparator comparator = FilterComparator.EXISTENCE;
-        FilterPart left;
-        FilterPart right;
-
-        enum FilterComparator
+        @Override
+        void add(Object path)
         {
-            EXISTENCE,
-            EQUAL,
-            NOT_EQUAL,
-            LESS,
-            LESS_EQUAL,
-            GREATER,
-            GREATER_EQUAL,
-            REGULAR,
-            IN,
-            NOT_IN;
+            if(index == 0)
+                left.part.add(path);
+            else
+                right.part.add(path);
+        }
+
+        FilterPart getCurrentPart()
+        {
+            if(index == 0)
+                return left;
+            else
+                return right;
         }
 
         static class FilterPart
         {
-            FilterPartMode mode = FilterPartMode.PATH;
-            ArrayList<Object> part;
+            PathType.PathFilter.PathFilterPart.FilterPartMode mode = PathType.PathFilter.PathFilterPart.FilterPartMode.UNSPECIFIED;
+            ArrayList<Object> part = new ArrayList<>();
 
-            enum FilterPartMode
+            void changeMode(PathType.PathFilter.PathFilterPart.FilterPartMode filterPartMode)
             {
-                PATH,
-                ARRAY;
+                if(mode == PathType.PathFilter.PathFilterPart.FilterPartMode.UNSPECIFIED)
+                    mode = filterPartMode;
+                else
+                    throw new PathParseException("Unexpected filter mode");
             }
         }
     }

@@ -1,5 +1,7 @@
 package cn.luern0313.lson.path;
 
+import java.util.Arrays;
+
 import cn.luern0313.lson.exception.PathParseException;
 
 /**
@@ -66,7 +68,7 @@ class Stack
 
     int getTopValueType()
     {
-        if(pos > 0)
+        if(!isEmpty())
         {
             StackValue obj = array[pos - 1];
             return obj.type;
@@ -74,17 +76,28 @@ class Stack
         return -1;
     }
 
+    StackValue peek()
+    {
+        if(isEmpty())
+            return null;
+        return array[pos - 1];
+    }
+
     StackValue peek(int type)
     {
         if(isEmpty())
-        {
-            throw new PathParseException();
-        }
+            return null;
         StackValue obj = array[pos - 1];
         if(obj.type == type)
         {
             return obj;
         }
         throw new PathParseException("Unmatched type.");
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Stack{" + "SIZE=" + SIZE + ", array=" + Arrays.toString(array) + ", pos=" + pos + '}';
     }
 }

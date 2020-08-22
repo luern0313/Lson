@@ -17,6 +17,15 @@ public class PathType
         }
     }
 
+    public static class PathJsonCurrent
+    {
+        @Override
+        public String toString()
+        {
+            return "PathJsonCurrent{}";
+        }
+    }
+
     public static class PathIndex
     {
         private static final int DEF_START = 0;
@@ -90,4 +99,63 @@ public class PathType
         }
     }
 
+    public static class PathFilter
+    {
+        public FilterComparator comparator;
+        public PathFilterPart left;
+        public PathFilterPart right;
+
+        public PathFilter(StackValue.Filter filter)
+        {
+            this.comparator = filter.comparator;
+            this.left = new PathFilterPart(filter.left.mode, filter.left.part);
+            this.right = new PathFilterPart(filter.right.mode, filter.right.part);
+        }
+
+        public enum FilterComparator
+        {
+            EXISTENCE,
+            EQUAL,
+            NOT_EQUAL,
+            LESS,
+            LESS_EQUAL,
+            GREATER,
+            GREATER_EQUAL,
+            REGULAR,
+            IN,
+            NOT_IN;
+        }
+
+        public static class PathFilterPart
+        {
+            public FilterPartMode mode;
+            public ArrayList<Object> part;
+
+            public PathFilterPart(FilterPartMode mode, ArrayList<Object> part)
+            {
+                this.mode = mode;
+                this.part = part;
+            }
+
+            public enum FilterPartMode
+            {
+                UNSPECIFIED,
+                PATH,
+                ARRAY,
+                SINGLE;
+            }
+
+            @Override
+            public String toString()
+            {
+                return "PathFilterPart{" + "mode=" + mode + ", part=" + part.size() + '}';
+            }
+        }
+
+        @Override
+        public String toString()
+        {
+            return "PathFilter{" + "comparator=" + comparator + ", left=" + left + ", right=" + right + '}';
+        }
+    }
 }
