@@ -146,65 +146,32 @@ class TokenReader
         throw new PathParseException("Unexpected char: " + reader.next(), reader.readed);
     }
 
-    static final int READ_NUMBER_INT_PART = 0;
-    static final int READ_NUMBER_END = 1;
-
     Number readNumber()
     {
-        StringBuilder intPart = null;
-        char ch = reader.peek();
-        boolean minusSign = ch == '-';
-        if(minusSign)
-            reader.next();
-        int status = READ_NUMBER_INT_PART;
-        while (true)
+        StringBuilder sb = new StringBuilder();
+        char ch;
+
+        while (reader.hasMore())
         {
-            if(reader.hasMore())
-                ch = reader.peek();
-            else
-                status = READ_NUMBER_END;
-            switch (status)
+            ch = reader.peek();
+            if((ch >= '0' && ch <= '9') || ch == '-' || ch == '.')
             {
-                case READ_NUMBER_INT_PART:
-                    if(ch >= '0' && ch <= '9')
-                    {
-                        if(intPart == null)
-                            intPart = new StringBuilder(10);
-                        intPart.append(reader.next());
-                    }
-                    else
-                    {
-                        if(intPart == null)
-                            throw new PathParseException("Unexpected char: " + reader.next(), reader.readed);
-                        status = READ_NUMBER_END;
-                    }
-                    continue;
-                case READ_NUMBER_END:
-                    int readed = reader.readed;
-                    if(intPart == null)
-                        throw new PathParseException("Missing integer part of number.", readed);
-                    long lInt = minusSign ? -string2Long(intPart, readed) : string2Long(intPart, readed);
-                    if((double) lInt > MAX_SAFE_DOUBLE)
-                        throw new NumberFormatException("Exceeded maximum value: 1.7976931348623157e+308");
-                    return (double) lInt;
+                reader.next();
+                sb.append(ch);
             }
+            else
+                break;
         }
-    }
 
-    long string2Long(CharSequence cs, int readed)
-    {
-        if(cs.length() > 16)
-            throw new PathParseException("Number string is too long.", readed);
-        long n = 0;
-        for (int i = 0; i < cs.length(); i++)
+        String number = sb.toString();
+        if(number.contains("."))
+            return Double.valueOf(number);
+        else
         {
-            n = n * 10 + (cs.charAt(i) - '0');
-            if(n > MAX_SAFE_INTEGER)
-                throw new PathParseException("Exceeded maximum value: " + MAX_SAFE_INTEGER, readed);
+            long longNumber = Long.parseLong(number);
+            if(longNumber > Integer.MIN_VALUE && longNumber < Integer.MAX_VALUE)
+                return (int) longNumber;
+            else return longNumber;
         }
-        return n;
     }
-
-    static final long MAX_SAFE_INTEGER = 9007199254740991L;
-    static final double MAX_SAFE_DOUBLE = 1.7976931348623157e+308;
 }

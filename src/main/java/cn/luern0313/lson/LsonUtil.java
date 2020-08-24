@@ -22,6 +22,9 @@ import cn.luern0313.lson.annotation.LsonDateFormat;
 import cn.luern0313.lson.annotation.LsonNumberFormat;
 import cn.luern0313.lson.annotation.LsonPath;
 import cn.luern0313.lson.annotation.LsonReplaceAll;
+import cn.luern0313.lson.element.LsonArray;
+import cn.luern0313.lson.element.LsonElement;
+import cn.luern0313.lson.element.LsonPrimitive;
 import cn.luern0313.lson.exception.LsonInstantiationException;
 import cn.luern0313.lson.path.PathParser;
 import cn.luern0313.lson.path.PathType;
@@ -38,32 +41,6 @@ public class LsonUtil
 
     private static ArrayList<String> parameterizedTypes = new ArrayList<>();
 
-    private static final ArrayList<String> BASE_DATA_TYPES = new ArrayList<String>()
-    {{
-        add("java.lang.String");
-        add("java.lang.Boolean");
-        add("java.lang.Integer");
-        add("java.lang.Short");
-        add("java.lang.Long");
-        add("java.lang.Float");
-        add("java.lang.Double");
-        add("boolean");
-        add("int");
-        add("short");
-        add("long");
-        add("float");
-        add("double");
-    }};
-
-    private static final ArrayList<String> BUILT_IN_ANNOTATION = new ArrayList<String>()
-    {{
-        add(LsonAddPrefix.class.getName());
-        add(LsonAddSuffix.class.getName());
-        add(LsonDateFormat.class.getName());
-        add(LsonNumberFormat.class.getName());
-        add(LsonReplaceAll.class.getName());
-    }};
-
     /**
      * 将json反序列化为指定的实体类。
      *
@@ -74,7 +51,7 @@ public class LsonUtil
      *
      * @author luern0313
      */
-    public static  <T> T fromJson(LsonObjectUtil json, Class<T> clz)
+    public static  <T> T fromJson(LsonElement json, Class<T> clz)
     {
         return fromJson(json, clz, null, new ArrayList<>());
     }
@@ -89,14 +66,14 @@ public class LsonUtil
      *
      * @author luern0313
      */
-    public static <T> T fromJson(LsonObjectUtil json, TypeReference<T> typeReference)
+    public static <T> T fromJson(LsonElement json, TypeReference<T> typeReference)
     {
         LsonUtil.typeReference = typeReference;
         LsonUtil.parameterizedTypes.clear();
         return (T) fromJson(json, typeReference.type, null, new ArrayList<>());
     }
 
-    private static  <T> T fromJson(Object json, Class<T> clz, Object genericSuperclass, ArrayList<Object> rootJsonPath)
+    private static  <T> T fromJson(LsonElement json, Class<T> clz, Object genericSuperclass, ArrayList<Object> rootJsonPath)
     {
         T t = null;
         try
@@ -201,7 +178,7 @@ public class LsonUtil
         return t;
     }
 
-    private static Object getValue(Object rootJson, String[] pathArray, ArrayList<Object> rootPath, Field field, Object t)
+    private static Object getValue(LsonElement rootJson, String[] pathArray, ArrayList<Object> rootPath, Field field, Object t)
     {
         for (String pathString : pathArray)
         {
@@ -213,7 +190,7 @@ public class LsonUtil
         return null;
     }
 
-    private static Object getValue(Object rootJson, ArrayList<Object> paths, ArrayList<Object> rootPath, Field field, Object t)
+    private static Object getValue(LsonElement rootJson, ArrayList<Object> paths, ArrayList<Object> rootPath, Field field, Object t)
     {
         Class<?> fieldType = null;
         if(field != null)
@@ -222,7 +199,7 @@ public class LsonUtil
         {
             ArrayList<Object> jsonPaths = (ArrayList<Object>) paths.clone();
             jsonPaths.addAll(0, rootPath);
-            Object json = deepCopy(rootJson);
+            LsonElement json = deepCopy(rootJson);
             for (int i = 0; i < jsonPaths.size(); i++)
             {
                 Object pathType = jsonPaths.get(i);
@@ -232,58 +209,58 @@ public class LsonUtil
                 }
                 else if(pathType instanceof PathType.PathPath)
                 {
-                    if(json instanceof LsonObjectUtil)
-                        json = ((LsonObjectUtil) json).get(((PathType.PathPath) pathType).path);
-                    else if(json instanceof LsonArrayUtil)
+                    if(json.isLsonObject())
+                        json = json.getAsLsonObject().get(((PathType.PathPath) pathType).path);
+                    else if(json.isLsonArray())
                     {
-                        LsonArrayUtil temp = new LsonArrayUtil();
-                        for (int j = 0; j < ((LsonArrayUtil) json).size(); j++)
+                        LsonArray temp = new LsonArray();
+                        for (int j = 0; j < json.getAsLsonArray().size(); j++)
                         {
-                            Object object = ((LsonArrayUtil) json).get(j);
-                            if(object instanceof LsonObjectUtil)
-                                temp.add(((LsonObjectUtil) object).get(((PathType.PathPath) pathType).path));
+                            LsonElement lsonElement = json.getAsLsonArray().get(j);
+                            if(lsonElement.isLsonObject())
+                                temp.add(lsonElement.getAsLsonObject().get(((PathType.PathPath) pathType).path));
                         }
                         json = temp;
                     }
                 }
-                else if(pathType instanceof PathType.PathIndex && json instanceof LsonArrayUtil)
+                else if(pathType instanceof PathType.PathIndex && json.isLsonArray())
                 {
-                    LsonArrayUtil temp = new LsonArrayUtil();
+                    LsonArray temp = new LsonArray();
                     int start = ((PathType.PathIndex) pathType).start;
-                    if(start < 0) start += ((LsonArrayUtil) json).size();
+                    if(start < 0) start += json.getAsLsonArray().size();
                     int end = ((PathType.PathIndex) pathType).end;
-                    if(end < 0) end += ((LsonArrayUtil) json).size();
+                    if(end < 0) end += json.getAsLsonArray().size();
                     if(((PathType.PathIndex) pathType).step > 0 && end >= start)
                     {
-                        for (int j = start; j < Math.min(end, ((LsonArrayUtil) json).size()); j += ((PathType.PathIndex) pathType).step)
-                            temp.add(((LsonArrayUtil) json).get(j));
+                        for (int j = start; j < Math.min(end, json.getAsLsonArray().size()); j += ((PathType.PathIndex) pathType).step)
+                            temp.add(json.getAsLsonArray().get(j));
                     }
                     json = temp;
                 }
-                else if(pathType instanceof PathType.PathIndexArray && json instanceof LsonArrayUtil)
+                else if(pathType instanceof PathType.PathIndexArray && json.isLsonArray())
                 {
-                    LsonArrayUtil temp = new LsonArrayUtil();
+                    LsonArray temp = new LsonArray();
                     for (int j = 0; j < ((PathType.PathIndexArray) pathType).index.size(); j++)
                     {
                         int index = ((PathType.PathIndexArray) pathType).index.get(j);
-                        if(index < 0) index += ((LsonArrayUtil) json).size();
-                        temp.add(((LsonArrayUtil) json).get(index));
+                        if(index < 0) index += json.getAsLsonArray().size();
+                        temp.add(json.getAsLsonArray().get(index));
                     }
                     json = temp;
                 }
                 else if(pathType instanceof PathType.PathFilter)
                 {
-                    if(json instanceof LsonArrayUtil)
+                    if(json.isLsonArray())
                     {
                         PathType.PathFilter filter = (PathType.PathFilter) pathType;
-                        LsonArrayUtil temp = new LsonArrayUtil();
+                        LsonArray temp = new LsonArray();
                         ArrayList<Object> root = new ArrayList<>(jsonPaths.subList(0, i));
-                        for (int j = 0; j < ((LsonArrayUtil) json).size(); j++)
+                        for (int j = 0; j < json.getAsLsonArray().size(); j++)
                         {
-                            Object left = getFilterData(filter.left, j, rootJson, root, field, t);
-                            Object right = getFilterData(filter.right, j, rootJson, root, field, t);
+                            Object left = getFilterData(filter.left, j, rootJson, root, t);
+                            Object right = getFilterData(filter.right, j, rootJson, root, t);
                             if(compare(left, filter.comparator, right))
-                                temp.add(((LsonArrayUtil) json).get(j));
+                                temp.add(json.getAsLsonArray().get(j));
                         }
                         json = temp;
                     }
@@ -296,17 +273,17 @@ public class LsonUtil
             }
             else if(LsonUtil.isMapTypeClass(fieldType))
             {
-                while (json instanceof LsonArrayUtil && ((LsonArrayUtil) json).size() > 0)
-                    json = ((LsonArrayUtil) json).get(0);
-                if(json instanceof LsonObjectUtil)
+                while (json.isLsonArray() && ((LsonArray) json).size() > 0)
+                    json = ((LsonArray) json).get(0);
+                if(json.isLsonObject())
                 {
                     Class<?> valueTypeArgument = LsonUtil.getMapType(field);
                     Map<String, Object> map = new HashMap<>();
-                    String[] keys = ((LsonObjectUtil) json).getKeys();
+                    String[] keys = json.getAsLsonObject().getKeys();
                     if(valueTypeArgument != null && BASE_DATA_TYPES.contains(valueTypeArgument.getName()))
                     {
                         for (String key : keys)
-                            map.put(key, LsonUtil.getJsonPrimitiveData(valueTypeArgument, ((LsonObjectUtil) json).get(key)));
+                            map.put(key, LsonUtil.getJsonPrimitiveData(valueTypeArgument, json.getAsLsonObject().get(key)));
                     }
                     else
                     {
@@ -314,7 +291,7 @@ public class LsonUtil
                         {
                             ArrayList<Object> tempPaths = (ArrayList<Object>) jsonPaths.clone();
                             tempPaths.add(new PathType.PathPath(key));
-                            map.put(key, LsonUtil.getClassData(((ParameterizedType) field.getGenericType()).getActualTypeArguments()[1], getMapType(field), valueTypeArgument, t, tempPaths));
+                            map.put(key, LsonUtil.getClassData(((ParameterizedType) field.getGenericType()).getActualTypeArguments()[1], getMapType(field), rootJson, t, tempPaths));
                         }
                     }
 
@@ -325,36 +302,31 @@ public class LsonUtil
             }
             else if(LsonUtil.isArrayTypeClass(fieldType))
             {
-                Object[] array;
-                if(json instanceof LsonArrayUtil)
-                    array = (Object[]) Array.newInstance(Object.class, ((LsonArrayUtil) json).size());
-                else
-                    array = (Object[]) Array.newInstance(Object.class, 1);
-                if(BASE_DATA_TYPES.contains(LsonUtil.getArrayType(fieldType).getName()))
+                Object[] array = (Object[]) Array.newInstance(Object.class, json.isLsonArray() ? json.getAsLsonArray().size() : 1);
+                Class<?> actualTypeArgument = LsonUtil.getArrayType(fieldType);
+                if(BASE_DATA_TYPES.contains(actualTypeArgument.getName()))
                 {
-                    if(json instanceof LsonArrayUtil)
+                    if(json.isLsonArray())
                     {
-                        for (int i = 0; i < ((LsonArrayUtil) json).size(); i++)
-                            array[i] = LsonUtil.getJsonPrimitiveData(LsonUtil.getArrayType(fieldType), ((LsonArrayUtil) json).get(i));
+                        for (int i = 0; i < json.getAsLsonArray().size(); i++)
+                            array[i] = LsonUtil.getJsonPrimitiveData(actualTypeArgument, json.getAsLsonArray().get(i));
                     }
                     else
-                        array[0] = LsonUtil.getJsonPrimitiveData(LsonUtil.getArrayType(fieldType), json);
+                        array[0] = LsonUtil.getJsonPrimitiveData(actualTypeArgument, json);
                 }
                 else
                 {
-                    if(json instanceof LsonArrayUtil)
+                    if(json.isLsonArray())
                     {
-                        for (int i = 0; i < ((LsonArrayUtil) json).size(); i++)
+                        for (int i = 0; i < json.getAsLsonArray().size(); i++)
                         {
                             ArrayList<Object> tempPaths = (ArrayList<Object>) jsonPaths.clone();
                             tempPaths.add(new PathType.PathIndexArray(new ArrayList<>(Collections.singletonList(i))));
-                            array[i] = LsonUtil.getClassData(((GenericArrayType) field.getGenericType()).getGenericComponentType(), getArrayType(fieldType), rootJson, t, tempPaths);
+                            array[i] = LsonUtil.getClassData(((GenericArrayType) field.getGenericType()).getGenericComponentType(), actualTypeArgument, rootJson, t, tempPaths);
                         }
                     }
                     else
-                    {
                         array[0] = LsonUtil.getClassData(((GenericArrayType) field.getGenericType()).getGenericComponentType(), fieldType.getComponentType(), rootJson, t, jsonPaths);
-                    }
                 }
 
                 for (Object o : array)
@@ -367,21 +339,19 @@ public class LsonUtil
                 List<Object> list = new ArrayList<>();
                 if(actualTypeArgument != null && BASE_DATA_TYPES.contains(actualTypeArgument.getName()))
                 {
-                    if(json instanceof LsonArrayUtil)
+                    if(json.isLsonArray())
                     {
-                        for (int i = 0; i < ((LsonArrayUtil) json).size(); i++)
-                            list.add(LsonUtil.getJsonPrimitiveData(actualTypeArgument, ((LsonArrayUtil) json).get(i)));
+                        for (int i = 0; i < json.getAsLsonArray().size(); i++)
+                            list.add(LsonUtil.getJsonPrimitiveData(actualTypeArgument, json.getAsLsonArray().get(i)));
                     }
                     else
-                    {
                         list.add(LsonUtil.getJsonPrimitiveData(actualTypeArgument, json));
-                    }
                 }
                 else
                 {
-                    if(json instanceof LsonArrayUtil)
+                    if(json.isLsonArray())
                     {
-                        for (int i = 0; i < ((LsonArrayUtil) json).size(); i++)
+                        for (int i = 0; i < json.getAsLsonArray().size(); i++)
                         {
                             ArrayList<Object> tempPaths = (ArrayList<Object>) jsonPaths.clone();
                             tempPaths.add(new PathType.PathIndexArray(new ArrayList<>(Collections.singletonList(i))));
@@ -389,9 +359,7 @@ public class LsonUtil
                         }
                     }
                     else
-                    {
                         list.add(getClassData(((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0], getListType(field), rootJson, t, jsonPaths));
-                    }
                 }
                 for (int i = 0; i < list.size(); i++)
                     if(list.get(i) != null)
@@ -409,14 +377,12 @@ public class LsonUtil
         return null;
     }
 
-    private static Object getFilterData(PathType.PathFilter.PathFilterPart part, int index, Object rootJson, ArrayList<Object> rootPath, Field field, Object t)
+    private static Object getFilterData(PathType.PathFilter.PathFilterPart part, int index, LsonElement rootJson, ArrayList<Object> rootPath, Object t)
     {
         Object result = null;
         if(part.mode == PathType.PathFilter.PathFilterPart.FilterPartMode.PATH)
         {
             rootPath.add(new PathType.PathIndexArray(new ArrayList<>(Collections.singletonList(index))));
-            System.out.println(rootPath);
-            System.out.println(part.part);
             result = getValue(rootJson, part.part, rootPath, null, t);
             rootPath.remove(rootPath.size() - 1);
 
@@ -433,7 +399,15 @@ public class LsonUtil
     private static boolean compare(Object left, PathType.PathFilter.FilterComparator comparator, Object right)
     {
         if(comparator == PathType.PathFilter.FilterComparator.EXISTENCE)
+        {
+            if(left instanceof Boolean)
+                return (boolean) left;
+            else if(left instanceof String)
+                return !((String) left).equals("");
+            else if(left instanceof Number)
+                return ((Number) left).doubleValue() != 0;
             return left != null;
+        }
         if(left != null && right != null)
         {
             if(comparator == PathType.PathFilter.FilterComparator.EQUAL)
@@ -455,15 +429,15 @@ public class LsonUtil
         return false;
     }
 
-    private static Object deepCopy(Object object)
+    private static LsonElement deepCopy(LsonElement lsonElement)
     {
-        if(object instanceof LsonObjectUtil)
-            return new LsonObjectUtil(((LsonObjectUtil) object).getJsonObject().deepCopy());
-        else if(object instanceof LsonArrayUtil)
-            return new LsonArrayUtil(((LsonArrayUtil) object).getJsonArray().deepCopy());
-        else if(object instanceof LsonPrimitiveUtil)
-            return new LsonPrimitiveUtil(((LsonPrimitiveUtil) object).getJsonElement().deepCopy());
-        return object;
+        if(lsonElement.isLsonObject())
+            return lsonElement.getAsLsonObject().deepCopy();
+        else if(lsonElement.isLsonArray())
+            return lsonElement.getAsLsonArray().deepCopy();
+        else if(lsonElement.isLsonPrimitive())
+            return lsonElement.getAsLsonPrimitive().deepCopy();
+        return lsonElement;
     }
 
     private static Object handleBuiltInAnnotation(Object value, Annotation annotation, Field field)
@@ -487,19 +461,19 @@ public class LsonUtil
         return value;
     }
 
-    private static Object getJsonPrimitiveData(Class<?> c, Object json)
+    private static Object getJsonPrimitiveData(Class<?> c, LsonElement json)
     {
-        while (json instanceof LsonArrayUtil)
+        while (json.isLsonArray())
         {
-            if(((LsonArrayUtil) json).size() > 0)
-                json = ((LsonArrayUtil) json).get(0);
+            if(json.getAsLsonArray().size() > 0)
+                json = json.getAsLsonArray().get(0);
         }
-        if(json instanceof LsonPrimitiveUtil)
-            return getJsonPrimitiveData(c, (LsonPrimitiveUtil) json);
+        if(json.isLsonPrimitive())
+            return getJsonPrimitiveData(c, json.getAsLsonPrimitive());
         return null;
     }
 
-    private static Object getJsonPrimitiveData(Class<?> c, LsonPrimitiveUtil jsonPrimitive)
+    private static Object getJsonPrimitiveData(Class<?> c, LsonPrimitive jsonPrimitive)
     {
         if(c == null)
         {
@@ -519,7 +493,7 @@ public class LsonUtil
         return null;
     }
 
-    private static Object getClassData(Type genericType, Class<?> defType, Object rootJson, Object t, ArrayList<Object> paths)
+    private static Object getClassData(Type genericType, Class<?> defType, LsonElement rootJson, Object t, ArrayList<Object> paths)
     {
         if(genericType instanceof TypeVariable)
         {
@@ -659,4 +633,30 @@ public class LsonUtil
          */
         Object handleAnnotation(Object value, Annotation annotation, Field field);
     }
+
+    private static final ArrayList<String> BASE_DATA_TYPES = new ArrayList<String>()
+    {{
+        add("java.lang.String");
+        add("java.lang.Boolean");
+        add("java.lang.Integer");
+        add("java.lang.Short");
+        add("java.lang.Long");
+        add("java.lang.Float");
+        add("java.lang.Double");
+        add("boolean");
+        add("int");
+        add("short");
+        add("long");
+        add("float");
+        add("double");
+    }};
+
+    private static final ArrayList<String> BUILT_IN_ANNOTATION = new ArrayList<String>()
+    {{
+        add(LsonAddPrefix.class.getName());
+        add(LsonAddSuffix.class.getName());
+        add(LsonDateFormat.class.getName());
+        add(LsonNumberFormat.class.getName());
+        add(LsonReplaceAll.class.getName());
+    }};
 }
