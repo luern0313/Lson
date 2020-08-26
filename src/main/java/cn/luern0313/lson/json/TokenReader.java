@@ -135,7 +135,8 @@ class TokenReader
             long longNumber = Long.parseLong(number);
             if(longNumber > Integer.MIN_VALUE && longNumber < Integer.MAX_VALUE)
                 return (int) longNumber;
-            else return longNumber;
+            else
+                return longNumber;
         }
     }
 

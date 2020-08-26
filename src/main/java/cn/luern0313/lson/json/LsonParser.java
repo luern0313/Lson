@@ -10,17 +10,7 @@ import cn.luern0313.lson.element.LsonPrimitive;
 import cn.luern0313.lson.exception.JsonParseException;
 import cn.luern0313.lson.exception.PathParseException;
 
-import static cn.luern0313.lson.json.Status.STATUS_EXPECT_ARRAY_BEGIN;
-import static cn.luern0313.lson.json.Status.STATUS_EXPECT_ARRAY_ELEMENT;
-import static cn.luern0313.lson.json.Status.STATUS_EXPECT_ARRAY_END;
-import static cn.luern0313.lson.json.Status.STATUS_EXPECT_COLON;
-import static cn.luern0313.lson.json.Status.STATUS_EXPECT_COMMA;
-import static cn.luern0313.lson.json.Status.STATUS_EXPECT_END_DOCUMENT;
-import static cn.luern0313.lson.json.Status.STATUS_EXPECT_OBJECT_BEGIN;
-import static cn.luern0313.lson.json.Status.STATUS_EXPECT_OBJECT_END;
-import static cn.luern0313.lson.json.Status.STATUS_EXPECT_OBJECT_KEY;
-import static cn.luern0313.lson.json.Status.STATUS_EXPECT_OBJECT_VALUE;
-import static cn.luern0313.lson.json.Status.STATUS_EXPECT_SINGLE_ELEMENT;
+import static cn.luern0313.lson.json.Status.*;
 
 /**
  * 被 luern0313 创建于 2020/8/22.
