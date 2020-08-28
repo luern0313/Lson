@@ -10,7 +10,6 @@ import java.util.Map;
 
 public class LsonObject extends LsonElement
 {
-    //private JsonObject jsonObject;
     private LinkedHashMap<String, LsonElement> map;
 
     public LsonObject()
@@ -109,7 +108,18 @@ public class LsonObject extends LsonElement
     @Override
     public String toString()
     {
-        return "LsonObject{" + "map=" + map + '}';
+        String[] keys = map.keySet().toArray(new String[0]);
+        StringBuilder stringBuilder = new StringBuilder("{");
+        for (int i = 0; i < keys.length; i++)
+        {
+            stringBuilder.append("\"")
+                         .append(keys[i])
+                         .append("\": ")
+                         .append(map.get(keys[i]).toString());
+            if(i < keys.length - 1)
+                stringBuilder.append(", ");
+        }
+        return stringBuilder.append("}").toString();
     }
 
     @Override

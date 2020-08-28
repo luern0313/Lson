@@ -37,4 +37,7 @@ public abstract class LsonElement
     }
 
     public abstract LsonElement deepCopy();
+
+    @Override
+    public abstract String toString();
 }

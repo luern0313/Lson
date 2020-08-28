@@ -51,7 +51,7 @@ public class LsonUtil
      *
      * @author luern0313
      */
-    public static  <T> T fromJson(LsonElement json, Class<T> clz)
+    public static <T> T fromJson(LsonElement json, Class<T> clz)
     {
         return fromJson(json, clz, null, new ArrayList<>());
     }
@@ -60,7 +60,7 @@ public class LsonUtil
      * 将json反序列化为指定的实体类。
      *
      * @param json Lson解析过的json对象。
-     * @param typeReference 要反序列化实体类的Class对象。
+     * @param typeReference {@link TypeReference}类，用于泛型类的反序列化。
      * @param <T> 反序列化为的实体类。
      * @return 返回反序列化后的实体类。
      *

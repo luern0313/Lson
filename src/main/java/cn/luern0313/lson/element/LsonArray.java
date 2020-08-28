@@ -125,7 +125,14 @@ public class LsonArray extends LsonElement
     @Override
     public String toString()
     {
-        return "LsonArray{" + "list=" + list + '}';
+        StringBuilder stringBuilder = new StringBuilder("[");
+        for (int i = 0; i < list.size(); i++)
+        {
+            stringBuilder.append(list.get(i).toString());
+            if(i < list.size() - 1)
+                stringBuilder.append(", ");
+        }
+        return stringBuilder.append("]").toString();
     }
 
     @Override

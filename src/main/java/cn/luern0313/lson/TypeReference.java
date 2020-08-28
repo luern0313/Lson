@@ -6,7 +6,9 @@ import java.lang.reflect.TypeVariable;
 import java.util.LinkedHashMap;
 
 /**
- * 被 luern0313 创建于 2020/8/16.
+ * 使用{@link TypeReference}来处理带有泛型的类。
+ *
+ * @author luern0313
  */
 
 public class TypeReference<T>

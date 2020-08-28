@@ -16,4 +16,10 @@ public class LsonNull extends LsonElement
     {
         return this;
     }
+
+    @Override
+    public String toString()
+    {
+        return "null";
+    }
 }

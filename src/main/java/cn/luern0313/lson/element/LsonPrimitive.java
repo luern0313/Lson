@@ -87,6 +87,14 @@ public class LsonPrimitive extends LsonElement
     }
 
     @Override
+    public String toString()
+    {
+        if(isString())
+            return "\"" + getAsString() + "\"";
+        return getAsString();
+    }
+
+    @Override
     public boolean isLsonPrimitive()
     {
         return true;
@@ -102,11 +110,5 @@ public class LsonPrimitive extends LsonElement
     public LsonElement deepCopy()
     {
         return this;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "LsonPrimitive{" + "value=" + value + '}';
     }
 }

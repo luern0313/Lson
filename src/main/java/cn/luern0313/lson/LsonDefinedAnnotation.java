@@ -8,8 +8,8 @@ import java.lang.annotation.Target;
 /**
  * 此注解用来标记开发者自定义的Lson注解。
  *
- * <p>开发者需要创建一个类，并实现接口{@link LsonUtil1.LsonAnnotationListener}，在程序开始时
- * 通过静态方法{@link LsonUtil1#setLsonAnnotationListener(LsonUtil1.LsonAnnotationListener)}
+ * <p>开发者需要创建一个类，并实现接口{@link LsonUtil.LsonAnnotationListener}，在程序开始时
+ * 通过静态方法{@link LsonUtil#setLsonAnnotationListener(LsonUtil.LsonAnnotationListener)}
  * 传入该类的实例。
  *
  * <p>自定义的注解需要标记此注解，并在你实体类需要的变量上添加此注解。Lson在处理时会将值与你的
