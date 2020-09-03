@@ -23,6 +23,8 @@ public @interface LsonDateFormat
     /**
      * 时间格式，用于格式化时间。
      *
+     * @return 格式化时间格式。
+     *
      * @author luern0313
      */
     String value();

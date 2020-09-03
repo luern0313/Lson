@@ -30,6 +30,8 @@ public @interface LsonNumberFormat
      *
      * <p>支持0或负数，若为0，则保留至个位数，负数则表示保留至十位、百位等。
      *
+     * @return 数字保留位数。
+     *
      * @author luern0313
      */
     int digit();
@@ -37,7 +39,9 @@ public @interface LsonNumberFormat
     /**
      * 保留数位的模式。
      *
-     * <p>默认为{@link NumberFormatMode#HALF_UP}，即四舍五入(>=0.5则进位)
+     * <p>默认为{@link NumberFormatMode#HALF_UP}，即四舍五入(大于等于0.5则进位)
+     *
+     * @return 数字保留模式。
      *
      * @author luern0313
      */
@@ -68,12 +72,12 @@ public @interface LsonNumberFormat
         FLOOR,
 
         /**
-         * 四舍五入，即>=0.5时进位
+         * 四舍五入，即大于等于0.5时进位
          */
         HALF_UP,
 
         /**
-         * 四舍五入，>0.5时进位
+         * 四舍五入，大于0.5时进位
          */
         HALF_DOWN,
 

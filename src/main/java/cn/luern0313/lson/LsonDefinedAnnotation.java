@@ -27,8 +27,9 @@ public @interface LsonDefinedAnnotation
      *
      * <p>可传入一个或多个{@link Class}类，如变量类型不在列表中，则抛出若默认则不做任何限制。
      *
+     * @return 白名单数组。
+     *
      * @author luern0313
-     * TODO 完善功能
      */
     Class<?>[] applyTypeWhiteList() default {};
 
@@ -37,8 +38,9 @@ public @interface LsonDefinedAnnotation
      *
      * <p>可传入一个或多个{@link Class}类，若默认则不做任何限制。
      *
+     * @return 黑名单数组。
+     *
      * @author luern0313
-     * TODO 完善功能
      */
     Class<?>[] applyTypeBlackList() default {};
 
@@ -48,7 +50,35 @@ public @interface LsonDefinedAnnotation
      * <p>开发者自定义注解如标记了数组类型的变量，默认情况下，Lson会逐个将数组内元素交由你的
      * 注解处理类处理，但如果设置为true，Lson会忽略数组类型，将整个变量传入你的注解处理类。
      *
+     * @return 是否忽略数组。
+     *
      * @author luern0313
      */
     boolean isIgnoreArray() default false;
+
+    /**
+     * 标记此自定义注解是否需要忽略{@link java.util.List}及相关类型。
+     *
+     * <p>开发者自定义注解如标记了{@link java.util.List}类型的变量，默认情况下，Lson会逐个将
+     * 数组内元素交由你的注解处理类处理，但如果设置为true，Lson会忽略数组类型，将整个变量传入
+     * 你的注解处理类。
+     *
+     * @return 是否忽略List及相关类型。
+     *
+     * @author luern0313
+     */
+    boolean isIgnoreList() default false;
+
+    /**
+     * 标记此自定义注解是否需要忽略{@link java.util.Map}及相关类型。
+     *
+     * <p>开发者自定义注解如标记了{@link java.util.Map}类型的变量，默认情况下，Lson会逐个将
+     * 数组内元素交由你的注解处理类处理，但如果设置为true，Lson会忽略数组类型，将整个变量传入
+     * 你的注解处理类。
+     *
+     * @return 是否忽略Map及相关类型。
+     *
+     * @author luern0313
+     */
+    boolean isIgnoreMap() default false;
 }
