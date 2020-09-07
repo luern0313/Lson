@@ -3,6 +3,7 @@ package cn.luern0313.lson.json;
 import java.io.Reader;
 import java.io.StringReader;
 
+import cn.luern0313.lson.element.LsonArray;
 import cn.luern0313.lson.element.LsonElement;
 import cn.luern0313.lson.element.LsonNull;
 import cn.luern0313.lson.element.LsonObject;
@@ -13,7 +14,9 @@ import cn.luern0313.lson.exception.PathParseException;
 import static cn.luern0313.lson.json.Status.*;
 
 /**
- * 被 luern0313 创建于 2020/8/22.
+ * JSON解析相关类。
+ *
+ * @author luern0313
  */
 
 public class LsonParser
@@ -30,9 +33,19 @@ public class LsonParser
         return ((status & expectedStatus) > 0);
     }
 
-    public static LsonObject parse(String path)
+    public static LsonElement parse(String json)
     {
-        return parse(new StringReader(path)).getAsLsonObject();
+        return parse(new StringReader(json));
+    }
+
+    public static LsonObject parseAsObject(String json)
+    {
+        return parse(new StringReader(json)).getAsLsonObject();
+    }
+
+    public static LsonArray parseAsArray(String json)
+    {
+        return parse(new StringReader(json)).getAsLsonArray();
     }
 
     public static LsonElement parse(Reader r)

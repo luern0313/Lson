@@ -191,7 +191,7 @@ public class PathParser
                             continue;
                         }
                     }
-                    throw new PathParseException("Unexpected ,", reader.reader.readed);
+                    throw new PathParseException("Unexpected *", reader.reader.readed);
                 case FILTER_START:
                     if(hasStatus(status, STATUS_EXPECT_FILTER_START.index))
                     {
