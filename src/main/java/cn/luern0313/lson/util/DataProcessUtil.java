@@ -1,6 +1,5 @@
 package cn.luern0313.lson.util;
 
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -80,22 +79,31 @@ public class DataProcessUtil
         }
     }
 
-    public static Object getNumberFormat(Object value, int digit, LsonNumberFormat.NumberFormatMode mode, Type fieldType)
+    public static Object getNumberFormat(Object value, int digit, LsonNumberFormat.NumberFormatMode mode, TypeUtil fieldType)
     {
         try
         {
             BigDecimal bigDecimal = new BigDecimal(String.valueOf(value));
             bigDecimal = bigDecimal.setScale(digit, LsonNumberFormat.NumberFormatMode.modeIntegerMap.get(mode));
 
-            String[] typeNames = (fieldType != null ? fieldType : "").toString().split(" ");
-            String typeName = typeNames[typeNames.length - 1];
-            if(typeName.equals("java.lang.String"))
-                return bigDecimal.toString();
+            if(fieldType.getName().equals("java.lang.String"))
+                return new StringBuilder(bigDecimal.toString());
             return bigDecimal.doubleValue();
         }
         catch (NumberFormatException e)
         {
             return value;
+        }
+    }
+
+    public static void replaceAll(StringBuilder builder, String from, String to)
+    {
+        int index = builder.indexOf(from);
+        while (index != -1)
+        {
+            builder.replace(index,index + from.length(), to);
+            index += to.length();
+            index = builder.indexOf(from, index);
         }
     }
 }

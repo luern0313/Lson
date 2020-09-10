@@ -3,6 +3,7 @@ package cn.luern0313.lson;
 import java.util.ArrayList;
 
 import cn.luern0313.lson.element.LsonElement;
+import cn.luern0313.lson.util.TypeUtil;
 
 /**
  * Lson反序列化相关类。
@@ -24,7 +25,7 @@ public class LsonUtil
      */
     public static <T> T fromJson(LsonElement json, Class<T> clz)
     {
-        return Deserialization.fromJson(json, clz, null, new ArrayList<>());
+        return Deserialization.fromJson(json, new TypeUtil(clz), null, new ArrayList<>());
     }
 
     /**
@@ -42,7 +43,7 @@ public class LsonUtil
     {
         Deserialization.typeReference = typeReference;
         Deserialization.parameterizedTypes.clear();
-        return (T) Deserialization.fromJson(json, typeReference.type, null, new ArrayList<>());
+        return (T) Deserialization.fromJson(json, new TypeUtil(typeReference.type), null, new ArrayList<>());
     }
 
     /**
