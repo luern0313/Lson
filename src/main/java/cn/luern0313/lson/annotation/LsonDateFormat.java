@@ -28,4 +28,26 @@ public @interface LsonDateFormat
      * @author luern0313
      */
     String value();
+
+    /**
+     * 指定要格式化时间戳的类型
+     *
+     * @return 时间戳类型
+     *
+     * @Author luern0313
+     */
+    LsonDateFormatMode mode() default LsonDateFormatMode.SECOND;
+
+    enum LsonDateFormatMode
+    {
+        /**
+         * 秒级时间戳（10位）
+         */
+        SECOND,
+
+        /**
+         * 毫秒级时间戳（13位）
+         */
+        MILLI_SECOND;
+    }
 }

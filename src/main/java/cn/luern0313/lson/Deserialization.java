@@ -28,6 +28,7 @@ import cn.luern0313.lson.exception.LsonInstantiationException;
 import cn.luern0313.lson.path.PathParser;
 import cn.luern0313.lson.path.PathType;
 import cn.luern0313.lson.util.DataProcessUtil;
+import cn.luern0313.lson.util.DeserializationStringUtil;
 import cn.luern0313.lson.util.TypeUtil;
 
 /**
@@ -425,11 +426,17 @@ public class Deserialization
     private static Object handleBuiltInAnnotation(Object value, Annotation annotation, TypeUtil fieldType)
     {
         if(LsonDateFormat.class.getName().equals(annotation.annotationType().getName()))
-            return DataProcessUtil.getTime(Integer.parseInt(((StringBuilder) value).toString()), ((LsonDateFormat) annotation).value());
+            return new DeserializationStringUtil(DataProcessUtil.getTime(Long.parseLong(value.toString()) * (((LsonDateFormat) annotation).mode() == LsonDateFormat.LsonDateFormatMode.SECOND ? 1000 : 0), ((LsonDateFormat) annotation).value()));
         else if(LsonAddPrefix.class.getName().equals(annotation.annotationType().getName()))
-            return ((StringBuilder) value).insert(0, ((LsonAddPrefix) annotation).value());
+        {
+            ((DeserializationStringUtil) value).stringBuilder.insert(0, ((LsonAddPrefix) annotation).value());
+            return value;
+        }
         else if(LsonAddSuffix.class.getName().equals(annotation.annotationType().getName()))
-            return ((StringBuilder) value).append(((LsonAddSuffix) annotation).value());
+        {
+            ((DeserializationStringUtil) value).stringBuilder.append(((LsonAddSuffix) annotation).value());
+            return value;
+        }
         else if(LsonNumberFormat.class.getName().equals(annotation.annotationType().getName()))
             return DataProcessUtil.getNumberFormat(value, ((LsonNumberFormat) annotation).digit(), ((LsonNumberFormat) annotation).mode(), fieldType);
         else if(LsonReplaceAll.class.getName().equals(annotation.annotationType().getName()))
@@ -437,7 +444,7 @@ public class Deserialization
             String[] regexArray = ((LsonReplaceAll) annotation).regex();
             String[] replacementArray = ((LsonReplaceAll) annotation).replacement();
             for (int i = 0; i < regexArray.length; i++)
-                DataProcessUtil.replaceAll((StringBuilder) value, regexArray[i], replacementArray[i]);
+                DataProcessUtil.replaceAll(((DeserializationStringUtil) value).stringBuilder, regexArray[i], replacementArray[i]);
             return value;
         }
         return value;
@@ -462,7 +469,7 @@ public class Deserialization
                 if(jsonPrimitive.isBoolean())
                     return jsonPrimitive.getAsBoolean();
                 else if(jsonPrimitive.isString())
-                    return new StringBuilder(jsonPrimitive.getAsString());
+                    return new DeserializationStringUtil(jsonPrimitive.getAsString(), jsonPrimitive.getValueClass());
                 else if(jsonPrimitive.isNumber())
                     return jsonPrimitive.getAsDouble();
             }
@@ -471,7 +478,7 @@ public class Deserialization
             else if(NUMBER_DATA_TYPES.contains(type.getName()))
                 return jsonPrimitive.getAsDouble();
             else if(STRING_DATA_TYPES.contains(type.getName()))
-                return new StringBuilder(jsonPrimitive.getAsString());
+                return new DeserializationStringUtil(jsonPrimitive.getAsString(), jsonPrimitive.getValueClass());
             else
                 return getJsonPrimitiveData(null, jsonPrimitive);
         }
@@ -522,14 +529,8 @@ public class Deserialization
 
     private static Object handleBuiltInClass(Object value, TypeUtil fieldType)
     {
-        System.out.println(value);
         if(fieldType.getName().equals(StringBuilder.class.getName()))
-        {
-            if(value instanceof StringBuilder)
-                return value;
-            else
-                return new StringBuilder(value.toString());
-        }
+            return new StringBuilder(value.toString());
         else if(fieldType.getName().equals(StringBuffer.class.getName()))
             return new StringBuffer(value.toString());
         else if(fieldType.getName().equals(java.util.Date.class.getName()))
@@ -580,25 +581,16 @@ public class Deserialization
         else
         {
             if(value instanceof Double)
-                value = finalValueHandle((Double) value, fieldType.getName());
-            else if(value instanceof StringBuilder)
-            {
-                try
-                {
-                    value = finalValueHandle(Double.valueOf(((StringBuilder) value).toString()), fieldType.getName());
-                }
-                catch (NumberFormatException ignored) {}
-            }
-
-            if(value instanceof StringBuilder)
+                value = finalValueHandle((Double) value, fieldType);
+            else if(value instanceof DeserializationStringUtil)
                 value = value.toString();
         }
         return value;
     }
 
-    private static Object finalValueHandle(Double number, String fieldType)
+    private static Object finalValueHandle(Double number, TypeUtil fieldType)
     {
-        switch (fieldType)
+        switch (fieldType.getName())
         {
             case "int":
             case "java.lang.Integer":

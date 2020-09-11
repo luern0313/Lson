@@ -64,11 +64,11 @@ public class DataProcessUtil
      *
      * @author luern0313
      */
-    public static String getTime(int timeStamp, String pattern)
+    public static String getTime(long timeStamp, String pattern)
     {
         try
         {
-            Date date = new Date(timeStamp * 1000L);
+            Date date = new Date(timeStamp);
             SimpleDateFormat format = new SimpleDateFormat(pattern, Locale.getDefault());
             return format.format(date);
         }
@@ -83,11 +83,15 @@ public class DataProcessUtil
     {
         try
         {
-            BigDecimal bigDecimal = new BigDecimal(String.valueOf(value));
+            BigDecimal bigDecimal = new BigDecimal(String.valueOf(value.toString()));
             bigDecimal = bigDecimal.setScale(digit, LsonNumberFormat.NumberFormatMode.modeIntegerMap.get(mode));
 
-            if(fieldType.getName().equals("java.lang.String"))
-                return new StringBuilder(bigDecimal.toString());
+            if(value instanceof DeserializationStringUtil)
+            {
+                ((DeserializationStringUtil) value).stringBuilder.delete(0, ((DeserializationStringUtil) value).stringBuilder.length());
+                ((DeserializationStringUtil) value).stringBuilder.append(bigDecimal.toString());
+                return value;
+            }
             return bigDecimal.doubleValue();
         }
         catch (NumberFormatException e)
@@ -104,6 +108,19 @@ public class DataProcessUtil
             builder.replace(index,index + from.length(), to);
             index += to.length();
             index = builder.indexOf(from, index);
+        }
+    }
+
+    public static boolean isDouble(String string)
+    {
+        try
+        {
+            Double.parseDouble(string);
+            return true;
+        }
+        catch (NumberFormatException e)
+        {
+            return false;
         }
     }
 }

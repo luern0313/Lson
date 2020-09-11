@@ -86,6 +86,11 @@ public class LsonPrimitive extends LsonElement
         return Long.parseLong(getAsString());
     }
 
+    public Class<?> getValueClass()
+    {
+        return value.getClass();
+    }
+
     @Override
     public String toString()
     {
