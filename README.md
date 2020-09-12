@@ -25,7 +25,7 @@ A Java library for JSON serialization/deserialization, it has good performance a
 ### Gradle
 
 ``` groovy
-implementation 'cn.luern0313.lson:Lson:0.1'
+implementation 'cn.luern0313.lson:Lson:0.2'
 ```
 
 ### Maven
@@ -34,7 +34,7 @@ implementation 'cn.luern0313.lson:Lson:0.1'
 <dependency>
     <groupId>cn.luern0313.lson</groupId>
     <artifactId>Lson</artifactId>
-    <version>0.1</version>
+    <version>0.2</version>
 </dependency>
 ```
 
