@@ -34,7 +34,7 @@ public @interface LsonDateFormat
      *
      * @return 时间戳类型
      *
-     * @Author luern0313
+     * @author luern0313
      */
     LsonDateFormatMode mode() default LsonDateFormatMode.SECOND;
 
