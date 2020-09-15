@@ -27,5 +27,5 @@ public @interface LsonPath
      *
      * @author luern0313
      */
-    String[] value();
+    String[] value() default "";
 }

@@ -86,7 +86,16 @@ public class Deserialization
                 LsonPath path = field.getAnnotation(LsonPath.class);
                 if(path != null)
                 {
-                    Object value = getValue(json, path.value(), rootJsonPath, new TypeUtil(field.getGenericType()), t);
+                    String[] pathArray = path.value();
+                    if(pathArray.length == 1 && pathArray[0].equals(""))
+                    {
+                        pathArray[0] = field.getName();
+                        String underScoreCase = DataProcessUtil.getUnderScoreCase(field.getName());
+                        if(!field.getName().equals(underScoreCase))
+                            pathArray = new String[]{field.getName(), underScoreCase};
+                    }
+
+                    Object value = getValue(json, pathArray, rootJsonPath, new TypeUtil(field.getGenericType()), t);
                     if(value != null)
                     {
                         TypeUtil valueType = new TypeUtil(field.getGenericType());

@@ -1,5 +1,7 @@
 package cn.luern0313.lson.util;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -122,5 +124,34 @@ public class DataProcessUtil
         {
             return false;
         }
+    }
+
+    public static String getUnderScoreCase(String name)
+    {
+        try
+        {
+            StringReader stringReader = new StringReader(name);
+            StringBuilder stringBuilder = new StringBuilder();
+            int s;
+            while (true)
+            {
+                s = stringReader.read();
+                if(s == -1)
+                    break;
+
+                if(s >= 'A' && s <= 'Z' && stringBuilder.length() != 0)
+                    stringBuilder.append("_").append((char) (s + 32));
+                else if(s >= 'A' && s <= 'Z')
+                    stringBuilder.append((char) (s + 32));
+                else
+                    stringBuilder.append((char) s);
+            }
+            return stringBuilder.toString();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
