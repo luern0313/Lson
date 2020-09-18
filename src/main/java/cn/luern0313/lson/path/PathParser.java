@@ -31,7 +31,7 @@ public class PathParser
         return parse(new StringReader(path));
     }
 
-    public static ArrayList<Object> parse(Reader r)
+    private static ArrayList<Object> parse(Reader r)
     {
         TokenReader reader = new TokenReader(new CharReader(r));
         Stack stack = new Stack();

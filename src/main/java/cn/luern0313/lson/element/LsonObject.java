@@ -5,7 +5,9 @@ import java.util.Map;
 
 
 /**
- * 被 luern0313 创建于 2020/7/29.
+ * JSON object类。
+ *
+ * @author luern0313
  */
 
 public class LsonObject extends LsonElement

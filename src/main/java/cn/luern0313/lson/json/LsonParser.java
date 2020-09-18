@@ -48,7 +48,7 @@ public class LsonParser
         return parse(new StringReader(json)).getAsLsonArray();
     }
 
-    public static LsonElement parse(Reader r)
+    private static LsonElement parse(Reader r)
     {
         TokenReader reader = new TokenReader(new CharReader(r));
         Stack stack = new Stack();

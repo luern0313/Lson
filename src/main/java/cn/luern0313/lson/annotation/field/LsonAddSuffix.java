@@ -1,4 +1,4 @@
-package cn.luern0313.lson.annotation;
+package cn.luern0313.lson.annotation.field;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

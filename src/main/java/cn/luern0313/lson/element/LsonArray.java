@@ -4,7 +4,9 @@ package cn.luern0313.lson.element;
 import java.util.ArrayList;
 
 /**
- * 被 luern0313 创建于 2020/7/29.
+ * JSON数组类。
+ *
+ * @author luern0313
  */
 
 public class LsonArray extends LsonElement

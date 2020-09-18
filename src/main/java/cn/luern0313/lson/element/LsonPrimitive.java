@@ -1,7 +1,9 @@
 package cn.luern0313.lson.element;
 
 /**
- * 被 luern0313 创建于 2020/8/11.
+ * JSON元素类。
+ *
+ * @author luern0313
  */
 
 public class LsonPrimitive extends LsonElement

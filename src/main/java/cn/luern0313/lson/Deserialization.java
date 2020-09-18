@@ -6,6 +6,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -15,12 +16,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.luern0313.lson.annotation.LsonAddPrefix;
-import cn.luern0313.lson.annotation.LsonAddSuffix;
-import cn.luern0313.lson.annotation.LsonDateFormat;
-import cn.luern0313.lson.annotation.LsonNumberFormat;
-import cn.luern0313.lson.annotation.LsonPath;
-import cn.luern0313.lson.annotation.LsonReplaceAll;
+import cn.luern0313.lson.annotation.field.LsonAddPrefix;
+import cn.luern0313.lson.annotation.field.LsonAddSuffix;
+import cn.luern0313.lson.annotation.field.LsonDateFormat;
+import cn.luern0313.lson.annotation.field.LsonNumberFormat;
+import cn.luern0313.lson.annotation.field.LsonPath;
+import cn.luern0313.lson.annotation.field.LsonReplaceAll;
+import cn.luern0313.lson.annotation.method.LsonCallMethod;
 import cn.luern0313.lson.element.LsonArray;
 import cn.luern0313.lson.element.LsonElement;
 import cn.luern0313.lson.element.LsonPrimitive;
@@ -68,6 +70,7 @@ public class Deserialization
             throw new LsonInstantiationException();
         }
 
+        handleMethod(t, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
         return deserialization(json, clz, t, rootJsonPath);
     }
 
@@ -134,6 +137,7 @@ public class Deserialization
                 e.printStackTrace();
             }
         }
+        handleMethod(t, LsonCallMethod.CallMethodTiming.AFTER_DESERIALIZATION);
         return t;
     }
 
@@ -233,6 +237,7 @@ public class Deserialization
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     private static Object getMapData(LsonElement json, LsonElement rootJson, TypeUtil fieldType, ArrayList<Object> jsonPaths, Object t)
     {
         while (json.isLsonArray() && ((LsonArray) json).size() > 0)
@@ -253,7 +258,7 @@ public class Deserialization
                 {
                     ArrayList<Object> tempPaths = (ArrayList<Object>) jsonPaths.clone();
                     tempPaths.add(new PathType.PathPath(key));
-                    map.put(key, getClassData(valueTypeArgument, json, rootJson, t, tempPaths));
+                    map.put(key, getClassData(valueTypeArgument, json.getAsLsonObject().get(key), rootJson, t, tempPaths));
                 }
             }
             return map;
@@ -282,15 +287,6 @@ public class Deserialization
             else
                 Array.set(array, 0, getJsonPrimitiveData(actualTypeArgument, json));
         }
-        else if(isArrayTypeClass(actualTypeArgument) && json.isLsonArray())
-        {
-            for (int i = 0; i < json.getAsLsonArray().size(); i++)
-            {
-                jsonPaths.add(new PathType.PathIndexArray(new ArrayList<>(Collections.singletonList(i))));
-                Array.set(array, i, getArrayData(json.getAsLsonArray().get(i), rootJson, actualTypeArgument, jsonPaths, t));
-                jsonPaths.remove(jsonPaths.size() - 1);
-            }
-        }
         else
         {
             if(json.isLsonArray())
@@ -299,7 +295,7 @@ public class Deserialization
                 {
                     ArrayList<Object> tempPaths = (ArrayList<Object>) jsonPaths.clone();
                     tempPaths.add(new PathType.PathIndexArray(new ArrayList<>(Collections.singletonList(i))));
-                    Array.set(array, i, getClassData(actualTypeArgument, json, rootJson, t, tempPaths));
+                    Array.set(array, i, getClassData(actualTypeArgument, json.getAsLsonArray().get(i), rootJson, t, tempPaths));
                 }
             }
             else
@@ -330,7 +326,7 @@ public class Deserialization
                 {
                     ArrayList<Object> tempPaths = (ArrayList<Object>) jsonPaths.clone();
                     tempPaths.add(new PathType.PathIndexArray(new ArrayList<>(Collections.singletonList(i))));
-                    list.add(getClassData(actualTypeArgument, json, rootJson, t, tempPaths));
+                    list.add(getClassData(actualTypeArgument, json.getAsLsonArray().get(i), rootJson, t, tempPaths));
                 }
             }
             else
@@ -457,6 +453,28 @@ public class Deserialization
             return value;
         }
         return value;
+    }
+
+    private static <T> void handleMethod(T t, LsonCallMethod.CallMethodTiming callMethodTiming)
+    {
+        Class<?> clz = t.getClass();
+        Method[] methods = clz.getDeclaredMethods();
+        for (Method method : methods)
+        {
+            try
+            {
+                LsonCallMethod lsonCallMethod = method.getAnnotation(LsonCallMethod.class);
+                if(lsonCallMethod != null && DataProcessUtil.getIndex(callMethodTiming, lsonCallMethod.timing()) != -1)
+                {
+                    method.setAccessible(true);
+                    method.invoke(t);
+                }
+            }
+            catch (RuntimeException | IllegalAccessException | InvocationTargetException e)
+            {
+                e.printStackTrace();
+            }
+        }
     }
 
     private static Object getJsonPrimitiveData(TypeUtil type, LsonElement json)
