@@ -25,6 +25,7 @@ import cn.luern0313.lson.annotation.field.LsonReplaceAll;
 import cn.luern0313.lson.annotation.method.LsonCallMethod;
 import cn.luern0313.lson.element.LsonArray;
 import cn.luern0313.lson.element.LsonElement;
+import cn.luern0313.lson.element.LsonObject;
 import cn.luern0313.lson.element.LsonPrimitive;
 import cn.luern0313.lson.exception.LsonInstantiationException;
 import cn.luern0313.lson.path.PathParser;
@@ -225,8 +226,16 @@ public class Deserialization
                 }
             }
 
-            if(fieldType == null || BASE_DATA_TYPES.contains(fieldType.getName()) || BUILT_IN_CLASS.contains(fieldType.getName()) || fieldType.getName().equals(Object.class.getName()))
+            if(fieldType == null || BASE_DATA_TYPES.contains(fieldType.getName()) || fieldType.getName().equals(Object.class.getName()))
                 return getJsonPrimitiveData(fieldType, json);
+            else if(BUILT_IN_CLASS.contains(fieldType.getName()))
+            {
+                Object data = getJsonPrimitiveData(fieldType, json);
+                if(data == null)
+                    return handleBuiltInClass(json, fieldType);
+                else
+                    return data;
+            }
             else
                 return getClassData(fieldType, json, rootJson, t, jsonPaths);
         }
@@ -574,6 +583,14 @@ public class Deserialization
             else if(STRING_DATA_TYPES.contains(value.getClass().getName()))
                 return new java.sql.Date(Long.parseLong(value.toString()));
         }
+        else if(fieldType.getName().equals(LsonElement.class.getName()))
+            return value;
+        else if(fieldType.getName().equals(LsonObject.class.getName()))
+            return ((LsonElement) value).getAsLsonObject();
+        else if(fieldType.getName().equals(LsonArray.class.getName()))
+            return ((LsonElement) value).getAsLsonArray();
+        else if(fieldType.getName().equals(LsonPrimitive.class.getName()))
+            return ((LsonElement) value).getAsLsonPrimitive();
         return value;
     }
 
@@ -793,5 +810,9 @@ public class Deserialization
         add(StringBuffer.class.getName());
         add(java.util.Date.class.getName());
         add(java.sql.Date.class.getName());
+        add(LsonElement.class.getName());
+        add(LsonObject.class.getName());
+        add(LsonArray.class.getName());
+        add(LsonPrimitive.class.getName());
     }};
 }
