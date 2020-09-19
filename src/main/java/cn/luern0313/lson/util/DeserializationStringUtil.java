@@ -20,6 +20,13 @@ public class DeserializationStringUtil
         this.type = type;
     }
 
+    public DeserializationStringUtil set(String text)
+    {
+        stringBuilder.setLength(0);
+        stringBuilder.append(text);
+        return this;
+    }
+
     @Override
     public String toString()
     {

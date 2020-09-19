@@ -86,7 +86,7 @@ class Stack
         {
             return obj;
         }
-        throw new PathParseException("Unmatched type.");
+        throw new PathParseException("Unmatched type " + type);
     }
 
     @Override

@@ -440,7 +440,7 @@ public class Deserialization
     private static Object handleBuiltInAnnotation(Object value, Annotation annotation, TypeUtil fieldType)
     {
         if(LsonDateFormat.class.getName().equals(annotation.annotationType().getName()))
-            return new DeserializationStringUtil(DataProcessUtil.getTime(Long.parseLong(value.toString()) * (((LsonDateFormat) annotation).mode() == LsonDateFormat.LsonDateFormatMode.SECOND ? 1000 : 0), ((LsonDateFormat) annotation).value()));
+            return ((DeserializationStringUtil) value).set(DataProcessUtil.getTime(Long.parseLong(value.toString()) * (((LsonDateFormat) annotation).mode() == LsonDateFormat.LsonDateFormatMode.SECOND ? 1000 : 0), ((LsonDateFormat) annotation).value()));
         else if(LsonAddPrefix.class.getName().equals(annotation.annotationType().getName()))
         {
             ((DeserializationStringUtil) value).stringBuilder.insert(0, ((LsonAddPrefix) annotation).value());

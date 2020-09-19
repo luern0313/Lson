@@ -164,7 +164,8 @@ public class LsonParser
                     reader.readNull();
                     if(hasStatus(status, STATUS_EXPECT_OBJECT_VALUE.index))
                     {
-                        stack.peek(StackValue.TYPE_OBJECT).getAsJsonObjectValue().put(stack.pop(StackValue.TYPE_OBJECT_KEY).getAsJsonObjectKeyValue().key, null);
+                        String key = stack.pop(StackValue.TYPE_OBJECT_KEY).getAsJsonObjectKeyValue().key;
+                        stack.peek(StackValue.TYPE_OBJECT).getAsJsonObjectValue().put(key, null);
                         status = STATUS_EXPECT_COMMA.index | STATUS_EXPECT_OBJECT_END.index;
                         continue;
                     }

@@ -73,21 +73,51 @@ class TokenReader
 
             if(ch == '\\')
             {
-                if(!isEscape())
-                    throw new JsonParseException("Invalid escape character");
-                sb.append('\\');
-                ch = reader.peek();
-                sb.append(ch);
-                if(ch == 'u')
+                ch = reader.next();
+                switch (ch)
                 {
-                    for (int i = 0; i < 4; i++)
-                    {
-                        ch = reader.next();
-                        if(isHex(ch))
-                            sb.append(ch);
-                        else
-                            throw new JsonParseException("Invalid character");
-                    }
+                    case '\"':
+                        sb.append('\"');
+                        break;
+                    case '\\':
+                        sb.append('\\');
+                        break;
+                    case '/':
+                        sb.append('/');
+                        break;
+                    case 'b':
+                        sb.append('\b');
+                        break;
+                    case 'f':
+                        sb.append('\f');
+                        break;
+                    case 'n':
+                        sb.append('\n');
+                        break;
+                    case 'r':
+                        sb.append('\r');
+                        break;
+                    case 't':
+                        sb.append('\t');
+                        break;
+                    case 'u':
+                        int u = 0;
+                        for (int i = 0; i < 4; i++)
+                        {
+                            char uch = reader.next();
+                            if(uch >= '0' && uch <= '9')
+                                u = (u << 4) + (uch - '0');
+                            else if(uch >= 'a' && uch <= 'f')
+                                u = (u << 4) + (uch - 'a') + 10;
+                            else if(uch >= 'A' && uch <= 'F')
+                                u = (u << 4) + (uch - 'A') + 10;
+                            else
+                                throw new JsonParseException("Unexpected char: " + uch, reader.readed);
+                        }
+                        sb.append((char) u);
+                        break;
+                    default:
+                        throw new JsonParseException("Unexpected char: " + ch, reader.readed);
                 }
             }
             else if(ch == '"')
