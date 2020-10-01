@@ -142,7 +142,7 @@ public class Deserialization
         return t;
     }
 
-    private static Object getValue(LsonElement rootJson, String[] pathArray, ArrayList<Object> rootPath, TypeUtil fieldType, Object t)
+    public static Object getValue(LsonElement rootJson, String[] pathArray, ArrayList<Object> rootPath, TypeUtil fieldType, Object t)
     {
         for (String pathString : pathArray)
         {

@@ -47,6 +47,20 @@ public class LsonUtil
     }
 
     /**
+     * 获取json中对应JSONPath的值。
+     *
+     * @param json Lson解析过的json对象。
+     * @param path JSONPath，用于描述要取到的值在json中的位置。
+     * @return JSONPath对应的值。
+     *
+     * @author luern0313
+     */
+    public static Object getValue(LsonElement json, String path)
+    {
+        return Deserialization.getValue(json, new String[]{path}, null, null, null);
+    }
+
+    /**
      * 程序开始时，通过此方法传入实现{@link Deserialization.LsonAnnotationListener}接口类的实例，自定义注解才可正常运行。
      *
      * @param lsonAnnotationListener 实现{@link Deserialization.LsonAnnotationListener}接口的实例。
