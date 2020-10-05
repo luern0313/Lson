@@ -15,6 +15,11 @@ public class LsonPrimitive extends LsonElement
         this.value = value;
     }
 
+    public Object get()
+    {
+        return value;
+    }
+
     public boolean isBoolean()
     {
         return value instanceof Boolean;

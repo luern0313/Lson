@@ -31,7 +31,7 @@ import cn.luern0313.lson.exception.LsonInstantiationException;
 import cn.luern0313.lson.path.PathParser;
 import cn.luern0313.lson.path.PathType;
 import cn.luern0313.lson.util.DataProcessUtil;
-import cn.luern0313.lson.util.DeserializationStringUtil;
+import cn.luern0313.lson.util.DeserializationValueUtil;
 import cn.luern0313.lson.util.TypeUtil;
 
 /**
@@ -75,7 +75,6 @@ public class Deserialization
         return deserialization(json, clz, t, rootJsonPath);
     }
 
-    @SuppressWarnings("unchecked")
     private static <T> T deserialization(LsonElement json, TypeUtil clz, T t, ArrayList<Object> rootJsonPath)
     {
         TypeUtil superClass = new TypeUtil(clz.getAsClass().getSuperclass());
@@ -113,23 +112,7 @@ public class Deserialization
 
                         field.setAccessible(true);
 
-                        if(isArrayTypeClass(valueType))
-                        {
-                            Object[] finalValue = (Object[]) finalValueHandle(value, valueType);
-                            field.set(t, finalValue);
-                        }
-                        else if(isListTypeClass(valueType))
-                        {
-                            ArrayList<?> finalValue = (ArrayList<?>) finalValueHandle(value, valueType);
-                            field.set(t, finalValue);
-                        }
-                        else if(isMapTypeClass(valueType))
-                        {
-                            Map<String, ?> finalValue = (Map<String, ?>) finalValueHandle(value, valueType);
-                            field.set(t, finalValue);
-                        }
-                        else
-                            field.set(t, finalValueHandle(value, valueType));
+                        field.set(t, finalValueHandle(value, valueType));
                     }
                 }
             }
@@ -160,6 +143,7 @@ public class Deserialization
         try
         {
             ArrayList<Object> jsonPaths = (ArrayList<Object>) paths.clone();
+
             if(rootPath != null)
                 jsonPaths.addAll(0, rootPath);
             LsonElement json = deepCopy(rootJson);
@@ -226,13 +210,13 @@ public class Deserialization
                 }
             }
 
-            if(fieldType == null || BASE_DATA_TYPES.contains(fieldType.getName()) || fieldType.getName().equals(Object.class.getName()))
+            if(fieldType.isNull() || BASE_DATA_TYPES.contains(fieldType.getName()) || fieldType.getName().equals(Object.class.getName()))
                 return getJsonPrimitiveData(fieldType, json);
             else if(BUILT_IN_CLASS.contains(fieldType.getName()))
             {
                 Object data = getJsonPrimitiveData(fieldType, json);
                 if(data == null)
-                    return handleBuiltInClass(json, fieldType);
+                    return new DeserializationValueUtil(handleBuiltInClass(json, fieldType), fieldType.getAsClass());
                 else
                     return data;
             }
@@ -429,9 +413,19 @@ public class Deserialization
                     (lsonDefinedAnnotation.applyTypeWhiteList().length == 0 || DataProcessUtil.getIndex(fieldClass.getAsClass(), lsonDefinedAnnotation.applyTypeWhiteList()) != -1))
             {
                 if(BUILT_IN_ANNOTATION.contains(annotation.annotationType().getName()))
-                    value = handleBuiltInAnnotation(value, annotation, fieldClass);
+                {
+                    if(value instanceof DeserializationValueUtil)
+                        ((DeserializationValueUtil) value).set(handleBuiltInAnnotation(((DeserializationValueUtil) value).get(), annotation, fieldClass));
+                    else
+                        value = handleBuiltInAnnotation(value, annotation, fieldClass);
+                }
                 else if(lsonAnnotationListener != null)
-                    value = lsonAnnotationListener.handleAnnotation(value, annotation, fieldClass);
+                {
+                    if(value instanceof DeserializationValueUtil)
+                        ((DeserializationValueUtil) value).set(lsonAnnotationListener.handleAnnotation(((DeserializationValueUtil) value).get(), annotation, fieldClass));
+                    else
+                        value = lsonAnnotationListener.handleAnnotation(value, annotation, fieldClass);
+                }
             }
         }
         return value;
@@ -440,17 +434,11 @@ public class Deserialization
     private static Object handleBuiltInAnnotation(Object value, Annotation annotation, TypeUtil fieldType)
     {
         if(LsonDateFormat.class.getName().equals(annotation.annotationType().getName()))
-            return ((DeserializationStringUtil) value).set(DataProcessUtil.getTime(Long.parseLong(value.toString()) * (((LsonDateFormat) annotation).mode() == LsonDateFormat.LsonDateFormatMode.SECOND ? 1000 : 0), ((LsonDateFormat) annotation).value()));
+            return DataProcessUtil.getTime(Long.parseLong(value.toString()) * (((LsonDateFormat) annotation).mode() == LsonDateFormat.LsonDateFormatMode.SECOND ? 1000 : 0), ((LsonDateFormat) annotation).value());
         else if(LsonAddPrefix.class.getName().equals(annotation.annotationType().getName()))
-        {
-            ((DeserializationStringUtil) value).stringBuilder.insert(0, ((LsonAddPrefix) annotation).value());
-            return value;
-        }
+            return ((LsonAddPrefix) annotation).value() + value;
         else if(LsonAddSuffix.class.getName().equals(annotation.annotationType().getName()))
-        {
-            ((DeserializationStringUtil) value).stringBuilder.append(((LsonAddSuffix) annotation).value());
-            return value;
-        }
+            return value + ((LsonAddSuffix) annotation).value();
         else if(LsonNumberFormat.class.getName().equals(annotation.annotationType().getName()))
             return DataProcessUtil.getNumberFormat(value, ((LsonNumberFormat) annotation).digit(), ((LsonNumberFormat) annotation).mode(), fieldType);
         else if(LsonReplaceAll.class.getName().equals(annotation.annotationType().getName()))
@@ -458,35 +446,38 @@ public class Deserialization
             String[] regexArray = ((LsonReplaceAll) annotation).regex();
             String[] replacementArray = ((LsonReplaceAll) annotation).replacement();
             for (int i = 0; i < regexArray.length; i++)
-                DataProcessUtil.replaceAll(((DeserializationStringUtil) value).stringBuilder, regexArray[i], replacementArray[i]);
+                DataProcessUtil.replaceAll((StringBuilder) value, regexArray[i], replacementArray[i]);
             return value;
         }
         return value;
     }
 
-    private static <T> void handleMethod(T t, LsonCallMethod.CallMethodTiming callMethodTiming)
+    private static void handleMethod(Object t, LsonCallMethod.CallMethodTiming callMethodTiming)
     {
-        Class<?> clz = t.getClass();
-        Method[] methods = clz.getDeclaredMethods();
-        for (Method method : methods)
+        if(t != null)
         {
-            try
+            Class<?> clz = t.getClass();
+            Method[] methods = clz.getDeclaredMethods();
+            for (Method method : methods)
             {
-                LsonCallMethod lsonCallMethod = method.getAnnotation(LsonCallMethod.class);
-                if(lsonCallMethod != null && DataProcessUtil.getIndex(callMethodTiming, lsonCallMethod.timing()) != -1)
+                try
                 {
-                    method.setAccessible(true);
-                    method.invoke(t);
+                    LsonCallMethod lsonCallMethod = method.getAnnotation(LsonCallMethod.class);
+                    if(lsonCallMethod != null && DataProcessUtil.getIndex(callMethodTiming, lsonCallMethod.timing()) != -1)
+                    {
+                        method.setAccessible(true);
+                        method.invoke(t);
+                    }
                 }
-            }
-            catch (RuntimeException | IllegalAccessException | InvocationTargetException e)
-            {
-                e.printStackTrace();
+                catch (RuntimeException | IllegalAccessException | InvocationTargetException e)
+                {
+                    e.printStackTrace();
+                }
             }
         }
     }
 
-    private static Object getJsonPrimitiveData(TypeUtil type, LsonElement json)
+    private static DeserializationValueUtil getJsonPrimitiveData(TypeUtil type, LsonElement json)
     {
         while (json.isLsonArray())
             if(json.getAsLsonArray().size() > 0)
@@ -496,27 +487,15 @@ public class Deserialization
         return null;
     }
 
-    private static Object getJsonPrimitiveData(TypeUtil type, LsonPrimitive jsonPrimitive)
+    private static DeserializationValueUtil getJsonPrimitiveData(TypeUtil type, LsonPrimitive jsonPrimitive)
     {
         try
         {
-            if(type == null)
-            {
-                if(jsonPrimitive.isBoolean())
-                    return jsonPrimitive.getAsBoolean();
-                else if(jsonPrimitive.isString())
-                    return new DeserializationStringUtil(jsonPrimitive.getAsString(), jsonPrimitive.getValueClass());
-                else if(jsonPrimitive.isNumber())
-                    return jsonPrimitive.getAsDouble();
-            }
-            else if((type.getName().equals("boolean") || type.getName().equals("java.lang.Boolean")))
-                return jsonPrimitive.getAsBoolean();
-            else if(NUMBER_DATA_TYPES.contains(type.getName()))
-                return jsonPrimitive.getAsDouble();
-            else if(STRING_DATA_TYPES.contains(type.getName()))
-                return new DeserializationStringUtil(jsonPrimitive.getAsString(), jsonPrimitive.getValueClass());
-            else
-                return getJsonPrimitiveData(null, jsonPrimitive);
+            if(type != null && NUMBER_DATA_TYPES.contains(type.getName()))
+                return new DeserializationValueUtil(jsonPrimitive.getAsDouble(), jsonPrimitive.getValueClass());
+            else if(type != null && STRING_DATA_TYPES.contains(type.getName()))
+                return new DeserializationValueUtil(jsonPrimitive.getAsString(), jsonPrimitive.getValueClass());
+            return new DeserializationValueUtil(jsonPrimitive.get(), jsonPrimitive.getValueClass());
         }
         catch (RuntimeException e)
         {
@@ -621,37 +600,62 @@ public class Deserialization
             return finalValue;
         }
         else if(BUILT_IN_CLASS.contains(fieldType.getName()))
-            return handleBuiltInClass(value, fieldType);
-        else
+            return handleBuiltInClass(((DeserializationValueUtil) value).get(), fieldType);
+        else if(value instanceof DeserializationValueUtil)
         {
-            if(value instanceof Double)
-                value = finalValueHandle((Double) value, fieldType);
-            else if(value instanceof DeserializationStringUtil)
-                value = value.toString();
+            if(((DeserializationValueUtil) value).get() instanceof Double)
+                return finalValueHandle((DeserializationValueUtil) value, fieldType);
+            else if(((DeserializationValueUtil) value).get() instanceof StringBuilder)
+                return ((DeserializationValueUtil) value).get().toString();
+            else
+                return ((DeserializationValueUtil) value).get();
         }
         return value;
     }
 
-    private static Object finalValueHandle(Double number, TypeUtil fieldType)
+    private static Object finalValueHandle(DeserializationValueUtil value, TypeUtil fieldType)
     {
-        switch (fieldType.getName())
+        if(!fieldType.isNull())
         {
-            case "int":
-            case "java.lang.Integer":
-                return number.intValue();
-            case "short":
-            case "java.lang.Short":
-                return number.shortValue();
-            case "long":
-            case "java.lang.Long":
-                return number.longValue();
-            case "float":
-            case "java.lang.Float":
-                return number.floatValue();
-            case "java.lang.String":
-                return number.toString();
+            switch (fieldType.getName())
+            {
+                case "int":
+                case "java.lang.Integer":
+                    return ((Number) value.get()).intValue();
+                case "short":
+                case "java.lang.Short":
+                    return ((Number) value.get()).shortValue();
+                case "long":
+                case "java.lang.Long":
+                    return ((Number) value.get()).longValue();
+                case "float":
+                case "java.lang.Float":
+                    return ((Number) value.get()).floatValue();
+                case "java.lang.String":
+                    return ((Number) value.get()).toString();
+            }
         }
-        return number;
+        else
+        {
+            switch (value.getType().getName())
+            {
+                case "int":
+                case "java.lang.Integer":
+                    return ((Number) value.get()).intValue();
+                case "short":
+                case "java.lang.Short":
+                    return ((Number) value.get()).shortValue();
+                case "long":
+                case "java.lang.Long":
+                    return ((Number) value.get()).longValue();
+                case "float":
+                case "java.lang.Float":
+                    return ((Number) value.get()).floatValue();
+                case "java.lang.String":
+                    return ((Number) value.get()).toString();
+            }
+        }
+        return value.get();
     }
 
     private static Constructor<?> getConstructor(TypeUtil clz, Class<?>... parameterTypes)
@@ -774,7 +778,7 @@ public class Deserialization
         add(double.class.getName());
     }};
 
-    private static final ArrayList<String> NUMBER_DATA_TYPES = new ArrayList<String>()
+    public static final ArrayList<String> NUMBER_DATA_TYPES = new ArrayList<String>()
     {{
         add(Integer.class.getName());
         add(Short.class.getName());
@@ -788,7 +792,7 @@ public class Deserialization
         add(double.class.getName());
     }};
 
-    private static final ArrayList<String> STRING_DATA_TYPES = new ArrayList<String>()
+    public static final ArrayList<String> STRING_DATA_TYPES = new ArrayList<String>()
     {{
         add(String.class.getName());
         add(StringBuilder.class.getName());

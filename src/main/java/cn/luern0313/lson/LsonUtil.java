@@ -57,7 +57,7 @@ public class LsonUtil
      */
     public static Object getValue(LsonElement json, String path)
     {
-        return Deserialization.getValue(json, new String[]{path}, null, null, null);
+        return Deserialization.getValue(json, new String[]{path}, null, new TypeUtil(null), null);
     }
 
     /**

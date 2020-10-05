@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import cn.luern0313.lson.Deserialization;
 import cn.luern0313.lson.annotation.field.LsonNumberFormat;
 
 
@@ -88,13 +89,9 @@ public class DataProcessUtil
             BigDecimal bigDecimal = new BigDecimal(String.valueOf(value.toString()));
             bigDecimal = bigDecimal.setScale(digit, LsonNumberFormat.NumberFormatMode.modeIntegerMap.get(mode));
 
-            if(value instanceof DeserializationStringUtil)
-            {
-                ((DeserializationStringUtil) value).stringBuilder.delete(0, ((DeserializationStringUtil) value).stringBuilder.length());
-                ((DeserializationStringUtil) value).stringBuilder.append(bigDecimal.toString());
-                return value;
-            }
-            return bigDecimal.doubleValue();
+            if(Deserialization.NUMBER_DATA_TYPES.contains(fieldType.getName()))
+                return bigDecimal.doubleValue();
+            return bigDecimal.toString();
         }
         catch (NumberFormatException e)
         {

@@ -44,4 +44,9 @@ public class TypeUtil
         }
         return null;
     }
+
+    public boolean isNull()
+    {
+        return type == null;
+    }
 }
