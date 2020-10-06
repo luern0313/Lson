@@ -436,9 +436,9 @@ public class Deserialization
         if(LsonDateFormat.class.getName().equals(annotation.annotationType().getName()))
             return DataProcessUtil.getTime(Long.parseLong(value.toString()) * (((LsonDateFormat) annotation).mode() == LsonDateFormat.LsonDateFormatMode.SECOND ? 1000 : 0), ((LsonDateFormat) annotation).value());
         else if(LsonAddPrefix.class.getName().equals(annotation.annotationType().getName()))
-            return ((LsonAddPrefix) annotation).value() + value;
+            return ((StringBuilder) value).insert(0, ((LsonAddPrefix) annotation).value());
         else if(LsonAddSuffix.class.getName().equals(annotation.annotationType().getName()))
-            return value + ((LsonAddSuffix) annotation).value();
+            return ((StringBuilder) value).append(((LsonAddSuffix) annotation).value());
         else if(LsonNumberFormat.class.getName().equals(annotation.annotationType().getName()))
             return DataProcessUtil.getNumberFormat(value, ((LsonNumberFormat) annotation).digit(), ((LsonNumberFormat) annotation).mode(), fieldType);
         else if(LsonReplaceAll.class.getName().equals(annotation.annotationType().getName()))
