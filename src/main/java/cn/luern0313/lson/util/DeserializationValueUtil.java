@@ -7,7 +7,7 @@ package cn.luern0313.lson.util;
 public class DeserializationValueUtil
 {
     private Object value;
-    private Class<?> type;
+    private final Class<?> type;
 
     public DeserializationValueUtil(String string)
     {
@@ -37,29 +37,13 @@ public class DeserializationValueUtil
 
     public DeserializationValueUtil set(Object value)
     {
-        if(this.value instanceof StringBuilder)
-            setAsString(value.toString());
+        if(this.value instanceof StringBuilder && value instanceof String)
+        {
+            ((StringBuilder) this.value).setLength(0);
+            ((StringBuilder) this.value).append(value);
+        }
         else
             this.value = value;
-        return this;
-    }
-
-    public DeserializationValueUtil setAsString(String text)
-    {
-        ((StringBuilder) value).setLength(0);
-        ((StringBuilder) value).append(text);
-        return this;
-    }
-
-    public DeserializationValueUtil insertAsString(int index, String text)
-    {
-        ((StringBuilder) value).insert(index, text);
-        return this;
-    }
-
-    public DeserializationValueUtil appendAsString(String text)
-    {
-        ((StringBuilder) value).append(text);
         return this;
     }
 
