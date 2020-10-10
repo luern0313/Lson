@@ -1,6 +1,7 @@
 package cn.luern0313.lson;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import cn.luern0313.lson.element.LsonElement;
 import cn.luern0313.lson.util.TypeUtil;
@@ -38,12 +39,11 @@ public class LsonUtil
      *
      * @author luern0313
      */
-    @SuppressWarnings("unchecked")
     public static <T> T fromJson(LsonElement json, TypeReference<T> typeReference)
     {
         Deserialization.typeReference = typeReference;
         Deserialization.parameterizedTypes.clear();
-        return (T) Deserialization.fromJson(json, new TypeUtil(typeReference.type), null, new ArrayList<>());
+        return Deserialization.fromJson(json, new TypeUtil(typeReference.type), null, new ArrayList<>());
     }
 
     /**
@@ -57,7 +57,27 @@ public class LsonUtil
      */
     public static Object getValue(LsonElement json, String path)
     {
-        return Deserialization.getValue(json, new String[]{path}, null, new TypeUtil(null), null);
+        return getValue(json, path, Object.class);
+    }
+
+    /**
+     * 获取json中对应JSONPath的值，并指明该值的类型。
+     *
+     * @param json Lson解析过的json对象。
+     * @param path JSONPath，用于描述要取到的值在json中的位置。
+     * @param clz 该值的类型，Lson会尝试将该值转为指定的类型。
+     * @return JSONPath对应的值。
+     *
+     * @author luern0313
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T getValue(LsonElement json, String path, Class<T> clz)
+    {
+        TypeUtil typeUtil = new TypeUtil(clz);
+        T t = (T) Deserialization.finalValueHandle(Deserialization.getValue(json, new String[]{path}, null, typeUtil, null), typeUtil);
+        if(t == null && clz.isPrimitive())
+            return (T) primitiveDefaultValue.get(clz.getName());
+        return t;
     }
 
     /**
@@ -71,4 +91,16 @@ public class LsonUtil
     {
         Deserialization.lsonAnnotationListener = lsonAnnotationListener;
     }
+
+    private static HashMap<String, Object> primitiveDefaultValue = new HashMap<String, Object>()
+    {{
+        put(int.class.getName(), 0);
+        put(byte.class.getName(), (byte) 0);
+        put(char.class.getName(), (char) 0);
+        put(double.class.getName(), 0d);
+        put(float.class.getName(), 0f);
+        put(long.class.getName(), 0L);
+        put(short.class.getName(), (short) 0);
+        put(boolean.class.getName(), false);
+    }};
 }

@@ -62,9 +62,8 @@ public class Deserialization
                 t = (T) constructor2.newInstance(genericSuperclass);
             }
         }
-        catch (IllegalAccessException | InvocationTargetException | NullPointerException e)
+        catch (IllegalAccessException | InvocationTargetException | NullPointerException ignored)
         {
-            e.printStackTrace();
         }
         catch (InstantiationException e)
         {
@@ -210,7 +209,7 @@ public class Deserialization
                 }
             }
 
-            if(fieldType.isNull() || BASE_DATA_TYPES.contains(fieldType.getName()) || fieldType.getName().equals(Object.class.getName()))
+            if(fieldType.isNull() || PRIMITIVE_TYPES.contains(fieldType.getName()) || fieldType.getName().equals(Object.class.getName()))
                 return getJsonPrimitiveData(fieldType, json);
             else if(BUILT_IN_CLASS.contains(fieldType.getName()))
             {
@@ -223,9 +222,8 @@ public class Deserialization
             else
                 return getClassData(fieldType, json, rootJson, t, jsonPaths);
         }
-        catch (RuntimeException e)
+        catch (RuntimeException ignored)
         {
-            e.printStackTrace();
         }
         return null;
     }
@@ -242,7 +240,7 @@ public class Deserialization
             Map<String, Object> map = new LinkedHashMap<>();
             String[] keys = json.getAsLsonObject().getKeys();
 
-            if(BASE_DATA_TYPES.contains(valueTypeArgument.getName()))
+            if(PRIMITIVE_TYPES.contains(valueTypeArgument.getName()))
                 for (String key : keys)
                     map.put(key, getJsonPrimitiveData(valueTypeArgument, json.getAsLsonObject().get(key)));
             else
@@ -265,14 +263,14 @@ public class Deserialization
         TypeUtil actualTypeArgument = getArrayType(fieldType);
         TypeUtil realTypeArgument = getArrayRealType(fieldType);
         Object array;
-        if(!NUMBER_DATA_TYPES.contains(realTypeArgument.getName()))
+        if(!NUMBER_TYPES.contains(realTypeArgument.getName()))
             array = Array.newInstance(actualTypeArgument.getAsClass(), json.isLsonArray() ? json.getAsLsonArray().size() : 1);
         else if(isArrayTypeClass(actualTypeArgument))
             array = Array.newInstance(double[].class, json.isLsonArray() ? json.getAsLsonArray().size() : 1);
         else
             array = Array.newInstance(double.class, json.isLsonArray() ? json.getAsLsonArray().size() : 1);
 
-        if(BASE_DATA_TYPES.contains(actualTypeArgument.getName()))
+        if(PRIMITIVE_TYPES.contains(actualTypeArgument.getName()))
         {
             if(json.isLsonArray())
                 for (int i = 0; i < json.getAsLsonArray().size(); i++)
@@ -303,7 +301,7 @@ public class Deserialization
         TypeUtil actualTypeArgument = getListType(fieldType);
         ArrayList<Object> list = new ArrayList<>();
 
-        if(BASE_DATA_TYPES.contains(actualTypeArgument.getName()))
+        if(PRIMITIVE_TYPES.contains(actualTypeArgument.getName()))
         {
             if(json.isLsonArray())
                 for (int i = 0; i < json.getAsLsonArray().size(); i++)
@@ -491,17 +489,16 @@ public class Deserialization
     {
         try
         {
-            if(type != null && NUMBER_DATA_TYPES.contains(type.getName()))
+            if(type != null && NUMBER_TYPES.contains(type.getName()))
                 return new DeserializationValueUtil(jsonPrimitive.getAsDouble(), jsonPrimitive.getValueClass());
-            else if(type != null && STRING_DATA_TYPES.contains(type.getName()))
+            else if(type != null && STRING_TYPES.contains(type.getName()))
                 return new DeserializationValueUtil(jsonPrimitive.getAsString(), jsonPrimitive.getValueClass());
             return new DeserializationValueUtil(jsonPrimitive.get(), jsonPrimitive.getValueClass());
         }
-        catch (RuntimeException e)
+        catch (RuntimeException ignored)
         {
-            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -552,14 +549,14 @@ public class Deserialization
         {
             if(value instanceof Number)
                 return new java.util.Date(((Number) value).longValue());
-            else if(STRING_DATA_TYPES.contains(value.getClass().getName()))
+            else if(STRING_TYPES.contains(value.getClass().getName()))
                 return new java.util.Date(Long.parseLong(value.toString()));
         }
         else if(fieldType.getName().equals(java.sql.Date.class.getName()))
         {
             if(value instanceof Number)
                 return new java.sql.Date(((Number) value).longValue());
-            else if(STRING_DATA_TYPES.contains(value.getClass().getName()))
+            else if(STRING_TYPES.contains(value.getClass().getName()))
                 return new java.sql.Date(Long.parseLong(value.toString()));
         }
         else if(fieldType.getName().equals(LsonElement.class.getName()))
@@ -573,44 +570,55 @@ public class Deserialization
         return value;
     }
 
-    private static Object finalValueHandle(Object value, TypeUtil fieldType)
+    public static Object finalValueHandle(Object value, TypeUtil fieldType)
     {
-        TypeUtil valueClass = new TypeUtil(value.getClass());
-        if(isArrayTypeClass(valueClass))
+        try
         {
-            Object finalValue = Array.newInstance(getArrayType(fieldType).getAsClass(), Array.getLength(value));
-            for (int i = 0; i < Array.getLength(value); i++)
-                Array.set(finalValue, i, finalValueHandle(Array.get(value, i), getArrayType(fieldType)));
-            return finalValue;
-        }
-        else if(isListTypeClass(valueClass))
-        {
-            TypeUtil type = getListType(fieldType);
-            ArrayList<Object> finalValue = new ArrayList<>();
-            for (int i = 0; i < ((List<?>) value).size(); i++)
-                finalValue.add(finalValueHandle(((List<?>) value).get(i), type));
-            return finalValue;
-        }
-        else if(isMapTypeClass(valueClass))
-        {
-            TypeUtil type = getMapType(fieldType);
-            Map<String, Object> finalValue = new LinkedHashMap<>();
-            for (Object key : ((Map<?, ?>) value).keySet().toArray())
-                finalValue.put((String) key, finalValueHandle(((Map<?, ?>) value).get(key), type));
-            return finalValue;
-        }
-        else if(BUILT_IN_CLASS.contains(fieldType.getName()))
-            return handleBuiltInClass(((DeserializationValueUtil) value).get(), fieldType);
-        else if(value instanceof DeserializationValueUtil)
-        {
-            if(((DeserializationValueUtil) value).get() instanceof Double)
-                return finalValueHandle((DeserializationValueUtil) value, fieldType);
-            else if(((DeserializationValueUtil) value).get() instanceof StringBuilder)
-                return ((DeserializationValueUtil) value).get().toString();
+            if(value == null) return null;
+
+            TypeUtil valueClass = new TypeUtil(value.getClass());
+            if(isArrayTypeClass(valueClass))
+            {
+                Object finalValue = Array.newInstance(getArrayType(fieldType).getAsClass(), Array.getLength(value));
+                for (int i = 0; i < Array.getLength(value); i++)
+                    Array.set(finalValue, i, finalValueHandle(Array.get(value, i), getArrayType(fieldType)));
+                return finalValue;
+            }
+            else if(isListTypeClass(valueClass))
+            {
+                TypeUtil type = getListType(fieldType);
+                ArrayList<Object> finalValue = new ArrayList<>();
+                for (int i = 0; i < ((List<?>) value).size(); i++)
+                    finalValue.add(finalValueHandle(((List<?>) value).get(i), type));
+                return finalValue;
+            }
+            else if(isMapTypeClass(valueClass))
+            {
+                TypeUtil type = getMapType(fieldType);
+                Map<String, Object> finalValue = new LinkedHashMap<>();
+                for (Object key : ((Map<?, ?>) value).keySet().toArray())
+                    finalValue.put((String) key, finalValueHandle(((Map<?, ?>) value).get(key), type));
+                return finalValue;
+            }
+            else if(BUILT_IN_CLASS.contains(fieldType.getName()))
+                return handleBuiltInClass(((DeserializationValueUtil) value).get(), fieldType);
+            else if(value instanceof DeserializationValueUtil)
+            {
+                if(((DeserializationValueUtil) value).get() instanceof Double && NUMBER_TYPES
+                        .contains(fieldType.getName()))
+                    return finalValueHandle((DeserializationValueUtil) value, fieldType);
+                else if(((DeserializationValueUtil) value).get() instanceof StringBuilder && fieldType.getName().equals(String.class.getName()))
+                    return ((DeserializationValueUtil) value).get().toString();
+                else
+                    return ((DeserializationValueUtil) value).get(fieldType);
+            }
             else
-                return ((DeserializationValueUtil) value).get();
+                return value;
         }
-        return value;
+        catch (RuntimeException ignored)
+        {
+        }
+        return null;
     }
 
     private static Object finalValueHandle(DeserializationValueUtil value, TypeUtil fieldType)
@@ -761,7 +769,7 @@ public class Deserialization
         Object handleAnnotation(Object value, Annotation annotation, TypeUtil fieldType);
     }
 
-    private static final ArrayList<String> BASE_DATA_TYPES = new ArrayList<String>()
+    private static final ArrayList<String> PRIMITIVE_TYPES = new ArrayList<String>()
     {{
         add(String.class.getName());
         add(Boolean.class.getName());
@@ -778,7 +786,7 @@ public class Deserialization
         add(double.class.getName());
     }};
 
-    public static final ArrayList<String> NUMBER_DATA_TYPES = new ArrayList<String>()
+    public static final ArrayList<String> NUMBER_TYPES = new ArrayList<String>()
     {{
         add(Integer.class.getName());
         add(Short.class.getName());
@@ -792,7 +800,7 @@ public class Deserialization
         add(double.class.getName());
     }};
 
-    public static final ArrayList<String> STRING_DATA_TYPES = new ArrayList<String>()
+    public static final ArrayList<String> STRING_TYPES = new ArrayList<String>()
     {{
         add(String.class.getName());
         add(StringBuilder.class.getName());

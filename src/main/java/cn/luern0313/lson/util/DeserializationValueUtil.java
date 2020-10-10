@@ -30,9 +30,19 @@ public class DeserializationValueUtil
         return value;
     }
 
+    public Object get(TypeUtil typeUtil)
+    {
+        return typeUtil.getAsClass().cast(value);
+    }
+
     public Class<?> getType()
     {
         return type;
+    }
+
+    public Class<?> getCurrentType()
+    {
+        return value.getClass();
     }
 
     public DeserializationValueUtil set(Object value)
