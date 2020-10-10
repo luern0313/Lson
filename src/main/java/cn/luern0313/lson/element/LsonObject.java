@@ -3,6 +3,8 @@ package cn.luern0313.lson.element;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import cn.luern0313.lson.LsonUtil;
+
 
 /**
  * JSON object类。
@@ -35,6 +37,16 @@ public class LsonObject extends LsonElement
         if(lsonElement != null)
             return lsonElement;
         return LsonNull.getJsonNull();
+    }
+
+    public Object getFromPath(String path)
+    {
+        return LsonUtil.getValue(this, path);
+    }
+
+    public <T> T getFromPath(String path, Class<T> clz)
+    {
+        return LsonUtil.getValue(this, path, clz);
     }
 
     public String[] getKeys()
