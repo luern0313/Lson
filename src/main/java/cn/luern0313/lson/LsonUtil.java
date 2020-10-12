@@ -66,6 +66,7 @@ public class LsonUtil
      * @param json Lson解析过的json对象。
      * @param path JSONPath，用于描述要取到的值在json中的位置。
      * @param clz 该值的类型，Lson会尝试将该值转为指定的类型。
+     * @param <T> 指定的类型。
      * @return JSONPath对应的值。
      *
      * @author luern0313
