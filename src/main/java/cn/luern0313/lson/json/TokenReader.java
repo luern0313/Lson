@@ -26,7 +26,7 @@ class TokenReader
             return TokenType.END_DOCUMENT;
         char ch = reader.peek();
         while (isWhiteSpace(ch))
-            reader.next();
+            ch = reader.next();
         switch (ch)
         {
             case '{':
