@@ -4,11 +4,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,17 +45,17 @@ public class Deserialization
     protected static ArrayList<String> parameterizedTypes = new ArrayList<>();
 
     @SuppressWarnings("unchecked")
-    protected static <T> T fromJson(LsonElement json, TypeUtil clz, Object genericSuperclass, ArrayList<Object> rootJsonPath)
+    protected static <T> T fromJson(LsonElement json, TypeUtil typeUtil, Object genericSuperclass, ArrayList<Object> rootJsonPath)
     {
         T t = null;
         try
         {
-            Constructor<?> constructor1 = getConstructor(clz);
+            Constructor<?> constructor1 = typeUtil.getConstructor();
             if(constructor1 != null)
                 t = (T) constructor1.newInstance();
             else
             {
-                Constructor<?> constructor2 = getConstructor(clz, genericSuperclass.getClass());
+                Constructor<?> constructor2 = typeUtil.getConstructor(genericSuperclass.getClass());
                 t = (T) constructor2.newInstance(genericSuperclass);
             }
         }
@@ -71,7 +68,7 @@ public class Deserialization
         }
 
         handleMethod(t, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
-        return deserialization(json, clz, t, rootJsonPath);
+        return deserialization(json, typeUtil, t, rootJsonPath);
     }
 
     private static <T> T deserialization(LsonElement json, TypeUtil clz, T t, ArrayList<Object> rootJsonPath)
@@ -236,7 +233,7 @@ public class Deserialization
 
         if(json.isLsonObject())
         {
-            TypeUtil valueTypeArgument = getMapType(fieldType);
+            TypeUtil valueTypeArgument = fieldType.getMapType();
             Map<String, Object> map = new LinkedHashMap<>();
             String[] keys = json.getAsLsonObject().getKeys();
 
@@ -260,12 +257,12 @@ public class Deserialization
     @SuppressWarnings("unchecked")
     private static Object getArrayData(LsonElement json, LsonElement rootJson, TypeUtil fieldType, ArrayList<Object> jsonPaths, Object t)
     {
-        TypeUtil actualTypeArgument = getArrayType(fieldType);
-        TypeUtil realTypeArgument = getArrayRealType(fieldType);
+        TypeUtil actualTypeArgument = fieldType.getArrayType();
+        TypeUtil realTypeArgument = fieldType.getArrayRealType();
         Object array;
         if(!NUMBER_TYPES.contains(realTypeArgument.getName()))
             array = Array.newInstance(actualTypeArgument.getAsClass(), json.isLsonArray() ? json.getAsLsonArray().size() : 1);
-        else if(isArrayTypeClass(actualTypeArgument))
+        else if(actualTypeArgument.isArrayTypeClass())
             array = Array.newInstance(double[].class, json.isLsonArray() ? json.getAsLsonArray().size() : 1);
         else
             array = Array.newInstance(double.class, json.isLsonArray() ? json.getAsLsonArray().size() : 1);
@@ -298,7 +295,7 @@ public class Deserialization
     @SuppressWarnings("unchecked")
     private static Object getListData(LsonElement json, LsonElement rootJson, TypeUtil fieldType, ArrayList<Object> jsonPaths, Object t)
     {
-        TypeUtil actualTypeArgument = getListType(fieldType);
+        TypeUtil actualTypeArgument = fieldType.getListType();
         ArrayList<Object> list = new ArrayList<>();
 
         if(PRIMITIVE_TYPES.contains(actualTypeArgument.getName()))
@@ -393,17 +390,17 @@ public class Deserialization
     private static Object handleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, TypeUtil fieldClass)
     {
         TypeUtil valueClass = new TypeUtil(value.getClass());
-        if(isArrayTypeClass(valueClass) && !lsonDefinedAnnotation.isIgnoreArray())
+        if(valueClass.isArrayTypeClass() && !lsonDefinedAnnotation.isIgnoreArray())
             for (int i = 0; i < Array.getLength(value); i++)
-                Array.set(value, i, handleAnnotation(Array.get(value, i), annotation, lsonDefinedAnnotation, getArrayType(fieldClass)));
-        else if(isListTypeClass(valueClass) && !lsonDefinedAnnotation.isIgnoreList())
+                Array.set(value, i, handleAnnotation(Array.get(value, i), annotation, lsonDefinedAnnotation, fieldClass.getArrayType()));
+        else if(valueClass.isListTypeClass() && !lsonDefinedAnnotation.isIgnoreList())
             for (int i = 0; i < ((List<?>) value).size(); i++)
-                ((List<Object>) value).set(i, handleAnnotation(((List<?>) value).get(i), annotation, lsonDefinedAnnotation, getListType(fieldClass)));
-        else if(isMapTypeClass(valueClass) && !lsonDefinedAnnotation.isIgnoreMap())
+                ((List<Object>) value).set(i, handleAnnotation(((List<?>) value).get(i), annotation, lsonDefinedAnnotation, fieldClass.getListType()));
+        else if(valueClass.isListTypeClass() && !lsonDefinedAnnotation.isIgnoreMap())
         {
             Object[] keys = ((Map<?, ?>) value).keySet().toArray();
             for (Object key : keys)
-                ((Map<Object, Object>) value).put(key, handleAnnotation(((Map<?, ?>) value).get(key), annotation, lsonDefinedAnnotation, getMapType(fieldClass)));
+                ((Map<Object, Object>) value).put(key, handleAnnotation(((Map<?, ?>) value).get(key), annotation, lsonDefinedAnnotation, fieldClass.getMapType()));
         }
         else
         {
@@ -515,21 +512,21 @@ public class Deserialization
             parameterizedTypes.remove(parameterizedTypes.size() - 1);
             return result;
         }
-        else if(isMapTypeClass(fieldType))
+        else if(fieldType.isMapTypeClass())
         {
             Map<String, ?> map = (Map<String, ?>) getMapData(json, rootJson, fieldType, paths, t);
             for (Object object : map.values().toArray())
                 if(object != null)
                     return map;
         }
-        else if(isArrayTypeClass(fieldType))
+        else if(fieldType.isArrayTypeClass())
         {
             Object array = getArrayData(json, rootJson, fieldType, paths, t);
             for (int i = 0; i < Array.getLength(array); i++)
                 if(Array.get(array, i) != null)
                     return array;
         }
-        else if(isListTypeClass(fieldType))
+        else if(fieldType.isListTypeClass())
         {
             List<?> list = (List<?>) getListData(json, rootJson, fieldType, paths, t);
             for (int i = 0; i < list.size(); i++)
@@ -577,24 +574,24 @@ public class Deserialization
             if(value == null) return null;
 
             TypeUtil valueClass = new TypeUtil(value.getClass());
-            if(isArrayTypeClass(valueClass))
+            if(valueClass.isArrayTypeClass())
             {
-                Object finalValue = Array.newInstance(getArrayType(fieldType).getAsClass(), Array.getLength(value));
+                Object finalValue = Array.newInstance(fieldType.getArrayType().getAsClass(), Array.getLength(value));
                 for (int i = 0; i < Array.getLength(value); i++)
-                    Array.set(finalValue, i, finalValueHandle(Array.get(value, i), getArrayType(fieldType)));
+                    Array.set(finalValue, i, finalValueHandle(Array.get(value, i), fieldType.getArrayType()));
                 return finalValue;
             }
-            else if(isListTypeClass(valueClass))
+            else if(valueClass.isListTypeClass())
             {
-                TypeUtil type = getListType(fieldType);
+                TypeUtil type = fieldType.getListType();
                 ArrayList<Object> finalValue = new ArrayList<>();
                 for (int i = 0; i < ((List<?>) value).size(); i++)
                     finalValue.add(finalValueHandle(((List<?>) value).get(i), type));
                 return finalValue;
             }
-            else if(isMapTypeClass(valueClass))
+            else if(valueClass.isMapTypeClass())
             {
-                TypeUtil type = getMapType(fieldType);
+                TypeUtil type = fieldType.getMapType();
                 Map<String, Object> finalValue = new LinkedHashMap<>();
                 for (Object key : ((Map<?, ?>) value).keySet().toArray())
                     finalValue.put((String) key, finalValueHandle(((Map<?, ?>) value).get(key), type));
@@ -664,89 +661,6 @@ public class Deserialization
             }
         }
         return value.get();
-    }
-
-    private static Constructor<?> getConstructor(TypeUtil clz, Class<?>... parameterTypes)
-    {
-        try
-        {
-            Constructor<?> constructor = clz.getAsClass().getDeclaredConstructor(parameterTypes);
-            constructor.setAccessible(true);
-            return constructor;
-        }
-        catch (RuntimeException | NoSuchMethodException e)
-        {
-            return null;
-        }
-    }
-
-    private static boolean isMapTypeClass(TypeUtil type)
-    {
-        try
-        {
-            return Map.class.isAssignableFrom(type.getAsClass()) || getConstructor(type).newInstance() instanceof Map;
-        }
-        catch (IllegalAccessException | LsonInstantiationException | InstantiationException | InvocationTargetException | NullPointerException | ClassCastException ignored)
-        {
-        }
-        return false;
-    }
-
-    private static boolean isListTypeClass(TypeUtil type)
-    {
-        try
-        {
-            return List.class.isAssignableFrom(type.getAsClass()) || getConstructor(type).newInstance() instanceof List;
-        }
-        catch (IllegalAccessException | LsonInstantiationException | InstantiationException | InvocationTargetException | NullPointerException | ClassCastException ignored)
-        {
-        }
-        return false;
-    }
-
-    private static boolean isArrayTypeClass(TypeUtil type)
-    {
-        if(type.isClass())
-            return type.getAsClass().isArray();
-        return type.getAsType() instanceof GenericArrayType;
-    }
-
-    private static TypeUtil getMapType(TypeUtil type)
-    {
-        Type t = type.getAsType();
-        if (t instanceof ParameterizedType)
-            t = ((ParameterizedType) t).getActualTypeArguments()[1];
-        return new TypeUtil(t);
-    }
-
-    private static TypeUtil getListType(TypeUtil type)
-    {
-        Type t = type.getAsType();
-        if(t instanceof ParameterizedType)
-            t = ((ParameterizedType) t).getActualTypeArguments()[0];
-        return new TypeUtil(t);
-    }
-
-    private static Class<?> getArrayType(Class<?> clz)
-    {
-        return clz.getComponentType();
-    }
-
-    private static TypeUtil getArrayType(TypeUtil type)
-    {
-        Type t = type.getAsType();
-        if(type.isClass())
-            t = getArrayType(type.getAsClass());
-        else if(t instanceof GenericArrayType)
-            t = ((GenericArrayType) t).getGenericComponentType();
-        return new TypeUtil(t);
-    }
-
-    private static TypeUtil getArrayRealType(TypeUtil type)
-    {
-        while (isArrayTypeClass(type))
-            type = getArrayType(type);
-        return type;
     }
 
     /**
