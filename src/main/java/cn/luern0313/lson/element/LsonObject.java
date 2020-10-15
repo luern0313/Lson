@@ -31,6 +31,26 @@ public class LsonObject extends LsonElement
         return map.containsKey(key);
     }
 
+    public LsonElement hasPut(String key, Class<? extends LsonElement> clz)
+    {
+        try
+        {
+            if(!map.containsKey(key))
+                return put(key, clz.newInstance());
+            else
+            {
+                LsonElement lsonElement = get(key);
+                if(lsonElement.getClass().getName().equals(clz.getName()))
+                    return lsonElement;
+            }
+        }
+        catch (InstantiationException | IllegalAccessException e)
+        {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public LsonElement get(String key)
     {
         LsonElement lsonElement = map.get(key);
@@ -54,9 +74,10 @@ public class LsonObject extends LsonElement
         return map.keySet().toArray(new String[0]);
     }
 
-    public void put(String key, LsonElement value)
+    public LsonElement put(String key, LsonElement value)
     {
         map.put(key, value == null ? LsonNull.getJsonNull() : value);
+        return value;
     }
 
     public boolean getAsBoolean(String key)

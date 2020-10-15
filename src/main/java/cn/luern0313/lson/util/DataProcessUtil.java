@@ -123,6 +123,16 @@ public class DataProcessUtil
         }
     }
 
+    /**
+     * 将小驼峰命名法转换为下划线命名法。
+     *
+     * <p>例如：<br><code>videoAuthorUid→video_author_uid</code>
+     *
+     * @param name 小驼峰命名法的变量名
+     * @return 下划线命名法变量名
+     *
+     * @author luern0313
+     */
     public static String getUnderScoreCase(String name)
     {
         try
@@ -140,6 +150,49 @@ public class DataProcessUtil
                     stringBuilder.append("_").append((char) (s + 32));
                 else if(s >= 'A' && s <= 'Z')
                     stringBuilder.append((char) (s + 32));
+                else
+                    stringBuilder.append((char) s);
+            }
+            return stringBuilder.toString();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 将下划线命名法转换为小驼峰命名法。
+     *
+     * <p>例如：<br><code>video_author_uid→videoAuthorUid</code>
+     *
+     * @param name 小驼峰命名法的变量名
+     * @return 下划线命名法变量名
+     *
+     * @author luern0313
+     */
+    public static String getCamelCase(String name)
+    {
+        try
+        {
+            StringReader stringReader = new StringReader(name);
+            StringBuilder stringBuilder = new StringBuilder();
+            int s;
+            boolean isNeedConvertUppercase = false;
+            while (true)
+            {
+                s = stringReader.read();
+                if(s == -1)
+                    break;
+
+                if(s == '_')
+                    isNeedConvertUppercase = true;
+                else if(isNeedConvertUppercase)
+                {
+                    stringBuilder.append((char) (s - 32));
+                    isNeedConvertUppercase = false;
+                }
                 else
                     stringBuilder.append((char) s);
             }

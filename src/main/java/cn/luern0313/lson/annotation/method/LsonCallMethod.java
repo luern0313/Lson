@@ -34,6 +34,16 @@ public @interface LsonCallMethod
         /**
          * 在反序列化之后调用此方法。
          */
-        AFTER_DESERIALIZATION;
+        AFTER_DESERIALIZATION,
+
+        /**
+         * 在序列化之前调用此方法。
+         */
+        BEFORE_SERIALIZATION,
+
+        /**
+         * 在序列化之后调用此方法。
+         */
+        AFTER_SERIALIZATION
     }
 }

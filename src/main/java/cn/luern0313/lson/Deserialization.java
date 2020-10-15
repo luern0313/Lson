@@ -22,6 +22,7 @@ import cn.luern0313.lson.annotation.field.LsonReplaceAll;
 import cn.luern0313.lson.annotation.method.LsonCallMethod;
 import cn.luern0313.lson.element.LsonArray;
 import cn.luern0313.lson.element.LsonElement;
+import cn.luern0313.lson.element.LsonNull;
 import cn.luern0313.lson.element.LsonObject;
 import cn.luern0313.lson.element.LsonPrimitive;
 import cn.luern0313.lson.exception.LsonInstantiationException;
@@ -95,7 +96,7 @@ public class Deserialization
                     }
 
                     Object value = getValue(json, pathArray, rootJsonPath, new TypeUtil(field.getGenericType()), t);
-                    if(value != null)
+                    if(value != null && !(value instanceof LsonNull))
                     {
                         TypeUtil valueType = new TypeUtil(field.getGenericType());
                         Annotation[] annotations = field.getAnnotations();

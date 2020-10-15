@@ -65,8 +65,7 @@ class TokenReader
             return TokenType.NUMBER;
         else if(ch == '"')
             return TokenType.STRING;
-        System.out.println(reader.pos);
-        throw new JsonParseException("Unexpected char " + ch);
+        throw new JsonParseException("Unexpected char " + ch, reader.pos);
     }
 
     String readString()

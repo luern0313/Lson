@@ -82,6 +82,19 @@ public class LsonUtil
     }
 
     /**
+     * 将任意类型数据序列化为json。
+     *
+     * @param object 要序列化的数据。
+     * @return 序列胡结果。
+     *
+     * @author luern0313
+     */
+    public static String toJson(Object object)
+    {
+        return Serialization.toJson(object).toString();
+    }
+
+    /**
      * 程序开始时，通过此方法传入实现{@link Deserialization.LsonAnnotationListener}接口类的实例，自定义注解才可正常运行。
      *
      * @param lsonAnnotationListener 实现{@link Deserialization.LsonAnnotationListener}接口的实例。
