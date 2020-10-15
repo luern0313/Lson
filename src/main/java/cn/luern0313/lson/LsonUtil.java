@@ -75,8 +75,8 @@ public class LsonUtil
     public static <T> T getValue(LsonElement json, String path, Class<T> clz)
     {
         TypeUtil typeUtil = new TypeUtil(clz);
-        T t = (T) Deserialization.finalValueHandle(Deserialization.getValue(json, new String[]{path}, null, typeUtil, null), typeUtil);
-        if(t == null && clz.isPrimitive())
+        T t = (T) Deserialization.finalValueHandle(Deserialization.getValue(json, new String[]{path}, new ArrayList<>(), typeUtil, null), typeUtil);
+        if(t == null && typeUtil.isPrimitive())
             return (T) primitiveDefaultValue.get(clz.getName());
         return t;
     }

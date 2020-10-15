@@ -139,15 +139,14 @@ public class Deserialization
         try
         {
             ArrayList<Object> jsonPaths = (ArrayList<Object>) paths.clone();
+            jsonPaths.addAll(0, rootPath);
 
-            if(rootPath != null)
-                jsonPaths.addAll(0, rootPath);
-            LsonElement json = deepCopy(rootJson);
+            LsonElement json = rootJson.deepCopy();
             for (int i = 0; i < jsonPaths.size(); i++)
             {
                 Object pathType = jsonPaths.get(i);
                 if(pathType instanceof PathType.PathJsonRoot)
-                    json = deepCopy(rootJson);
+                    json = rootJson.deepCopy();
                 else if(pathType instanceof PathType.PathPath)
                 {
                     if(json.isLsonObject())
@@ -206,7 +205,7 @@ public class Deserialization
                 }
             }
 
-            if(fieldType.isNull() || PRIMITIVE_TYPES.contains(fieldType.getName()) || fieldType.getName().equals(Object.class.getName()))
+            if(fieldType.isNull() || fieldType.isPrimitivePlus() || fieldType.getName().equals(Object.class.getName()))
                 return getJsonPrimitiveData(fieldType, json);
             else if(BUILT_IN_CLASS.contains(fieldType.getName()))
             {
@@ -237,7 +236,7 @@ public class Deserialization
             Map<String, Object> map = new LinkedHashMap<>();
             String[] keys = json.getAsLsonObject().getKeys();
 
-            if(PRIMITIVE_TYPES.contains(valueTypeArgument.getName()))
+            if(valueTypeArgument.isPrimitivePlus())
                 for (String key : keys)
                     map.put(key, getJsonPrimitiveData(valueTypeArgument, json.getAsLsonObject().get(key)));
             else
@@ -267,7 +266,7 @@ public class Deserialization
         else
             array = Array.newInstance(double.class, json.isLsonArray() ? json.getAsLsonArray().size() : 1);
 
-        if(PRIMITIVE_TYPES.contains(actualTypeArgument.getName()))
+        if(actualTypeArgument.isPrimitivePlus())
         {
             if(json.isLsonArray())
                 for (int i = 0; i < json.getAsLsonArray().size(); i++)
@@ -298,7 +297,7 @@ public class Deserialization
         TypeUtil actualTypeArgument = fieldType.getListType();
         ArrayList<Object> list = new ArrayList<>();
 
-        if(PRIMITIVE_TYPES.contains(actualTypeArgument.getName()))
+        if(actualTypeArgument.isPrimitivePlus())
         {
             if(json.isLsonArray())
                 for (int i = 0; i < json.getAsLsonArray().size(); i++)
@@ -373,17 +372,6 @@ public class Deserialization
             }
         }
         return false;
-    }
-
-    private static LsonElement deepCopy(LsonElement lsonElement)
-    {
-        if(lsonElement.isLsonObject())
-            return lsonElement.getAsLsonObject().deepCopy();
-        else if(lsonElement.isLsonArray())
-            return lsonElement.getAsLsonArray().deepCopy();
-        else if(lsonElement.isLsonPrimitive())
-            return lsonElement.getAsLsonPrimitive().deepCopy();
-        return lsonElement;
     }
 
     @SuppressWarnings("unchecked")
@@ -682,23 +670,6 @@ public class Deserialization
          */
         Object handleAnnotation(Object value, Annotation annotation, TypeUtil fieldType);
     }
-
-    private static final ArrayList<String> PRIMITIVE_TYPES = new ArrayList<String>()
-    {{
-        add(String.class.getName());
-        add(Boolean.class.getName());
-        add(Integer.class.getName());
-        add(Short.class.getName());
-        add(Long.class.getName());
-        add(Float.class.getName());
-        add(Double.class.getName());
-        add(boolean.class.getName());
-        add(int.class.getName());
-        add(short.class.getName());
-        add(long.class.getName());
-        add(float.class.getName());
-        add(double.class.getName());
-    }};
 
     public static final ArrayList<String> NUMBER_TYPES = new ArrayList<String>()
     {{

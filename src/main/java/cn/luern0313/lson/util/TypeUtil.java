@@ -5,6 +5,7 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -60,6 +61,11 @@ public class TypeUtil
     public boolean isPrimitive()
     {
         return getAsClass().isPrimitive();
+    }
+
+    public boolean isPrimitivePlus()
+    {
+        return PRIMITIVE_TYPES.contains(getName());
     }
 
     public Constructor<?> getConstructor(Class<?>... parameterTypes)
@@ -140,4 +146,21 @@ public class TypeUtil
             type = getArrayType();
         return type;
     }
+
+    private static final ArrayList<String> PRIMITIVE_TYPES = new ArrayList<String>()
+    {{
+        add(String.class.getName());
+        add(Boolean.class.getName());
+        add(Integer.class.getName());
+        add(Short.class.getName());
+        add(Long.class.getName());
+        add(Float.class.getName());
+        add(Double.class.getName());
+        add(boolean.class.getName());
+        add(int.class.getName());
+        add(short.class.getName());
+        add(long.class.getName());
+        add(float.class.getName());
+        add(double.class.getName());
+    }};
 }
