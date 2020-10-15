@@ -22,11 +22,17 @@ class TokenReader
 
     TokenType readNextToken()
     {
-        if(!reader.hasMore())
-            return TokenType.END_DOCUMENT;
-        char ch = reader.peek();
-        while (isWhiteSpace(ch))
-            ch = reader.next();
+        char ch;
+        while (true)
+        {
+            if(!reader.hasMore())
+                return TokenType.END_DOCUMENT;
+            if(isWhiteSpace(ch = reader.peek()))
+                reader.next();
+            else
+                break;
+        }
+
         switch (ch)
         {
             case '{':
