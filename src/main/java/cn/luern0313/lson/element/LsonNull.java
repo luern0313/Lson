@@ -14,6 +14,12 @@ public class LsonNull extends LsonElement
     }
 
     @Override
+    public boolean isLsonNull()
+    {
+        return true;
+    }
+
+    @Override
     public LsonElement deepCopy()
     {
         return this;

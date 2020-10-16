@@ -38,6 +38,11 @@ public abstract class LsonElement
         return null;
     }
 
+    public boolean isLsonNull()
+    {
+        return false;
+    }
+
     public abstract LsonElement deepCopy();
 
     @Override

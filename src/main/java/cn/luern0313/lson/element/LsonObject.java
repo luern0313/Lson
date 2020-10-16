@@ -40,7 +40,7 @@ public class LsonObject extends LsonElement
             else
             {
                 LsonElement lsonElement = get(key);
-                if(lsonElement.getClass().getName().equals(clz.getName()))
+                if(lsonElement.getClass().getName().equals(clz.getName()) && !lsonElement.isLsonPrimitive())
                     return lsonElement;
             }
         }

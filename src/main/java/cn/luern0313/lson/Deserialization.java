@@ -208,7 +208,7 @@ public class Deserialization
 
             if(fieldType.isNull() || fieldType.isPrimitivePlus() || fieldType.getName().equals(Object.class.getName()))
                 return getJsonPrimitiveData(fieldType, json);
-            else if(BUILT_IN_CLASS.contains(fieldType.getName()))
+            else if(fieldType.isBuiltInClass())
             {
                 Object data = getJsonPrimitiveData(fieldType, json);
                 if(data == null)
@@ -586,7 +586,7 @@ public class Deserialization
                     finalValue.put((String) key, finalValueHandle(((Map<?, ?>) value).get(key), type));
                 return finalValue;
             }
-            else if(BUILT_IN_CLASS.contains(fieldType.getName()))
+            else if(fieldType.isBuiltInClass())
                 return handleBuiltInClass(((DeserializationValueUtil) value).get(), fieldType);
             else if(value instanceof DeserializationValueUtil)
             {
@@ -700,17 +700,5 @@ public class Deserialization
         add(LsonDateFormat.class.getName());
         add(LsonNumberFormat.class.getName());
         add(LsonReplaceAll.class.getName());
-    }};
-
-    private static final ArrayList<String> BUILT_IN_CLASS = new ArrayList<String>()
-    {{
-        add(StringBuilder.class.getName());
-        add(StringBuffer.class.getName());
-        add(java.util.Date.class.getName());
-        add(java.sql.Date.class.getName());
-        add(LsonElement.class.getName());
-        add(LsonObject.class.getName());
-        add(LsonArray.class.getName());
-        add(LsonPrimitive.class.getName());
     }};
 }

@@ -9,6 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import cn.luern0313.lson.element.LsonArray;
+import cn.luern0313.lson.element.LsonElement;
+import cn.luern0313.lson.element.LsonObject;
+import cn.luern0313.lson.element.LsonPrimitive;
 import cn.luern0313.lson.exception.LsonInstantiationException;
 
 /**
@@ -66,6 +70,11 @@ public class TypeUtil
     public boolean isPrimitivePlus()
     {
         return PRIMITIVE_TYPES.contains(getName());
+    }
+
+    public boolean isBuiltInClass()
+    {
+        return BUILT_IN_CLASS.contains(getName());
     }
 
     public Constructor<?> getConstructor(Class<?>... parameterTypes)
@@ -162,5 +171,17 @@ public class TypeUtil
         add(long.class.getName());
         add(float.class.getName());
         add(double.class.getName());
+    }};
+
+    private static final ArrayList<String> BUILT_IN_CLASS = new ArrayList<String>()
+    {{
+        add(StringBuilder.class.getName());
+        add(StringBuffer.class.getName());
+        add(java.util.Date.class.getName());
+        add(java.sql.Date.class.getName());
+        add(LsonElement.class.getName());
+        add(LsonObject.class.getName());
+        add(LsonArray.class.getName());
+        add(LsonPrimitive.class.getName());
     }};
 }

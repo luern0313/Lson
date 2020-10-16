@@ -116,12 +116,41 @@ public class LsonArray extends LsonElement
             return lsonElement.getAsLsonObject();
     }
 
-    public void add(LsonElement object)
+    public LsonElement add(LsonElement object)
     {
         if(object != null)
             list.add(object);
         else
             list.add(LsonNull.getJsonNull());
+        return object;
+    }
+
+    public LsonElement set(int index, LsonElement object)
+    {
+        if(object == null)
+            object = LsonNull.getJsonNull();
+
+        while (list.size() - 1 < index)
+            list.add(LsonNull.getJsonNull());
+        list.set(index, object);
+        return object;
+    }
+
+    public LsonElement hasSet(int index, Class<? extends LsonElement> clz)
+    {
+        try
+        {
+            LsonElement lsonElement = get(index);
+            if(lsonElement.isLsonNull())
+                return set(index, clz.newInstance());
+            else if(lsonElement.getClass().getName().equals(clz.getName()) && !lsonElement.isLsonPrimitive())
+                return lsonElement;
+        }
+        catch (InstantiationException | IllegalAccessException e)
+        {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
