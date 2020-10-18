@@ -64,11 +64,19 @@ LsonArray lsonArray = LsonParser.parseAsArray(jsonString);
 XXXModel model = LsonUtil.fromJson(lsonElement, XXXModel.class);
 ```
 
-你需要一个实体类来供Lson反序列化，在需要反序列化的变量上添加注解@LsonPath，并填写path来描述此变量在JSON中的位置。详细用法请查看[Lson Wiki](https://github.com/luern0313/Lson/wiki)。
+你需要一个实体类来供Lson反序列化，在需要反序列化的变量上添加注解@LsonPath，并填写path来描述此变量在JSON中的位置。  
+你还可以使用Lson的内置注解或自定义注解来处理反序列化中的变量。  
+详细用法请查看[Lson Wiki](https://github.com/luern0313/Lson/wiki)。
 
 ### JSON序列化
 
-敬请期待
+``` java
+String json = LsonUtil.toJson(model);
+```
+
+同样的，序列化也需要注解@LsonPath来让Lson定位值在json中的具体位置。  
+内置注解和自定义注解同样可以作用于序列化。  
+详细用法请查看[Lson Wiki](https://github.com/luern0313/Lson/wiki)。
 
 ## 参与此项目
 
@@ -80,7 +88,7 @@ XXXModel model = LsonUtil.fromJson(lsonElement, XXXModel.class);
 
 [luern0313](https://github.com/luern0313)  
 
-特别感谢: [lzjyzq2](https://github.com/lzjyzq2)
+特别感谢: [lzjyzq2](https://github.com/lzjyzq2)、[setTile工作室](https://github.com/setTileGroup)
 
 ## 联系我
 
