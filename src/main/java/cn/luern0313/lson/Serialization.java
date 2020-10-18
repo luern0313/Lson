@@ -103,7 +103,7 @@ public class Serialization
                     if(pathArray.length == 1 && pathArray[0].equals(""))
                         pathArray[0] = DataProcessUtil.getUnderScoreCase(field.getName());
                     field.setAccessible(true);
-                    getValue(toJson(field.get(object)), pathArray[0], new ArrayList<>(), lsonObject);
+                    getValue(toJson(field.get(object)), pathArray[0], new ArrayList<String>(), lsonObject);
                 }
             }
             catch (RuntimeException | IllegalAccessException e)
@@ -135,21 +135,18 @@ public class Serialization
                     jsonTempArrayList.add(j, rootJson);
                 else if(pathType instanceof PathType.PathPath && json.isLsonObject())
                 {
-                    if(jsonPaths.get(i + 1) instanceof PathType.PathIndex || jsonPaths.get(i + 1) instanceof PathType.PathIndexArray)
+                    Object nextPath = jsonPaths.get(i + 1);
+                    if(nextPath instanceof PathType.PathIndex || nextPath instanceof PathType.PathIndexArray || nextPath instanceof PathType.PathFilter)
                         jsonTempArrayList.add(json.getAsLsonObject().hasPut(((PathType.PathPath) pathType).path, LsonArray.class));
                     else
                         jsonTempArrayList.add(json.getAsLsonObject().hasPut(((PathType.PathPath) pathType).path, LsonObject.class));
                 }
                 else if(pathType instanceof PathType.PathPath && json.isLsonArray())
-                {
                     for (int k = 0; k < value.getAsLsonArray().size(); k++)
                         jsonTempArrayList.add(json.getAsLsonObject().hasPut(((PathType.PathPath) pathType).path, LsonObject.class));
-                }
                 else if(pathType instanceof PathType.PathIndexArray && json.isLsonArray())
-                {
                     for (int k = 0; k < ((PathType.PathIndexArray) pathType).index.size(); k++)
                         jsonTempArrayList.add(json.getAsLsonArray().hasSet(((PathType.PathIndexArray) pathType).index.get(k), LsonObject.class));
-                }
                 else if(pathType instanceof PathType.PathIndex && json.isLsonArray())
                 {
                     int start = ((PathType.PathIndex) pathType).start;
@@ -159,6 +156,11 @@ public class Serialization
                     if(((PathType.PathIndex) pathType).step > 0 && end >= start)
                         for (int k = start; k < Math.min(end, start + value.getAsLsonArray().size()); k += ((PathType.PathIndex) pathType).step)
                             jsonTempArrayList.add(json.getAsLsonArray().hasSet(k, LsonObject.class));
+                }
+                else if(pathType instanceof PathType.PathFilter && json.isLsonArray())
+                {
+                    for (int k = 0; k < value.getAsLsonArray().size(); k++)
+                        jsonTempArrayList.add(json.getAsLsonArray().hasSet(k, LsonObject.class));
                 }
             }
         }

@@ -23,9 +23,19 @@ public class TypeUtil
 {
     Type type;
 
+    public TypeUtil(Object value)
+    {
+        this(value.getClass());
+    }
+
     public TypeUtil(Type type)
     {
         this.type = type;
+    }
+
+    public static TypeUtil nullType()
+    {
+        return new TypeUtil(null);
     }
 
     public Type getAsType()
@@ -75,6 +85,16 @@ public class TypeUtil
     public boolean isBuiltInClass()
     {
         return BUILT_IN_CLASS.contains(getName());
+    }
+
+    public boolean isString()
+    {
+        return STRING_TYPES.contains(getName());
+    }
+
+    public boolean isNumber()
+    {
+        return NUMBER_TYPES.contains(getName());
     }
 
     public Constructor<?> getConstructor(Class<?>... parameterTypes)
@@ -183,5 +203,26 @@ public class TypeUtil
         add(LsonObject.class.getName());
         add(LsonArray.class.getName());
         add(LsonPrimitive.class.getName());
+    }};
+
+    public static final ArrayList<String> STRING_TYPES = new ArrayList<String>()
+    {{
+        add(String.class.getName());
+        add(StringBuilder.class.getName());
+        add(StringBuffer.class.getName());
+    }};
+
+    public static final ArrayList<String> NUMBER_TYPES = new ArrayList<String>()
+    {{
+        add(Integer.class.getName());
+        add(Short.class.getName());
+        add(Long.class.getName());
+        add(Float.class.getName());
+        add(Double.class.getName());
+        add(int.class.getName());
+        add(short.class.getName());
+        add(long.class.getName());
+        add(float.class.getName());
+        add(double.class.getName());
     }};
 }

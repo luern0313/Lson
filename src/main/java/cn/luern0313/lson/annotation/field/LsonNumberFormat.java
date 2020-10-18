@@ -18,7 +18,7 @@ import cn.luern0313.lson.LsonDefinedAnnotation;
  * @author luern0313
  */
 
-@LsonDefinedAnnotation(applyTypeWhiteList = {String.class, int.class, short.class, long.class, float.class, double.class})
+@LsonDefinedAnnotation(acceptableType = LsonDefinedAnnotation.AcceptableType.NUMBER)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LsonNumberFormat

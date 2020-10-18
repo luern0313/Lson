@@ -23,26 +23,15 @@ import java.lang.annotation.Target;
 public @interface LsonDefinedAnnotation
 {
     /**
-     * 注解可用于变量的类型的白名单。
+     * 该注解处理接受的数据类型。
      *
-     * <p>可传入一个或多个{@link Class}类，如变量类型不在列表中，则抛出若默认则不做任何限制。
+     * <p>Lson会先试着将该数据转为该类型，如不能转换则不进行处理。
      *
-     * @return 白名单数组。
-     *
-     * @author luern0313
-     */
-    Class<?>[] applyTypeWhiteList() default {};
-
-    /**
-     * 注解可用于变量的类型的黑名单。
-     *
-     * <p>可传入一个或多个{@link Class}类，若默认则不做任何限制。
-     *
-     * @return 黑名单数组。
+     * @return 类型数据
      *
      * @author luern0313
      */
-    Class<?>[] applyTypeBlackList() default {};
+    AcceptableType acceptableType() default AcceptableType.NOT_HANDLE;
 
     /**
      * 标记此自定义注解是否需要忽略数组类型。
@@ -81,4 +70,11 @@ public @interface LsonDefinedAnnotation
      * @author luern0313
      */
     boolean isIgnoreMap() default false;
+
+    enum AcceptableType
+    {
+        NOT_HANDLE,
+        STRING,
+        NUMBER
+    }
 }

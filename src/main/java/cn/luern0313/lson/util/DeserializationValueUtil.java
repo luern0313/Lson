@@ -7,7 +7,7 @@ package cn.luern0313.lson.util;
 public class DeserializationValueUtil
 {
     private Object value;
-    private final Class<?> type;
+    private final TypeUtil type;
 
     public DeserializationValueUtil(String string)
     {
@@ -16,13 +16,14 @@ public class DeserializationValueUtil
 
     public DeserializationValueUtil(Object value, Class<?> type)
     {
-        if(value instanceof String)
-            this.value = new StringBuilder((String) value);
-        else if(value instanceof Number)
+        TypeUtil typeUtil = new TypeUtil(value.getClass());
+        if(typeUtil.isString())
+            this.value = new StringBuilder(value.toString());
+        else if(typeUtil.isNumber())
             this.value = ((Number) value).doubleValue();
         else
             this.value = value;
-        this.type = type;
+        this.type = new TypeUtil(type);
     }
 
     public Object get()
@@ -37,7 +38,7 @@ public class DeserializationValueUtil
 
     public Class<?> getType()
     {
-        return type;
+        return type.getAsClass();
     }
 
     public Class<?> getCurrentType()
@@ -52,9 +53,26 @@ public class DeserializationValueUtil
             ((StringBuilder) this.value).setLength(0);
             ((StringBuilder) this.value).append(value);
         }
+        else if(value instanceof Number)
+            this.value = ((Number) value).doubleValue();
         else
             this.value = value;
         return this;
+    }
+
+    public StringBuilder getAsStringBuilder()
+    {
+        if(value instanceof StringBuilder)
+            return (StringBuilder) value;
+        else
+            return new StringBuilder(toString());
+    }
+
+    public Number getAsNumber()
+    {
+        if(DataProcessUtil.isDouble(value.toString()))
+            return Double.parseDouble(value.toString());
+        return null;
     }
 
     @Override

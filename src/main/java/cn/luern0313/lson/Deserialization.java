@@ -260,7 +260,7 @@ public class Deserialization
         TypeUtil actualTypeArgument = fieldType.getArrayType();
         TypeUtil realTypeArgument = fieldType.getArrayRealType();
         Object array;
-        if(!NUMBER_TYPES.contains(realTypeArgument.getName()))
+        if(!realTypeArgument.isNumber())
             array = Array.newInstance(actualTypeArgument.getAsClass(), json.isLsonArray() ? json.getAsLsonArray().size() : 1);
         else if(actualTypeArgument.isArrayTypeClass())
             array = Array.newInstance(double[].class, json.isLsonArray() ? json.getAsLsonArray().size() : 1);
@@ -329,7 +329,7 @@ public class Deserialization
         if(part.mode == PathType.PathFilter.PathFilterPart.FilterPartMode.PATH)
         {
             rootPath.add(new PathType.PathIndexArray(new ArrayList<>(Collections.singletonList(index))));
-            result = getValue(rootJson, part.part, rootPath, null, t);
+            result = finalValueHandle(getValue(rootJson, part.part, rootPath, TypeUtil.nullType(), t), TypeUtil.nullType());
             rootPath.remove(rootPath.size() - 1);
 
             if(result instanceof Object[])
@@ -393,32 +393,38 @@ public class Deserialization
         }
         else
         {
-            if((lsonDefinedAnnotation.applyTypeBlackList().length == 0 || DataProcessUtil.getIndex(fieldClass.getAsClass(), lsonDefinedAnnotation.applyTypeBlackList()) == -1) &&
-                    (lsonDefinedAnnotation.applyTypeWhiteList().length == 0 || DataProcessUtil.getIndex(fieldClass.getAsClass(), lsonDefinedAnnotation.applyTypeWhiteList()) != -1))
+            if(value instanceof DeserializationValueUtil)
             {
-                if(BUILT_IN_ANNOTATION.contains(annotation.annotationType().getName()))
-                {
-                    if(value instanceof DeserializationValueUtil)
-                        ((DeserializationValueUtil) value).set(handleBuiltInAnnotation(((DeserializationValueUtil) value).get(), annotation, fieldClass));
-                    else
-                        value = handleBuiltInAnnotation(value, annotation, fieldClass);
-                }
-                else if(lsonAnnotationListener != null)
-                {
-                    if(value instanceof DeserializationValueUtil)
-                        ((DeserializationValueUtil) value).set(lsonAnnotationListener.handleAnnotation(((DeserializationValueUtil) value).get(), annotation, fieldClass));
-                    else
-                        value = lsonAnnotationListener.handleAnnotation(value, annotation, fieldClass);
-                }
+                Object object = handleAnnotationType((DeserializationValueUtil) value, lsonDefinedAnnotation.acceptableType());
+                if(object != null && BUILT_IN_ANNOTATION.contains(annotation.annotationType().getName()))
+                    ((DeserializationValueUtil) value).set(handleBuiltInAnnotation(object, annotation, fieldClass));
+                else if(object != null)
+                    ((DeserializationValueUtil) value).set(lsonAnnotationListener.handleAnnotation(object, annotation, fieldClass));
             }
+            else if(BUILT_IN_ANNOTATION.contains(annotation.annotationType().getName()))
+                value = handleBuiltInAnnotation(value, annotation, fieldClass);
+            else if(lsonAnnotationListener != null)
+                value = lsonAnnotationListener.handleAnnotation(value, annotation, fieldClass);
         }
         return value;
+    }
+
+    private static Object handleAnnotationType(DeserializationValueUtil deserializationValueUtil, LsonDefinedAnnotation.AcceptableType acceptableType)
+    {
+        switch (acceptableType)
+        {
+            case STRING:
+                return deserializationValueUtil.getAsStringBuilder();
+            case NUMBER:
+                return deserializationValueUtil.getAsNumber();
+        }
+        return deserializationValueUtil.get();
     }
 
     private static Object handleBuiltInAnnotation(Object value, Annotation annotation, TypeUtil fieldType)
     {
         if(LsonDateFormat.class.getName().equals(annotation.annotationType().getName()))
-            return DataProcessUtil.getTime(Long.parseLong(value.toString()) * (((LsonDateFormat) annotation).mode() == LsonDateFormat.LsonDateFormatMode.SECOND ? 1000 : 0), ((LsonDateFormat) annotation).value());
+            return DataProcessUtil.getTime(((Number) value).longValue() * (((LsonDateFormat) annotation).mode() == LsonDateFormat.LsonDateFormatMode.SECOND ? 1000 : 0), ((LsonDateFormat) annotation).value());
         else if(LsonAddPrefix.class.getName().equals(annotation.annotationType().getName()))
             return ((StringBuilder) value).insert(0, ((LsonAddPrefix) annotation).value());
         else if(LsonAddSuffix.class.getName().equals(annotation.annotationType().getName()))
@@ -475,10 +481,10 @@ public class Deserialization
     {
         try
         {
-            if(type != null && NUMBER_TYPES.contains(type.getName()))
-                return new DeserializationValueUtil(jsonPrimitive.getAsDouble(), jsonPrimitive.getValueClass());
-            else if(type != null && STRING_TYPES.contains(type.getName()))
-                return new DeserializationValueUtil(jsonPrimitive.getAsString(), jsonPrimitive.getValueClass());
+            if(type != null && type.isNumber())
+                return new DeserializationValueUtil(jsonPrimitive.get(), jsonPrimitive.getValueClass());
+            else if(type != null && type.isString())
+                return new DeserializationValueUtil(jsonPrimitive.get(), jsonPrimitive.getValueClass());
             return new DeserializationValueUtil(jsonPrimitive.get(), jsonPrimitive.getValueClass());
         }
         catch (RuntimeException ignored)
@@ -527,22 +533,23 @@ public class Deserialization
 
     private static Object handleBuiltInClass(Object value, TypeUtil fieldType)
     {
+        TypeUtil valueType = new TypeUtil(value);
         if(fieldType.getName().equals(StringBuilder.class.getName()))
             return new StringBuilder(value.toString());
         else if(fieldType.getName().equals(StringBuffer.class.getName()))
             return new StringBuffer(value.toString());
         else if(fieldType.getName().equals(java.util.Date.class.getName()))
         {
-            if(value instanceof Number)
+            if(valueType.isNumber())
                 return new java.util.Date(((Number) value).longValue());
-            else if(STRING_TYPES.contains(value.getClass().getName()))
+            else if(valueType.isString())
                 return new java.util.Date(Long.parseLong(value.toString()));
         }
         else if(fieldType.getName().equals(java.sql.Date.class.getName()))
         {
-            if(value instanceof Number)
+            if(valueType.isNumber())
                 return new java.sql.Date(((Number) value).longValue());
-            else if(STRING_TYPES.contains(value.getClass().getName()))
+            else if(valueType.isString())
                 return new java.sql.Date(Long.parseLong(value.toString()));
         }
         else if(fieldType.getName().equals(LsonElement.class.getName()))
@@ -590,8 +597,7 @@ public class Deserialization
                 return handleBuiltInClass(((DeserializationValueUtil) value).get(), fieldType);
             else if(value instanceof DeserializationValueUtil)
             {
-                if(((DeserializationValueUtil) value).get() instanceof Double && NUMBER_TYPES
-                        .contains(fieldType.getName()))
+                if(((DeserializationValueUtil) value).get() instanceof Double)
                     return finalValueHandle((DeserializationValueUtil) value, fieldType);
                 else if(((DeserializationValueUtil) value).get() instanceof StringBuilder && fieldType.getName().equals(String.class.getName()))
                     return ((DeserializationValueUtil) value).get().toString();
@@ -626,7 +632,7 @@ public class Deserialization
                 case "java.lang.Float":
                     return ((Number) value.get()).floatValue();
                 case "java.lang.String":
-                    return ((Number) value.get()).toString();
+                    return finalValueHandle(value, TypeUtil.nullType()).toString();
             }
         }
         else
@@ -671,27 +677,6 @@ public class Deserialization
          */
         Object handleAnnotation(Object value, Annotation annotation, TypeUtil fieldType);
     }
-
-    public static final ArrayList<String> NUMBER_TYPES = new ArrayList<String>()
-    {{
-        add(Integer.class.getName());
-        add(Short.class.getName());
-        add(Long.class.getName());
-        add(Float.class.getName());
-        add(Double.class.getName());
-        add(int.class.getName());
-        add(short.class.getName());
-        add(long.class.getName());
-        add(float.class.getName());
-        add(double.class.getName());
-    }};
-
-    public static final ArrayList<String> STRING_TYPES = new ArrayList<String>()
-    {{
-        add(String.class.getName());
-        add(StringBuilder.class.getName());
-        add(StringBuffer.class.getName());
-    }};
 
     private static final ArrayList<String> BUILT_IN_ANNOTATION = new ArrayList<String>()
     {{
