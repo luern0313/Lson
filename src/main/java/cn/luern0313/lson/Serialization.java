@@ -103,7 +103,7 @@ public class Serialization
                     if(pathArray.length == 1 && pathArray[0].equals(""))
                         pathArray[0] = DataProcessUtil.getUnderScoreCase(field.getName());
                     field.setAccessible(true);
-                    getValue(toJson(field.get(object)), pathArray[0], new ArrayList<String>(), lsonObject);
+                    getValue(toJson(field.get(object)), pathArray[0], new ArrayList<>(), lsonObject);
                 }
             }
             catch (RuntimeException | IllegalAccessException e)
@@ -133,6 +133,8 @@ public class Serialization
 
                 if(pathType instanceof PathType.PathJsonRoot)
                     jsonTempArrayList.add(j, rootJson);
+                else if(pathType instanceof PathType.PathJsonCurrent)
+                    jsonTempArrayList.add(j, rootJson);
                 else if(pathType instanceof PathType.PathPath && json.isLsonObject())
                 {
                     Object nextPath = jsonPaths.get(i + 1);
@@ -158,16 +160,16 @@ public class Serialization
                             jsonTempArrayList.add(json.getAsLsonArray().hasSet(k, LsonObject.class));
                 }
                 else if(pathType instanceof PathType.PathFilter && json.isLsonArray())
-                {
                     for (int k = 0; k < value.getAsLsonArray().size(); k++)
-                        jsonTempArrayList.add(json.getAsLsonArray().hasSet(k, LsonObject.class));
-                }
+                        jsonTempArrayList.add(json.getAsLsonArray().add(new LsonObject()));
             }
         }
 
         if(jsonTempArrayList.size() > 1 && value.isLsonArray())
             for (int i = 0; i < jsonTempArrayList.size(); i++)
                 jsonTempArrayList.get(i).getAsLsonObject().put(((PathType.PathPath) jsonPaths.get(jsonPaths.size() - 1)).path, value.getAsLsonArray().get(i));
+        else if(value.isLsonArray() && value.getAsLsonArray().size() == 1)
+            jsonTempArrayList.get(0).getAsLsonObject().put(((PathType.PathPath) jsonPaths.get(jsonPaths.size() - 1)).path, value.getAsLsonArray().get(0));
         else
             jsonTempArrayList.get(0).getAsLsonObject().put(((PathType.PathPath) jsonPaths.get(jsonPaths.size() - 1)).path, value);
     }
