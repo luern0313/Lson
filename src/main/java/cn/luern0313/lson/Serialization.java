@@ -2,12 +2,15 @@ package cn.luern0313.lson;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import cn.luern0313.lson.annotation.field.LsonPath;
+import cn.luern0313.lson.annotation.method.LsonCallMethod;
 import cn.luern0313.lson.element.LsonArray;
 import cn.luern0313.lson.element.LsonElement;
 import cn.luern0313.lson.element.LsonObject;
@@ -90,6 +93,7 @@ public class Serialization
 
     private static LsonElement classToJson(Object object, TypeUtil typeUtil)
     {
+        handleMethod(object, LsonCallMethod.CallMethodTiming.AFTER_SERIALIZATION);
         LsonObject lsonObject = new LsonObject();
         Field[] fields = typeUtil.getAsClass().getDeclaredFields();
         for (Field field : fields)
@@ -111,6 +115,7 @@ public class Serialization
                 e.printStackTrace();
             }
         }
+        handleMethod(object, LsonCallMethod.CallMethodTiming.BEFORE_SERIALIZATION);
         return lsonObject;
     }
 
@@ -172,5 +177,30 @@ public class Serialization
             jsonTempArrayList.get(0).getAsLsonObject().put(((PathType.PathPath) jsonPaths.get(jsonPaths.size() - 1)).path, value.getAsLsonArray().get(0));
         else
             jsonTempArrayList.get(0).getAsLsonObject().put(((PathType.PathPath) jsonPaths.get(jsonPaths.size() - 1)).path, value);
+    }
+
+    private static void handleMethod(Object t, LsonCallMethod.CallMethodTiming callMethodTiming)
+    {
+        if(t != null)
+        {
+            Class<?> clz = t.getClass();
+            Method[] methods = clz.getDeclaredMethods();
+            for (Method method : methods)
+            {
+                try
+                {
+                    LsonCallMethod lsonCallMethod = method.getAnnotation(LsonCallMethod.class);
+                    if(lsonCallMethod != null && DataProcessUtil.getIndex(callMethodTiming, lsonCallMethod.timing()) != -1)
+                    {
+                        method.setAccessible(true);
+                        method.invoke(t);
+                    }
+                }
+                catch (RuntimeException | IllegalAccessException | InvocationTargetException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
