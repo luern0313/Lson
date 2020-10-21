@@ -3,10 +3,12 @@ package cn.luern0313.lson.util;
 import java.io.IOException;
 import java.io.StringReader;
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import cn.luern0313.lson.annotation.field.LsonDateFormat;
 import cn.luern0313.lson.annotation.field.LsonNumberFormat;
 
 
@@ -79,6 +81,30 @@ public class DataProcessUtil
             e.printStackTrace();
             return "";
         }
+    }
+
+    /**
+     * 通过格式化后的时间获得时间戳。
+     *
+     * @param time 格式化后的时间。
+     * @param pattern 格式化时间格式。
+     * @param lsonDateFormatMode 时间戳类型。
+     * @return 时间戳。
+     *
+     * @author luern0313
+     */
+    public static long getTimeStamp(String time, String pattern, LsonDateFormat.LsonDateFormatMode lsonDateFormatMode)
+    {
+        try
+        {
+            SimpleDateFormat format = new SimpleDateFormat(pattern, Locale.getDefault());
+            return format.parse(time).getTime() / (lsonDateFormatMode == LsonDateFormat.LsonDateFormatMode.SECOND ? 1000 : 0);
+        }
+        catch (RuntimeException | ParseException e)
+        {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     public static Object getNumberFormat(Object value, int digit, LsonNumberFormat.NumberFormatMode mode, TypeUtil fieldType)
