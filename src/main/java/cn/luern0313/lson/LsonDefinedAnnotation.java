@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 public @interface LsonDefinedAnnotation
 {
     /**
-     * 该注解处理接受的数据类型。
+     * 反序列化过程中，该注解处理接受的数据类型。
      *
      * <p>Lson会先试着将该数据转为该类型，如不能转换则不进行处理。
      *
@@ -31,7 +31,19 @@ public @interface LsonDefinedAnnotation
      *
      * @author luern0313
      */
-    AcceptableType acceptableType() default AcceptableType.NOT_HANDLE;
+    AcceptableType acceptableDeserializationType() default AcceptableType.NOT_HANDLE;
+
+    /**
+     * 序列化过程中，该注解处理接受的数据类型。
+     *
+     * <p>Lson会先试着将该数据转为该类型，如不能转换则不进行处理。
+     * <p>由于Lson会以反序列化相反的过程执行序列化，以相反的过程
+     *
+     * @return 类型数据
+     *
+     * @author luern0313
+     */
+    AcceptableType acceptableSerializationType() default AcceptableType.NOT_HANDLE;
 
     /**
      * 标记此自定义注解是否需要忽略数组类型。

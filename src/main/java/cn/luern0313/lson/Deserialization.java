@@ -40,7 +40,6 @@ import cn.luern0313.lson.util.TypeUtil;
 
 public class Deserialization
 {
-    protected static Deserialization.LsonAnnotationListener lsonAnnotationListener;
     protected static TypeReference<?> typeReference;
 
     protected static ArrayList<String> parameterizedTypes = new ArrayList<>();
@@ -395,16 +394,16 @@ public class Deserialization
         {
             if(value instanceof DeserializationValueUtil)
             {
-                Object object = handleAnnotationType((DeserializationValueUtil) value, lsonDefinedAnnotation.acceptableType());
-                if(object != null && BUILT_IN_ANNOTATION.contains(annotation.annotationType().getName()))
+                Object object = handleAnnotationType((DeserializationValueUtil) value, lsonDefinedAnnotation.acceptableDeserializationType());
+                if(object != null && LsonUtil.BUILT_IN_ANNOTATION.contains(annotation.annotationType().getName()))
                     ((DeserializationValueUtil) value).set(handleBuiltInAnnotation(object, annotation, fieldClass));
                 else if(object != null)
-                    ((DeserializationValueUtil) value).set(lsonAnnotationListener.handleAnnotation(object, annotation, fieldClass));
+                    ((DeserializationValueUtil) value).set(LsonUtil.lsonAnnotationListener.handleDeserializationAnnotation(object, annotation, fieldClass));
             }
-            else if(BUILT_IN_ANNOTATION.contains(annotation.annotationType().getName()))
+            else if(LsonUtil.BUILT_IN_ANNOTATION.contains(annotation.annotationType().getName()))
                 value = handleBuiltInAnnotation(value, annotation, fieldClass);
-            else if(lsonAnnotationListener != null)
-                value = lsonAnnotationListener.handleAnnotation(value, annotation, fieldClass);
+            else if(LsonUtil.lsonAnnotationListener != null)
+                value = LsonUtil.lsonAnnotationListener.handleDeserializationAnnotation(value, annotation, fieldClass);
         }
         return value;
     }
@@ -473,24 +472,8 @@ public class Deserialization
             if(json.getAsLsonArray().size() > 0)
                 json = json.getAsLsonArray().get(0);
         if(json.isLsonPrimitive())
-            return getJsonPrimitiveData(type, json.getAsLsonPrimitive());
+            return new DeserializationValueUtil(json.getAsLsonPrimitive().get(), json.getAsLsonPrimitive().getValueClass());;
         return null;
-    }
-
-    private static DeserializationValueUtil getJsonPrimitiveData(TypeUtil type, LsonPrimitive jsonPrimitive)
-    {
-        try
-        {
-            if(type != null && type.isNumber())
-                return new DeserializationValueUtil(jsonPrimitive.get(), jsonPrimitive.getValueClass());
-            else if(type != null && type.isString())
-                return new DeserializationValueUtil(jsonPrimitive.get(), jsonPrimitive.getValueClass());
-            return new DeserializationValueUtil(jsonPrimitive.get(), jsonPrimitive.getValueClass());
-        }
-        catch (RuntimeException ignored)
-        {
-            return null;
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -657,33 +640,4 @@ public class Deserialization
         }
         return value.get();
     }
-
-    /**
-     * 自定义注解相关。
-     *
-     * @author luern0313
-     */
-    public interface LsonAnnotationListener
-    {
-        /**
-         * 开发者可以通过重写这个方法在反序列化中处理自定义注解。
-         *
-         * @param value 处理前的值。
-         * @param annotation 开发者自定义的注解实例。
-         * @param fieldType 要填充数据的目标变量的类型。
-         * @return 处理完成的值。
-         *
-         * @author luern0313
-         */
-        Object handleAnnotation(Object value, Annotation annotation, TypeUtil fieldType);
-    }
-
-    private static final ArrayList<String> BUILT_IN_ANNOTATION = new ArrayList<String>()
-    {{
-        add(LsonAddPrefix.class.getName());
-        add(LsonAddSuffix.class.getName());
-        add(LsonDateFormat.class.getName());
-        add(LsonNumberFormat.class.getName());
-        add(LsonReplaceAll.class.getName());
-    }};
 }

@@ -1,15 +1,22 @@
 package cn.luern0313.lson;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.luern0313.lson.annotation.field.LsonAddPrefix;
+import cn.luern0313.lson.annotation.field.LsonAddSuffix;
+import cn.luern0313.lson.annotation.field.LsonDateFormat;
+import cn.luern0313.lson.annotation.field.LsonNumberFormat;
 import cn.luern0313.lson.annotation.field.LsonPath;
+import cn.luern0313.lson.annotation.field.LsonReplaceAll;
 import cn.luern0313.lson.annotation.method.LsonCallMethod;
 import cn.luern0313.lson.element.LsonArray;
 import cn.luern0313.lson.element.LsonElement;
@@ -18,6 +25,7 @@ import cn.luern0313.lson.element.LsonPrimitive;
 import cn.luern0313.lson.path.PathParser;
 import cn.luern0313.lson.path.PathType;
 import cn.luern0313.lson.util.DataProcessUtil;
+import cn.luern0313.lson.util.DeserializationValueUtil;
 import cn.luern0313.lson.util.TypeUtil;
 
 /**
@@ -107,7 +115,18 @@ public class Serialization
                     if(pathArray.length == 1 && pathArray[0].equals(""))
                         pathArray[0] = DataProcessUtil.getUnderScoreCase(field.getName());
                     field.setAccessible(true);
-                    getValue(toJson(field.get(object)), pathArray[0], new ArrayList<>(), lsonObject);
+                    LsonElement fieldElement = toJson(field.get(object));
+                    Object value = getDeserializationValue(fieldElement);
+
+                    TypeUtil valueType = new TypeUtil(field.getGenericType());
+                    Annotation[] annotations = field.getAnnotations();
+                    for (int i = annotations.length - 1; i >= 0; i--)
+                    {
+                        LsonDefinedAnnotation lsonDefinedAnnotation = annotations[i].annotationType().getAnnotation(LsonDefinedAnnotation.class);
+                        if(lsonDefinedAnnotation != null && !annotations[i].annotationType().getName().equals(LsonPath.class.getName()))
+                            value = handleAnnotation(value, annotations[i], lsonDefinedAnnotation, valueType);
+                    }
+                    setValue(finalValueHandle(value), pathArray[0], new ArrayList<>(), lsonObject);
                 }
             }
             catch (RuntimeException | IllegalAccessException e)
@@ -119,8 +138,30 @@ public class Serialization
         return lsonObject;
     }
 
+    private static Object getDeserializationValue(LsonElement lsonElement)
+    {
+        if(lsonElement.isLsonPrimitive())
+            return new DeserializationValueUtil(lsonElement.getAsLsonPrimitive().get(), lsonElement.getAsLsonPrimitive().get().getClass());
+        else if(lsonElement.isLsonArray())
+        {
+            ArrayList<Object> list = new ArrayList<>();
+            for (int i = 0; i < lsonElement.getAsLsonArray().size(); i++)
+                list.add(getDeserializationValue(lsonElement.getAsLsonArray().get(i)));
+            return list;
+        }
+        else if(lsonElement.isLsonObject())
+        {
+            LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+            String[] keys = lsonElement.getAsLsonObject().getKeys();
+            for (String key : keys)
+                map.put(key, getDeserializationValue(lsonElement.getAsLsonObject().get(key)));
+            return map;
+        }
+        return new DeserializationValueUtil();
+    }
+
     @SuppressWarnings("unchecked")
-    private static void getValue(LsonElement value, String pathString, ArrayList<String> rootPath, LsonElement rootJson)
+    private static void setValue(LsonElement value, String pathString, ArrayList<String> rootPath, LsonElement rootJson)
     {
         ArrayList<Object> jsonPaths = PathParser.parse(pathString);
         jsonPaths.addAll(0, rootPath);
@@ -179,6 +220,86 @@ public class Serialization
             jsonTempArrayList.get(0).getAsLsonObject().put(((PathType.PathPath) jsonPaths.get(jsonPaths.size() - 1)).path, value);
     }
 
+    @SuppressWarnings("unchecked")
+    private static Object handleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, TypeUtil fieldClass)
+    {
+        TypeUtil valueClass = new TypeUtil(value.getClass());
+        if(valueClass.isArrayTypeClass() && !lsonDefinedAnnotation.isIgnoreArray())
+            for (int i = 0; i < Array.getLength(value); i++)
+                Array.set(value, i, handleAnnotation(Array.get(value, i), annotation, lsonDefinedAnnotation, fieldClass.getArrayType()));
+        else if(valueClass.isListTypeClass() && !lsonDefinedAnnotation.isIgnoreList())
+            for (int i = 0; i < ((List<?>) value).size(); i++)
+                ((List<Object>) value).set(i, handleAnnotation(((List<?>) value).get(i), annotation, lsonDefinedAnnotation, fieldClass.getListType()));
+        else if(valueClass.isListTypeClass() && !lsonDefinedAnnotation.isIgnoreMap())
+        {
+            Object[] keys = ((Map<?, ?>) value).keySet().toArray();
+            for (Object key : keys)
+                ((Map<Object, Object>) value).put(key, handleAnnotation(((Map<?, ?>) value).get(key), annotation, lsonDefinedAnnotation, fieldClass.getMapType()));
+        }
+        else
+        {
+            if(value instanceof DeserializationValueUtil)
+            {
+                Object object = handleAnnotationType((DeserializationValueUtil) value, lsonDefinedAnnotation.acceptableSerializationType());
+                if(object != null && LsonUtil.BUILT_IN_ANNOTATION.contains(annotation.annotationType().getName()))
+                    ((DeserializationValueUtil) value).set(handleBuiltInAnnotation(object, annotation, fieldClass));
+                else if(object != null)
+                    ((DeserializationValueUtil) value).set(LsonUtil.lsonAnnotationListener.handleDeserializationAnnotation(object, annotation, fieldClass));
+            }
+            else if(LsonUtil.BUILT_IN_ANNOTATION.contains(annotation.annotationType().getName()))
+                value = handleBuiltInAnnotation(value, annotation, fieldClass);
+            else if(LsonUtil.lsonAnnotationListener != null)
+                value = LsonUtil.lsonAnnotationListener.handleDeserializationAnnotation(value, annotation, fieldClass);
+        }
+        return value;
+    }
+
+    private static Object handleAnnotationType(DeserializationValueUtil deserializationValueUtil, LsonDefinedAnnotation.AcceptableType acceptableType)
+    {
+        switch (acceptableType)
+        {
+            case STRING:
+                return deserializationValueUtil.getAsStringBuilder();
+            case NUMBER:
+                return deserializationValueUtil.getAsNumber();
+        }
+        return deserializationValueUtil.get();
+    }
+
+    private static Object handleBuiltInAnnotation(Object value, Annotation annotation, TypeUtil fieldType)
+    {
+        try
+        {
+            if(LsonDateFormat.class.getName().equals(annotation.annotationType().getName()))
+                return DataProcessUtil.getTimeStamp(value.toString(), ((LsonDateFormat) annotation).value(), ((LsonDateFormat) annotation).mode());
+            else if(LsonAddPrefix.class.getName().equals(annotation.annotationType().getName()))
+            {
+                if(((StringBuilder) value).indexOf(((LsonAddPrefix) annotation).value()) == 0)
+                    return ((StringBuilder) value).delete(0, ((LsonAddPrefix) annotation).value().length());
+            }
+            else if(LsonAddSuffix.class.getName().equals(annotation.annotationType().getName()))
+            {
+                if(((StringBuilder) value).lastIndexOf(((LsonAddSuffix) annotation).value()) == ((StringBuilder) value).length() - ((LsonAddSuffix) annotation).value().length())
+                    return ((StringBuilder) value).delete(((StringBuilder) value).length() - ((LsonAddSuffix) annotation).value().length(), ((StringBuilder) value).length());
+            }
+            else if(LsonNumberFormat.class.getName().equals(annotation.annotationType().getName()))
+                return value;
+            else if(LsonReplaceAll.class.getName().equals(annotation.annotationType().getName()))
+            {
+                String[] regexArray = ((LsonReplaceAll) annotation).regex();
+                String[] replacementArray = ((LsonReplaceAll) annotation).replacement();
+                for (int i = 0; i < regexArray.length; i++)
+                    DataProcessUtil.replaceAll((StringBuilder) value, replacementArray[i], regexArray[i]);
+                return value;
+            }
+        }
+        catch (RuntimeException e)
+        {
+            e.printStackTrace();
+        }
+        return value;
+    }
+
     private static void handleMethod(Object t, LsonCallMethod.CallMethodTiming callMethodTiming)
     {
         if(t != null)
@@ -202,5 +323,66 @@ public class Serialization
                 }
             }
         }
+    }
+
+    public static LsonElement finalValueHandle(Object value)
+    {
+        try
+        {
+            if(value == null) return null;
+
+            TypeUtil valueClass = new TypeUtil(value.getClass());
+            if(valueClass.isListTypeClass())
+            {
+                LsonArray finalValue = new LsonArray();
+                for (int i = 0; i < ((List<?>) value).size(); i++)
+                    finalValue.add(finalValueHandle(((List<?>) value).get(i)));
+                return finalValue;
+            }
+            else if(valueClass.isMapTypeClass())
+            {
+                LsonObject finalValue = new LsonObject();
+                for (Object key : ((Map<?, ?>) value).keySet().toArray())
+                    finalValue.put((String) key, finalValueHandle(((Map<?, ?>) value).get(key)));
+                return finalValue;
+            }
+            else if(value instanceof DeserializationValueUtil)
+            {
+                if(((DeserializationValueUtil) value).get() instanceof Double)
+                    return new LsonPrimitive(finalValueHandle((DeserializationValueUtil) value));
+                else if(((DeserializationValueUtil) value).get() instanceof StringBuilder)
+                    return new LsonPrimitive(((DeserializationValueUtil) value).get().toString());
+                else
+                    return new LsonPrimitive(((DeserializationValueUtil) value).get());
+            }
+            else
+                return new LsonPrimitive(value);
+        }
+        catch (RuntimeException ignored)
+        {
+        }
+        return null;
+    }
+
+    private static Object finalValueHandle(DeserializationValueUtil value)
+    {
+        switch (value.getType().getName())
+        {
+            case "int":
+            case "java.lang.Integer":
+                return ((Number) value.get()).intValue();
+            case "short":
+            case "java.lang.Short":
+                return ((Number) value.get()).shortValue();
+            case "long":
+            case "java.lang.Long":
+                return ((Number) value.get()).longValue();
+            case "float":
+            case "java.lang.Float":
+                return ((Number) value.get()).floatValue();
+            case "java.lang.String":
+                return ((Number) value.get()).toString();
+        }
+        return value.get();
     }
 }

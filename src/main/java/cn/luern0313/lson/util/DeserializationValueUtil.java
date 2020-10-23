@@ -9,6 +9,11 @@ public class DeserializationValueUtil
     private Object value;
     private final TypeUtil type;
 
+    public DeserializationValueUtil()
+    {
+        type = null;
+    }
+
     public DeserializationValueUtil(String string)
     {
         this(string, null);
