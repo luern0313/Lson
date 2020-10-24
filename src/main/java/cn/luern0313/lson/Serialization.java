@@ -245,6 +245,7 @@ public class Serialization
                     ((DeserializationValueUtil) value).set(handleBuiltInAnnotation(object, annotation, fieldClass));
                 else if(object != null)
                     ((DeserializationValueUtil) value).set(LsonUtil.lsonAnnotationListener.handleDeserializationAnnotation(object, annotation, fieldClass));
+                ((DeserializationValueUtil) value).set(handleAnnotationType((DeserializationValueUtil) value, lsonDefinedAnnotation.acceptableDeserializationType()));
             }
             else if(LsonUtil.BUILT_IN_ANNOTATION.contains(annotation.annotationType().getName()))
                 value = handleBuiltInAnnotation(value, annotation, fieldClass);
@@ -380,8 +381,6 @@ public class Serialization
             case "float":
             case "java.lang.Float":
                 return ((Number) value.get()).floatValue();
-            case "java.lang.String":
-                return ((Number) value.get()).toString();
         }
         return value.get();
     }
