@@ -1,12 +1,9 @@
 package cn.luern0313.lson.json;
 
 import java.io.Reader;
-import java.io.StringReader;
 
-import cn.luern0313.lson.element.LsonArray;
 import cn.luern0313.lson.element.LsonElement;
 import cn.luern0313.lson.element.LsonNull;
-import cn.luern0313.lson.element.LsonObject;
 import cn.luern0313.lson.element.LsonPrimitive;
 import cn.luern0313.lson.exception.JsonParseException;
 import cn.luern0313.lson.exception.PathParseException;
@@ -33,22 +30,7 @@ public class LsonParser
         return ((status & expectedStatus) > 0);
     }
 
-    public static LsonElement parse(String json)
-    {
-        return parse(new StringReader(json));
-    }
-
-    public static LsonObject parseAsObject(String json)
-    {
-        return parse(new StringReader(json)).getAsLsonObject();
-    }
-
-    public static LsonArray parseAsArray(String json)
-    {
-        return parse(new StringReader(json)).getAsLsonArray();
-    }
-
-    private static LsonElement parse(Reader r)
+    public static LsonElement parse(Reader r)
     {
         TokenReader reader = new TokenReader(new CharReader(r));
         Stack stack = new Stack();

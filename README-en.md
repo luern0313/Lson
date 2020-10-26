@@ -42,19 +42,19 @@ implementation 'cn.luern0313.lson:Lson:0.6'
 ### JSON解析
 
 ``` java
-LsonElement lsonElement = LsonParser.parse(jsonString);
+LsonElement lsonElement = LsonUtil.parse(jsonString);
 ```
 
 该方法返回一个LsonElement，若你能确定JSON为Object或Array，你也可以使用:  
 
 ``` java
-LsonObject lsonObject = LsonParser.parseAsObject(jsonString);
+LsonObject lsonObject = LsonUtil.parseAsObject(jsonString);
 ```
 
 或
 
 ``` java
-LsonArray lsonArray = LsonParser.parseAsArray(jsonString);
+LsonArray lsonArray = LsonUtil.parseAsArray(jsonString);
 ```
 
 ### JSON反序列化

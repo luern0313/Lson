@@ -1,5 +1,6 @@
 package cn.luern0313.lson;
 
+import java.io.StringReader;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,7 +10,10 @@ import cn.luern0313.lson.annotation.field.LsonAddSuffix;
 import cn.luern0313.lson.annotation.field.LsonDateFormat;
 import cn.luern0313.lson.annotation.field.LsonNumberFormat;
 import cn.luern0313.lson.annotation.field.LsonReplaceAll;
+import cn.luern0313.lson.element.LsonArray;
 import cn.luern0313.lson.element.LsonElement;
+import cn.luern0313.lson.element.LsonObject;
+import cn.luern0313.lson.json.LsonParser;
 import cn.luern0313.lson.util.TypeUtil;
 
 /**
@@ -21,6 +25,45 @@ import cn.luern0313.lson.util.TypeUtil;
 public class LsonUtil
 {
     protected static LsonAnnotationListener lsonAnnotationListener;
+
+    /**
+     * 将一个JSON字符串解析为LsonElement对象。
+     *
+     * @param json 要解析的JSON字符串。
+     * @return LsonElement对象。
+     *
+     * @author luern0313
+     */
+    public static LsonElement parse(String json)
+    {
+        return LsonParser.parse(new StringReader(json));
+    }
+
+    /**
+     * 将一个JSON字符串解析为LsonObject对象。
+     *
+     * @param json 要解析的JSON字符串。
+     * @return LsonObject对象。
+     *
+     * @author luern0313
+     */
+    public static LsonObject parseAsObject(String json)
+    {
+        return LsonParser.parse(new StringReader(json)).getAsLsonObject();
+    }
+
+    /**
+     * 将一个JSON字符串解析为LsonArray对象。
+     *
+     * @param json 要解析的JSON字符串。
+     * @return LsonArray对象。
+     *
+     * @author luern0313
+     */
+    public static LsonArray parseAsArray(String json)
+    {
+        return LsonParser.parse(new StringReader(json)).getAsLsonArray();
+    }
 
     /**
      * 将json反序列化为指定的实体类。
