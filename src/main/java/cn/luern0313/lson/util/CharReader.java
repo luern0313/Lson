@@ -1,4 +1,4 @@
-package cn.luern0313.lson.json;
+package cn.luern0313.lson.util;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -9,13 +9,13 @@ import cn.luern0313.lson.exception.PathParseException;
  * 被 luern0313 创建于 2020/8/22.
  */
 
-class CharReader
+public class CharReader
 {
     static final int BUFFER_SIZE = 1024;
 
-    int readed = 0;
-    int pos = 0;
-    int size = 0;
+    public int readed = 0;
+    public int pos = 0;
+    public int size = 0;
 
     final char[] buffer;
     final Reader reader;
@@ -29,9 +29,7 @@ class CharReader
     public boolean hasMore()
     {
         if(pos < size)
-        {
             return true;
-        }
         fillBuffer(null);
         return pos < size;
     }
@@ -40,9 +38,7 @@ class CharReader
     {
         StringBuilder sb = new StringBuilder(size);
         for (int i = 0; i < size; i++)
-        {
             sb.append(next());
-        }
         return sb.toString();
     }
 
@@ -59,8 +55,17 @@ class CharReader
     {
         if(this.pos == this.size)
             fillBuffer("EOF");
-        assert (this.pos < this.size);
-        return this.buffer[this.pos];
+        if(this.pos < this.size)
+            return this.buffer[this.pos];
+        else
+            return (char) 0;
+    }
+
+    public ErrorMessage getErrorMessage()
+    {
+        int index = Math.min(10, this.pos);
+        this.pos -= index;
+        return new ErrorMessage(next(Math.min(this.size - this.pos, index + 10)), index);
     }
 
     void fillBuffer(String eofErrorMessage)
@@ -71,7 +76,7 @@ class CharReader
             if(n == -1)
             {
                 if(eofErrorMessage != null)
-                    throw new PathParseException(eofErrorMessage, this.readed);
+                    throw new PathParseException(eofErrorMessage, this.readed, getErrorMessage());
                 return;
             }
             this.pos = 0;
@@ -81,6 +86,18 @@ class CharReader
         catch (IOException e)
         {
             e.printStackTrace();
+        }
+    }
+
+    public static class ErrorMessage
+    {
+        public String message;
+        public int index;
+
+        public ErrorMessage(String message, int index)
+        {
+            this.message = message;
+            this.index = index;
         }
     }
 }

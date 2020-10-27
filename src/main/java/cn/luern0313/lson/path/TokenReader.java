@@ -2,6 +2,7 @@ package cn.luern0313.lson.path;
 
 import cn.luern0313.lson.exception.PathParseException;
 import cn.luern0313.lson.util.DataProcessUtil;
+import cn.luern0313.lson.util.CharReader;
 
 /**
  * 被 luern0313 创建于 2020/8/9.
@@ -143,7 +144,7 @@ class TokenReader
                     return PathType.PathFilter.FilterComparator.NOT_EQUAL;
                 }
         }
-        throw new PathParseException("Unexpected char: " + reader.next(), reader.readed);
+        throw new PathParseException("Unexpected char: " + reader.next(), reader.readed, null);
     }
 
     Number readNumber()

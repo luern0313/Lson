@@ -1,6 +1,7 @@
 package cn.luern0313.lson.json;
 
 import cn.luern0313.lson.exception.JsonParseException;
+import cn.luern0313.lson.util.CharReader;
 
 /**
  * 被 luern0313 创建于 2020/8/22.
@@ -8,7 +9,7 @@ import cn.luern0313.lson.exception.JsonParseException;
 
 class TokenReader
 {
-    CharReader reader;
+    cn.luern0313.lson.util.CharReader reader;
 
     TokenReader(CharReader reader)
     {
