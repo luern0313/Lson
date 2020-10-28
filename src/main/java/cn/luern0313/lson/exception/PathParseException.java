@@ -9,7 +9,6 @@ import cn.luern0313.lson.util.CharReader;
 public class PathParseException extends RuntimeException
 {
     String message;
-    int index;
     CharReader.ErrorMessage errorMessage;
 
     public PathParseException()
@@ -19,13 +18,12 @@ public class PathParseException extends RuntimeException
 
     public PathParseException(String message)
     {
-        this(message, -1, null);
+        this(message, null);
     }
 
-    public PathParseException(String message, int index, CharReader.ErrorMessage errorMessage)
+    public PathParseException(String message, CharReader.ErrorMessage errorMessage)
     {
         this.message = message;
-        this.index = index;
         this.errorMessage = errorMessage;
     }
 
@@ -33,10 +31,10 @@ public class PathParseException extends RuntimeException
     public String getMessage()
     {
         StringBuilder error = new StringBuilder();
-        if(index > -1 && errorMessage != null)
+        if(errorMessage != null)
         {
-            error.append(message).append(" in index ").append(index).append(": ");
-            int length = error.length() + errorMessage.index + 48;
+            error.append(message).append(" in index ").append(errorMessage.index).append(": ");
+            int length = error.length() + errorMessage.messageErrorIndex + 47;
             error.append(errorMessage.message).append("\n");
             for (int i = 0; i < length; i++)
                 error.append(" ");

@@ -144,7 +144,7 @@ class TokenReader
                     return PathType.PathFilter.FilterComparator.NOT_EQUAL;
                 }
         }
-        throw new PathParseException("Unexpected char: " + reader.next(), reader.readed, null);
+        throw new PathParseException("Unexpected char: " + reader.next(), reader.getErrorMessage());
     }
 
     Number readNumber()

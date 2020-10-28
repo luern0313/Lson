@@ -63,9 +63,12 @@ public class CharReader
 
     public ErrorMessage getErrorMessage()
     {
+        ErrorMessage errorMessage = new ErrorMessage(this.pos);
         int index = Math.min(10, this.pos);
         this.pos -= index;
-        return new ErrorMessage(next(Math.min(this.size - this.pos, index + 10)), index);
+        errorMessage.message = next(Math.min(this.size - this.pos, index + 10));
+        errorMessage.messageErrorIndex = index;
+        return errorMessage;
     }
 
     void fillBuffer(String eofErrorMessage)
@@ -76,7 +79,7 @@ public class CharReader
             if(n == -1)
             {
                 if(eofErrorMessage != null)
-                    throw new PathParseException(eofErrorMessage, this.readed, getErrorMessage());
+                    throw new PathParseException(eofErrorMessage, getErrorMessage());
                 return;
             }
             this.pos = 0;
@@ -92,11 +95,11 @@ public class CharReader
     public static class ErrorMessage
     {
         public String message;
-        public int index;
+        public long index;
+        public int messageErrorIndex;
 
-        public ErrorMessage(String message, int index)
+        public ErrorMessage(long index)
         {
-            this.message = message;
             this.index = index;
         }
     }

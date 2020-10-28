@@ -61,7 +61,7 @@ public class PathParser
                         }
                         continue;
                     }
-                    throw new PathParseException("Unexpected $", reader.reader.readed, reader.reader.getErrorMessage());
+                    throw new PathParseException("Unexpected $", reader.reader.getErrorMessage());
                 case JSON_CURRENT:
                     if(hasStatus(status, STATUS_EXPECT_JSON_CURRENT.index))
                     {
@@ -80,14 +80,14 @@ public class PathParser
                         }
                         continue;
                     }
-                    throw new PathParseException("Unexpected @", reader.reader.readed, reader.reader.getErrorMessage());
+                    throw new PathParseException("Unexpected @", reader.reader.getErrorMessage());
                 case SPLIT_POINT:
                     if(hasStatus(status, STATUS_EXPECT_POINT.index))
                     {
                         status = STATUS_EXPECT_PATH_POINT.index;
                         continue;
                     }
-                    throw new PathParseException("Unexpected .", reader.reader.readed, reader.reader.getErrorMessage());
+                    throw new PathParseException("Unexpected .", reader.reader.getErrorMessage());
                 case STRING:
                     if(hasStatus(status, STATUS_EXPECT_PATH_POINT.index))
                     {
@@ -129,7 +129,7 @@ public class PathParser
                             continue;
                         }
                     }
-                    throw new PathParseException("Unexpected String", reader.reader.readed, reader.reader.getErrorMessage());
+                    throw new PathParseException("Unexpected String", reader.reader.getErrorMessage());
                 case EXPRESSION_START:
                     if(hasStatus(status, STATUS_EXPECT_EXPRESSION_START.index))
                     {
@@ -137,7 +137,7 @@ public class PathParser
                         status = STATUS_EXPECT_FILTER_START.index | STATUS_EXPECT_NUMBER.index | STATUS_EXPECT_COLON.index | STATUS_EXPECT_PATH_EXPRESSION.index | STATUS_EXPECT_SYNTAX_ASTERISK.index;
                         continue;
                     }
-                    throw new PathParseException("Unexpected [", reader.reader.readed, reader.reader.getErrorMessage());
+                    throw new PathParseException("Unexpected [", reader.reader.getErrorMessage());
                 case NUMBER:
                     if(hasStatus(status, STATUS_EXPECT_NUMBER.index))
                     {
@@ -157,7 +157,7 @@ public class PathParser
                             continue;
                         }
                     }
-                    throw new PathParseException("Unexpected number", reader.reader.readed, reader.reader.getErrorMessage());
+                    throw new PathParseException("Unexpected number", reader.reader.getErrorMessage());
                 case SPLIT_COLON: // :
                     if(hasStatus(status, STATUS_EXPECT_COLON.index))
                     {
@@ -169,7 +169,7 @@ public class PathParser
                         status = STATUS_EXPECT_NUMBER.index | STATUS_EXPECT_EXPRESSION_END.index | STATUS_EXPECT_COLON.index;
                         continue;
                     }
-                    throw new PathParseException("Unexpected :", reader.reader.readed, reader.reader.getErrorMessage());
+                    throw new PathParseException("Unexpected :", reader.reader.getErrorMessage());
                 case SPLIT_COMMA: // ,
                     if(hasStatus(status, STATUS_EXPECT_COMMA.index))
                     {
@@ -179,7 +179,7 @@ public class PathParser
                             continue;
                         }
                     }
-                    throw new PathParseException("Unexpected ,", reader.reader.readed, reader.reader.getErrorMessage());
+                    throw new PathParseException("Unexpected ,", reader.reader.getErrorMessage());
                 case SYNTAX_ASTERISK: // *
                     if(hasStatus(status, STATUS_EXPECT_SYNTAX_ASTERISK.index))
                     {
@@ -192,7 +192,7 @@ public class PathParser
                             continue;
                         }
                     }
-                    throw new PathParseException("Unexpected *", reader.reader.readed, reader.reader.getErrorMessage());
+                    throw new PathParseException("Unexpected *", reader.reader.getErrorMessage());
                 case FILTER_START:
                     if(hasStatus(status, STATUS_EXPECT_FILTER_START.index))
                     {
@@ -200,7 +200,7 @@ public class PathParser
                         status = STATUS_EXPECT_JSON_ROOT.index | STATUS_EXPECT_JSON_CURRENT.index | STATUS_EXPECT_PATH_POINT.index | STATUS_EXPECT_EXPRESSION_START.index | STATUS_EXPECT_NUMBER.index;
                         continue;
                     }
-                    throw new PathParseException("Unexpected ?(", reader.reader.readed, reader.reader.getErrorMessage());
+                    throw new PathParseException("Unexpected ?(", reader.reader.getErrorMessage());
                 case FILTER_END:
                     if(hasStatus(status, STATUS_EXPECT_FILTER_END.index))
                     {
@@ -216,7 +216,7 @@ public class PathParser
                             }
                         }
                     }
-                    throw new PathParseException("Unexpected )", reader.reader.readed, reader.reader.getErrorMessage());
+                    throw new PathParseException("Unexpected )", reader.reader.getErrorMessage());
                 case FILTER_COMPARISON:
                     if(hasStatus(status, STATUS_EXPECT_FILTER_COMPARISON.index))
                     {
@@ -229,7 +229,7 @@ public class PathParser
                             continue;
                         }
                     }
-                    throw new PathParseException("Unexpected filter comparison", reader.reader.readed, reader.reader.getErrorMessage());
+                    throw new PathParseException("Unexpected filter comparison", reader.reader.getErrorMessage());
                 case EXPRESSION_END:
                     if(hasStatus(status, STATUS_EXPECT_EXPRESSION_END.index))
                     {
@@ -264,13 +264,13 @@ public class PathParser
                             }
                         }
                     }
-                    throw new PathParseException("Unexpected ]", reader.reader.readed, reader.reader.getErrorMessage());
+                    throw new PathParseException("Unexpected ]", reader.reader.getErrorMessage());
                 case END_DOCUMENT:
                     if(hasStatus(status, STATUS_EXPECT_END_DOCUMENT.index))
                     {
                         return stack.pop(StackValue.TYPE_BASE_PATH).valueAsBasePath().paths;
                     }
-                    throw new PathParseException("Unexpected EOF.", reader.reader.readed, reader.reader.getErrorMessage());
+                    throw new PathParseException("Unexpected EOF.", reader.reader.getErrorMessage());
             }
         }
     }
