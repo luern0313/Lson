@@ -1,6 +1,6 @@
 package cn.luern0313.lson.exception;
 
-import cn.luern0313.lson.util.CharReader;
+import cn.luern0313.lson.util.CharReaderUtil;
 
 /**
  * 被 luern0313 创建于 2020/8/23.
@@ -9,7 +9,7 @@ import cn.luern0313.lson.util.CharReader;
 public class JsonParseException extends RuntimeException
 {
     String message;
-    CharReader.ErrorMessage errorMessage;
+    CharReaderUtil.ErrorMessage errorMessage;
 
     public JsonParseException()
     {
@@ -21,7 +21,7 @@ public class JsonParseException extends RuntimeException
         this(message, null);
     }
 
-    public JsonParseException(String message, CharReader.ErrorMessage errorMessage)
+    public JsonParseException(String message, CharReaderUtil.ErrorMessage errorMessage)
     {
         this.message = message;
         this.errorMessage = errorMessage;

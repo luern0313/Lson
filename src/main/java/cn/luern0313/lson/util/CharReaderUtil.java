@@ -9,7 +9,7 @@ import cn.luern0313.lson.exception.PathParseException;
  * 被 luern0313 创建于 2020/8/22.
  */
 
-public class CharReader
+public class CharReaderUtil
 {
     static final int BUFFER_SIZE = 1024;
 
@@ -20,7 +20,7 @@ public class CharReader
     final char[] buffer;
     final Reader reader;
 
-    public CharReader(Reader reader)
+    public CharReaderUtil(Reader reader)
     {
         this.buffer = new char[BUFFER_SIZE];
         this.reader = reader;

@@ -6,7 +6,7 @@ import cn.luern0313.lson.element.LsonElement;
 import cn.luern0313.lson.element.LsonNull;
 import cn.luern0313.lson.element.LsonPrimitive;
 import cn.luern0313.lson.exception.JsonParseException;
-import cn.luern0313.lson.util.CharReader;
+import cn.luern0313.lson.util.CharReaderUtil;
 
 import static cn.luern0313.lson.json.Status.STATUS_EXPECT_ARRAY_BEGIN;
 import static cn.luern0313.lson.json.Status.STATUS_EXPECT_ARRAY_ELEMENT;
@@ -32,7 +32,7 @@ public class LsonParser
 
     public LsonParser(Reader reader)
     {
-        this.reader = new TokenReader(new cn.luern0313.lson.util.CharReader(reader));
+        this.reader = new TokenReader(new CharReaderUtil(reader));
     }
 
     static boolean hasStatus(int status, int expectedStatus)
@@ -42,7 +42,7 @@ public class LsonParser
 
     public static LsonElement parse(Reader r)
     {
-        TokenReader reader = new TokenReader(new CharReader(r));
+        TokenReader reader = new TokenReader(new CharReaderUtil(r));
         Stack stack = new Stack();
         int status = STATUS_EXPECT_OBJECT_BEGIN.index | STATUS_EXPECT_ARRAY_BEGIN.index | STATUS_EXPECT_SINGLE_ELEMENT.index;
         while (true)

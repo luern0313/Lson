@@ -5,7 +5,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 
 import cn.luern0313.lson.exception.PathParseException;
-import cn.luern0313.lson.util.CharReader;
+import cn.luern0313.lson.util.CharReaderUtil;
 
 import static cn.luern0313.lson.path.Status.*;
 
@@ -19,7 +19,7 @@ public class PathParser
 
     public PathParser(Reader reader)
     {
-        this.reader = new TokenReader(new CharReader(reader));
+        this.reader = new TokenReader(new CharReaderUtil(reader));
     }
 
     static boolean hasStatus(int status, int expectedStatus)
@@ -34,7 +34,7 @@ public class PathParser
 
     private static ArrayList<Object> parse(Reader r)
     {
-        TokenReader reader = new TokenReader(new CharReader(r));
+        TokenReader reader = new TokenReader(new CharReaderUtil(r));
         Stack stack = new Stack();
         stack.push(StackValue.newBasePath());
         int status = STATUS_EXPECT_JSON_ROOT.index | STATUS_EXPECT_EXPRESSION_START.index | STATUS_EXPECT_PATH_POINT.index;

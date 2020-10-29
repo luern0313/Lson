@@ -38,9 +38,7 @@ class Stack
     StackValue pop()
     {
         if(isEmpty())
-        {
-            throw new PathParseException();
-        }
+            throw new PathParseException("Stack empty.");
         pos--;
         return array[pos];
     }
@@ -48,15 +46,11 @@ class Stack
     StackValue pop(int type)
     {
         if(isEmpty())
-        {
-            throw new PathParseException();
-        }
+            throw new PathParseException("Stack empty.");
         pos--;
         StackValue obj = array[pos];
         if(obj.type == type)
-        {
             return obj;
-        }
         throw new PathParseException("Unmatched type.");
     }
 
@@ -89,9 +83,7 @@ class Stack
             return null;
         StackValue obj = array[pos - 1];
         if(obj.type == type)
-        {
             return obj;
-        }
         throw new PathParseException("Unmatched type.");
     }
 
