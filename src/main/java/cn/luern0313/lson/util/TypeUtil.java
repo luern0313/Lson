@@ -2,7 +2,6 @@ package cn.luern0313.lson.util;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -13,7 +12,6 @@ import cn.luern0313.lson.element.LsonArray;
 import cn.luern0313.lson.element.LsonElement;
 import cn.luern0313.lson.element.LsonObject;
 import cn.luern0313.lson.element.LsonPrimitive;
-import cn.luern0313.lson.exception.LsonInstantiationException;
 
 /**
  * 被 luern0313 创建于 2020/9/8.
@@ -105,7 +103,7 @@ public class TypeUtil
             constructor.setAccessible(true);
             return constructor;
         }
-        catch (RuntimeException | NoSuchMethodException e)
+        catch (Exception e)
         {
             return null;
         }
@@ -117,7 +115,7 @@ public class TypeUtil
         {
             return Map.class.isAssignableFrom(getAsClass()) || getConstructor().newInstance() instanceof Map;
         }
-        catch (IllegalAccessException | LsonInstantiationException | InstantiationException | InvocationTargetException | NullPointerException | ClassCastException ignored)
+        catch (Exception ignored)
         {
         }
         return false;
@@ -129,7 +127,7 @@ public class TypeUtil
         {
             return List.class.isAssignableFrom(getAsClass()) || getConstructor().newInstance() instanceof List;
         }
-        catch (IllegalAccessException | LsonInstantiationException | InstantiationException | InvocationTargetException | NullPointerException | ClassCastException ignored)
+        catch (Exception ignored)
         {
         }
         return false;

@@ -25,7 +25,7 @@ import cn.luern0313.lson.element.LsonElement;
 import cn.luern0313.lson.element.LsonNull;
 import cn.luern0313.lson.element.LsonObject;
 import cn.luern0313.lson.element.LsonPrimitive;
-import cn.luern0313.lson.exception.LsonInstantiationException;
+import cn.luern0313.lson.exception.InstantiationException;
 import cn.luern0313.lson.path.PathParser;
 import cn.luern0313.lson.path.PathType;
 import cn.luern0313.lson.util.DataProcessUtil;
@@ -62,9 +62,9 @@ public class Deserialization
         catch (IllegalAccessException | InvocationTargetException | NullPointerException ignored)
         {
         }
-        catch (InstantiationException e)
+        catch (java.lang.InstantiationException e)
         {
-            throw new LsonInstantiationException();
+            throw new InstantiationException(typeUtil.getName());
         }
 
         handleMethod(t, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
