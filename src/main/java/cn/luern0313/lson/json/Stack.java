@@ -36,9 +36,7 @@ class Stack
     StackValue pop()
     {
         if(isEmpty())
-        {
             throw new PathParseException();
-        }
         pos--;
         return array[pos];
     }

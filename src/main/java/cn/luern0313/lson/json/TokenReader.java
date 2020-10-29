@@ -9,7 +9,7 @@ import cn.luern0313.lson.util.CharReader;
 
 class TokenReader
 {
-    cn.luern0313.lson.util.CharReader reader;
+    CharReader reader;
 
     TokenReader(CharReader reader)
     {
@@ -66,7 +66,7 @@ class TokenReader
             return TokenType.NUMBER;
         else if(ch == '"')
             return TokenType.STRING;
-        throw new JsonParseException("Unexpected char " + ch, reader.pos);
+        throw new JsonParseException("Unexpected char " + ch, reader.getErrorMessage());
     }
 
     String readString()
@@ -118,12 +118,12 @@ class TokenReader
                             else if(uch >= 'A' && uch <= 'F')
                                 u = (u << 4) + (uch - 'A') + 10;
                             else
-                                throw new JsonParseException("Unexpected char: " + uch, reader.readed);
+                                throw new JsonParseException("Unexpected char: " + uch, reader.getErrorMessage());
                         }
                         sb.append((char) u);
                         break;
                     default:
-                        throw new JsonParseException("Unexpected char: " + ch, reader.readed);
+                        throw new JsonParseException("Unexpected char: " + ch, reader.getErrorMessage());
                 }
             }
             else if(ch == '"')
