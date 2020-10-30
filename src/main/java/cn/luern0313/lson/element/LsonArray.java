@@ -56,6 +56,11 @@ public class LsonArray extends LsonElement
         return LsonUtil.getValue(this, path, clz);
     }
 
+    public void putFromPath(String path, Object value)
+    {
+        LsonUtil.putValue(this, path, value);
+    }
+
     public boolean getAsBoolean(int key)
     {
         return getAsBoolean(key, false);

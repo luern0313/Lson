@@ -161,7 +161,7 @@ public class Serialization
     }
 
     @SuppressWarnings("unchecked")
-    private static void setValue(LsonElement value, String pathString, ArrayList<String> rootPath, LsonElement rootJson)
+    public static void setValue(LsonElement value, String pathString, ArrayList<String> rootPath, LsonElement rootJson)
     {
         ArrayList<Object> jsonPaths = PathParser.parse(pathString);
         jsonPaths.addAll(0, rootPath);
@@ -326,7 +326,7 @@ public class Serialization
         }
     }
 
-    public static LsonElement finalValueHandle(Object value)
+    private static LsonElement finalValueHandle(Object value)
     {
         try
         {

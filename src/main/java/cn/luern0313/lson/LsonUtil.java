@@ -146,6 +146,20 @@ public class LsonUtil
     }
 
     /**
+     * 根据JSONPath将数据填充至LsonElement中。
+     *
+     * @param lsonElement 被填充的LsonElement。
+     * @param path 标注数据位置的JSONPath。
+     * @param value 要填充的数据。
+     * @return 填充完成的LsonElement。
+     */
+    public static LsonElement putValue(LsonElement lsonElement, String path, Object value)
+    {
+        Serialization.setValue(Serialization.toJson(value), path, new ArrayList<>(), lsonElement);
+        return lsonElement;
+    }
+
+    /**
      * 程序开始时，通过此方法传入实现{@link LsonAnnotationListener}接口类的实例，自定义注解才可正常运行。
      *
      * @param lsonAnnotationListener 实现{@link LsonAnnotationListener}接口的实例。
