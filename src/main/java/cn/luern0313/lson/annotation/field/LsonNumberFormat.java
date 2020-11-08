@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.luern0313.lson.LsonDefinedAnnotation;
+import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
 
 /**
  * 以指定方式保留数字指定的位数。

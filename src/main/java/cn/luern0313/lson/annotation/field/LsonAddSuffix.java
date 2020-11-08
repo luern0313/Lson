@@ -5,7 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.luern0313.lson.LsonDefinedAnnotation;
+import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
 
 /**
  * 为指定变量添加一个后缀。

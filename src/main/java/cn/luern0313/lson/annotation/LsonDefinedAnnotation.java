@@ -1,9 +1,11 @@
-package cn.luern0313.lson;
+package cn.luern0313.lson.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import cn.luern0313.lson.LsonUtil;
 
 /**
  * 此注解用来标记开发者自定义的Lson注解。
