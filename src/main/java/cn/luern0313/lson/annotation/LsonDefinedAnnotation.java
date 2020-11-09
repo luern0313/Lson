@@ -25,9 +25,11 @@ import cn.luern0313.lson.LsonUtil;
 public @interface LsonDefinedAnnotation
 {
     /**
-     * 反序列化过程中，该注解处理接受的数据类型。
+     * 反序列化过程中，该注解处理<b>接受</b>的数据类型。
      *
-     * <p>Lson会先试着将该数据转为该类型，如不能转换则不进行处理。
+     * <p>或 序列化过程中，该注解处理<b>输出</b>的数据类型。
+     *
+     * <p>Lson会先试着将该数据转为该类型，如不能转换则不执行本次注解处理。
      *
      * @return 类型数据
      *
@@ -36,10 +38,11 @@ public @interface LsonDefinedAnnotation
     AcceptableType acceptableDeserializationType() default AcceptableType.NOT_HANDLE;
 
     /**
-     * 序列化过程中，该注解处理接受的数据类型。
+     * 序列化过程中，该注解处理<b>接受</b>的数据类型。
      *
-     * <p>Lson会先试着将该数据转为该类型，如不能转换则不进行处理。
-     * <p>由于Lson会以反序列化相反的过程执行序列化，以相反的过程
+     * <p>或 反序列化过程中，该注解处理<b>输出</b>的数据类型。
+     *
+     * <p>Lson会先试着将该数据转为该类型，如不能转换则不执行本次注解处理。
      *
      * @return 类型数据
      *
@@ -89,6 +92,7 @@ public @interface LsonDefinedAnnotation
     {
         NOT_HANDLE,
         STRING,
-        NUMBER
+        NUMBER,
+        BOOLEAN
     }
 }

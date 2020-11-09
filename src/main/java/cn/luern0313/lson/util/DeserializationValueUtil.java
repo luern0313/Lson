@@ -80,6 +80,13 @@ public class DeserializationValueUtil
         return null;
     }
 
+    public Boolean getAsBoolean()
+    {
+        if(value instanceof Boolean)
+            return (Boolean) value;
+        return null;
+    }
+
     @Override
     public String toString()
     {

@@ -264,6 +264,8 @@ public class Serialization
                 return deserializationValueUtil.getAsStringBuilder();
             case NUMBER:
                 return deserializationValueUtil.getAsNumber();
+            case BOOLEAN:
+                return deserializationValueUtil.getAsBoolean();
         }
         return deserializationValueUtil.get();
     }
