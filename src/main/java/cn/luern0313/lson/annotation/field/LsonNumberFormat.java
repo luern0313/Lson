@@ -13,7 +13,8 @@ import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
 /**
  * 以指定方式保留数字指定的位数。
  *
- * <p>适用于{@code String、int、short、long、float、double}类型的变量。
+ * <p>反序列化中：输入{@code Number}类型，输出{@code Number}类型。
+ * <p>序列化中：输入{@code Number}类型，输出{@code Number}类型。
  *
  * @author luern0313
  */

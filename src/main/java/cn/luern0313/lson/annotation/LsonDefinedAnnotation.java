@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 import cn.luern0313.lson.LsonUtil;
 
 /**
- * 此注解用来标记开发者自定义的Lson注解。
+ * 此注解用来标记Lson注解，包括内置注解或开发者自定义的注解。
  *
  * <p>开发者需要创建一个类，并实现接口{@link LsonUtil.LsonAnnotationListener}，在程序开始时
  * 通过静态方法{@link LsonUtil#setLsonAnnotationListener(LsonUtil.LsonAnnotationListener)}
@@ -25,9 +25,9 @@ import cn.luern0313.lson.LsonUtil;
 public @interface LsonDefinedAnnotation
 {
     /**
-     * 反序列化过程中，该注解处理<b>接受</b>的数据类型。
+     * 反序列化过程中，该注解<b>接受</b>的数据类型。
      *
-     * <p>或 序列化过程中，该注解处理<b>输出</b>的数据类型。
+     * <p>或 序列化过程中，该注解<b>输出</b>的数据类型。
      *
      * <p>Lson会先试着将该数据转为该类型，如不能转换则不执行本次注解处理。
      *
@@ -38,9 +38,9 @@ public @interface LsonDefinedAnnotation
     AcceptableType acceptableDeserializationType() default AcceptableType.NOT_HANDLE;
 
     /**
-     * 序列化过程中，该注解处理<b>接受</b>的数据类型。
+     * 序列化过程中，该注解<b>接受</b>的数据类型。
      *
-     * <p>或 反序列化过程中，该注解处理<b>输出</b>的数据类型。
+     * <p>或 反序列化过程中，该注解<b>输出</b>的数据类型。
      *
      * <p>Lson会先试着将该数据转为该类型，如不能转换则不执行本次注解处理。
      *

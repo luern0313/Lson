@@ -10,7 +10,8 @@ import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
 /**
  * 将时间戳格式化为指定格式。
  *
- * <p>适用于{@code String}类型的变量。
+ * <p>反序列化中：输入{@code Number}类型，输出{@code String}类型。
+ * <p>序列化中：输入{@code String}类型，输出{@code Number}类型。
  *
  * @author luern0313
  */

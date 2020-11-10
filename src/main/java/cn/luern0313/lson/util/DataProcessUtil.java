@@ -59,6 +59,16 @@ public class DataProcessUtil
         return -1;
     }
 
+    public static int getIndex(double object, double[] array)
+    {
+        for (int i = 0; i < array.length; i++)
+        {
+            if(object == array[i])
+                return i;
+        }
+        return -1;
+    }
+
     /**
      * 获取格式化的时间。
      *
