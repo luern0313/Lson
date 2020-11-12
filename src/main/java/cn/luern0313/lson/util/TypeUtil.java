@@ -95,6 +95,11 @@ public class TypeUtil
         return NUMBER_TYPES.contains(getName());
     }
 
+    public boolean isBoolean()
+    {
+        return BOOLEAN_TYPES.contains(getName());
+    }
+
     public Constructor<?> getConstructor(Class<?>... parameterTypes)
     {
         try
@@ -222,5 +227,11 @@ public class TypeUtil
         add(long.class.getName());
         add(float.class.getName());
         add(double.class.getName());
+    }};
+
+    public static final ArrayList<String> BOOLEAN_TYPES = new ArrayList<String>()
+    {{
+        add(Boolean.class.getName());
+        add(boolean.class.getName());
     }};
 }

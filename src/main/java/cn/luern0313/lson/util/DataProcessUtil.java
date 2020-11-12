@@ -52,20 +52,16 @@ public class DataProcessUtil
     public static <T> int getIndex(T object, T[] array)
     {
         for (int i = 0; i < array.length; i++)
-        {
             if(object == array[i] || object.equals(array[i]))
                 return i;
-        }
         return -1;
     }
 
     public static int getIndex(double object, double[] array)
     {
         for (int i = 0; i < array.length; i++)
-        {
             if(object == array[i])
                 return i;
-        }
         return -1;
     }
 

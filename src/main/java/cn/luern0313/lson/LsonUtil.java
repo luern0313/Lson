@@ -7,6 +7,8 @@ import java.util.HashMap;
 
 import cn.luern0313.lson.annotation.field.LsonAddPrefix;
 import cn.luern0313.lson.annotation.field.LsonAddSuffix;
+import cn.luern0313.lson.annotation.field.LsonBooleanFormatAsNumber;
+import cn.luern0313.lson.annotation.field.LsonBooleanFormatAsString;
 import cn.luern0313.lson.annotation.field.LsonDateFormat;
 import cn.luern0313.lson.annotation.field.LsonNumberFormat;
 import cn.luern0313.lson.annotation.field.LsonReplaceAll;
@@ -207,7 +209,7 @@ public class LsonUtil
         Object handleSerializationAnnotation(Object value, Annotation annotation, TypeUtil fieldType);
     }
 
-    private static HashMap<String, Object> PRIMITIVE_DEFAULT_VALUE = new HashMap<String, Object>()
+    protected static HashMap<String, Object> PRIMITIVE_DEFAULT_VALUE = new HashMap<String, Object>()
     {{
         put(int.class.getName(), 0);
         put(byte.class.getName(), (byte) 0);
@@ -226,5 +228,7 @@ public class LsonUtil
         add(LsonDateFormat.class.getName());
         add(LsonNumberFormat.class.getName());
         add(LsonReplaceAll.class.getName());
+        add(LsonBooleanFormatAsNumber.class.getName());
+        add(LsonBooleanFormatAsString.class.getName());
     }};
 }

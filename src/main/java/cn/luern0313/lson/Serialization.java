@@ -297,9 +297,8 @@ public class Serialization
                 return value;
             }
         }
-        catch (RuntimeException e)
+        catch (RuntimeException ignored)
         {
-            e.printStackTrace();
         }
         return value;
     }
@@ -315,7 +314,7 @@ public class Serialization
                 try
                 {
                     LsonCallMethod lsonCallMethod = method.getAnnotation(LsonCallMethod.class);
-                    if(lsonCallMethod != null && DataProcessUtil.getIndex(callMethodTiming, lsonCallMethod.timing()) != -1)
+                    if(lsonCallMethod != null && DataProcessUtil.getIndex(callMethodTiming, lsonCallMethod.timing()) > -1)
                     {
                         method.setAccessible(true);
                         method.invoke(t);

@@ -16,6 +16,8 @@ import java.util.Map;
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
 import cn.luern0313.lson.annotation.field.LsonAddPrefix;
 import cn.luern0313.lson.annotation.field.LsonAddSuffix;
+import cn.luern0313.lson.annotation.field.LsonBooleanFormatAsNumber;
+import cn.luern0313.lson.annotation.field.LsonBooleanFormatAsString;
 import cn.luern0313.lson.annotation.field.LsonDateFormat;
 import cn.luern0313.lson.annotation.field.LsonNumberFormat;
 import cn.luern0313.lson.annotation.field.LsonPath;
@@ -107,9 +109,12 @@ public class Deserialization
                                 value = handleAnnotation(value, annotation, lsonDefinedAnnotation, valueType);
                         }
 
-                        field.setAccessible(true);
-
-                        field.set(t, finalValueHandle(value, valueType));
+                        value = finalValueHandle(value, valueType);
+                        if(value != null)
+                        {
+                            field.setAccessible(true);
+                            field.set(t, value);
+                        }
                     }
                 }
             }
@@ -439,6 +444,24 @@ public class Deserialization
                 DataProcessUtil.replaceAll((StringBuilder) value, regexArray[i], replacementArray[i]);
             return value;
         }
+        else if(LsonBooleanFormatAsNumber.class.getName().equals(annotation.annotationType().getName()))
+        {
+            int result = -1;
+            if(((LsonBooleanFormatAsNumber) annotation).equal().length > 0)
+                result = DataProcessUtil.getIndex(((Number) value).doubleValue(), ((LsonBooleanFormatAsNumber) annotation).equal()) > -1 ? 1 : 0;
+            if(((LsonBooleanFormatAsNumber) annotation).notEqual().length > 0)
+                result = (DataProcessUtil.getIndex(((Number) value).doubleValue(), ((LsonBooleanFormatAsNumber) annotation).notEqual()) == -1 && result != 0) ? 1 : 0;
+            return result != -1 ? result == 1 : ((double) value) != 0;
+        }
+        else if(LsonBooleanFormatAsString.class.getName().equals(annotation.annotationType().getName()))
+        {
+            int result = -1;
+            if(((LsonBooleanFormatAsString) annotation).equal().length > 0)
+                result = DataProcessUtil.getIndex(((StringBuilder) value).toString(), ((LsonBooleanFormatAsString) annotation).equal()) > -1 ? 1 : 0;
+            if(((LsonBooleanFormatAsString) annotation).notEqual().length > 0)
+                result = (DataProcessUtil.getIndex(((StringBuilder) value).toString(), ((LsonBooleanFormatAsString) annotation).notEqual()) == -1 && result != 0) ? 1 : 0;
+            return result != -1 ? result == 1 : !((StringBuilder) value).toString().equals("");
+        }
         return value;
     }
 
@@ -453,7 +476,7 @@ public class Deserialization
                 try
                 {
                     LsonCallMethod lsonCallMethod = method.getAnnotation(LsonCallMethod.class);
-                    if(lsonCallMethod != null && DataProcessUtil.getIndex(callMethodTiming, lsonCallMethod.timing()) != -1)
+                    if(lsonCallMethod != null && DataProcessUtil.getIndex(callMethodTiming, lsonCallMethod.timing()) > -1)
                     {
                         method.setAccessible(true);
                         method.invoke(t);
@@ -581,10 +604,12 @@ public class Deserialization
                 return handleBuiltInClass(((DeserializationValueUtil) value).get(), fieldType);
             else if(value instanceof DeserializationValueUtil)
             {
-                if(((DeserializationValueUtil) value).get() instanceof Double)
+                if(fieldType.isNumber())
                     return finalValueHandle((DeserializationValueUtil) value, fieldType);
-                else if(((DeserializationValueUtil) value).get() instanceof StringBuilder && fieldType.getName().equals(String.class.getName()))
+                else if(fieldType.getName().equals(String.class.getName()))
                     return ((DeserializationValueUtil) value).get().toString();
+                else if(fieldType.isBoolean())
+                    return ((DeserializationValueUtil) value).get();
                 else
                     return ((DeserializationValueUtil) value).get(fieldType);
             }
@@ -593,6 +618,7 @@ public class Deserialization
         }
         catch (RuntimeException ignored)
         {
+            ignored.printStackTrace();
         }
         return null;
     }
