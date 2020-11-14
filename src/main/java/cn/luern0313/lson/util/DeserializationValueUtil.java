@@ -87,6 +87,11 @@ public class DeserializationValueUtil
         return null;
     }
 
+    public boolean isNull()
+    {
+        return value == null;
+    }
+
     @Override
     public String toString()
     {

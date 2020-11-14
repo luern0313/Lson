@@ -14,6 +14,8 @@ import java.util.Map;
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
 import cn.luern0313.lson.annotation.field.LsonAddPrefix;
 import cn.luern0313.lson.annotation.field.LsonAddSuffix;
+import cn.luern0313.lson.annotation.field.LsonBooleanFormatAsNumber;
+import cn.luern0313.lson.annotation.field.LsonBooleanFormatAsString;
 import cn.luern0313.lson.annotation.field.LsonDateFormat;
 import cn.luern0313.lson.annotation.field.LsonNumberFormat;
 import cn.luern0313.lson.annotation.field.LsonPath;
@@ -127,7 +129,10 @@ public class Serialization
                         if(lsonDefinedAnnotation != null && !annotations[i].annotationType().getName().equals(LsonPath.class.getName()))
                             value = handleAnnotation(value, annotations[i], lsonDefinedAnnotation, valueType);
                     }
-                    setValue(finalValueHandle(value), pathArray[0], new ArrayList<>(), lsonObject);
+
+                    value = finalValueHandle(value);
+                    if(value != null)
+                        setValue((LsonElement) value, pathArray[0], new ArrayList<>(), lsonObject);
                 }
             }
             catch (RuntimeException | IllegalAccessException e)
@@ -224,6 +229,8 @@ public class Serialization
     @SuppressWarnings("unchecked")
     private static Object handleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, TypeUtil fieldClass)
     {
+        if(value == null) return null;
+
         TypeUtil valueClass = new TypeUtil(value.getClass());
         if(valueClass.isArrayTypeClass() && !lsonDefinedAnnotation.isIgnoreArray())
             for (int i = 0; i < Array.getLength(value); i++)
@@ -246,7 +253,11 @@ public class Serialization
                     ((DeserializationValueUtil) value).set(handleBuiltInAnnotation(object, annotation, fieldClass));
                 else if(object != null)
                     ((DeserializationValueUtil) value).set(LsonUtil.lsonAnnotationListener.handleDeserializationAnnotation(object, annotation, fieldClass));
-                ((DeserializationValueUtil) value).set(handleAnnotationType((DeserializationValueUtil) value, lsonDefinedAnnotation.acceptableDeserializationType()));
+
+                if(!((DeserializationValueUtil) value).isNull())
+                    ((DeserializationValueUtil) value).set(handleAnnotationType((DeserializationValueUtil) value, lsonDefinedAnnotation.acceptableDeserializationType()));
+                else
+                    return null;
             }
             else if(LsonUtil.BUILT_IN_ANNOTATION.contains(annotation.annotationType().getName()))
                 value = handleBuiltInAnnotation(value, annotation, fieldClass);
@@ -296,6 +307,10 @@ public class Serialization
                     DataProcessUtil.replaceAll((StringBuilder) value, replacementArray[i], regexArray[i]);
                 return value;
             }
+            else if(LsonBooleanFormatAsNumber.class.getName().equals(annotation.annotationType().getName()))
+                return null;
+            else if(LsonBooleanFormatAsString.class.getName().equals(annotation.annotationType().getName()))
+                return null;
         }
         catch (RuntimeException ignored)
         {

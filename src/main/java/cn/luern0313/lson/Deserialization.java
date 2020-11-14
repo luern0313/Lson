@@ -383,6 +383,8 @@ public class Deserialization
     @SuppressWarnings("unchecked")
     private static Object handleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, TypeUtil fieldClass)
     {
+        if(value == null) return null;
+
         TypeUtil valueClass = new TypeUtil(value.getClass());
         if(valueClass.isArrayTypeClass() && !lsonDefinedAnnotation.isIgnoreArray())
             for (int i = 0; i < Array.getLength(value); i++)
