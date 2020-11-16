@@ -84,9 +84,14 @@ class StackValue
         Filter filter;
 
         @Override
-        void add(Object path)
+        void add(Object object)
         {
-            index.add((Integer) path);
+            if(mode == ExpressionMode.INDEX_ARRAY || mode == ExpressionMode.INDEX)
+                index.add((Integer) object);
+            else if(mode == ExpressionMode.PATH)
+                this.path = ((PathType.PathPath) object).path;
+            else if(mode == ExpressionMode.FILTER)
+                this.filter = (Filter) object;
         }
 
         enum ExpressionMode

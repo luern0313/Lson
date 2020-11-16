@@ -138,7 +138,7 @@ public class LsonUtil
      * 将任意类型数据序列化为json。
      *
      * @param object 要序列化的数据。
-     * @return 序列胡结果。
+     * @return 序列化结果。
      *
      * @author luern0313
      */

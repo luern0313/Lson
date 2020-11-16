@@ -100,8 +100,8 @@ public class PathParser
                         }
                         else if(stack.getTopValueType() == StackValue.TYPE_EXPRESSION)
                         {
+                            stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().mode = StackValue.Expression.ExpressionMode.PATH;
                             stack.peek().add(pathPath);
-                            stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().mode = StackValue.Expression.ExpressionMode.FILTER;
                             status = STATUS_EXPECT_COMMA.index | STATUS_EXPECT_EXPRESSION_END.index;
                         }
                         else if(stack.getTopValueType() == StackValue.TYPE_FILTER)
@@ -117,8 +117,8 @@ public class PathParser
                         PathType.PathPath pathPath = new PathType.PathPath(path);
                         if(stack.getTopValueType() == StackValue.TYPE_EXPRESSION)
                         {
-                            stack.peek().add(pathPath);
                             stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().mode = StackValue.Expression.ExpressionMode.PATH;
+                            stack.peek().add(pathPath);
                             status = STATUS_EXPECT_COMMA.index | STATUS_EXPECT_EXPRESSION_END.index;
                             continue;
                         }
@@ -185,9 +185,9 @@ public class PathParser
                     {
                         if(stack.getTopValueType() == StackValue.TYPE_EXPRESSION)
                         {
+                            stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().mode = StackValue.Expression.ExpressionMode.INDEX;
                             stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().index.add(0);
                             stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().index.add(Integer.MAX_VALUE);
-                            stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().mode = StackValue.Expression.ExpressionMode.INDEX;
                             status = STATUS_EXPECT_EXPRESSION_END.index;
                             continue;
                         }
