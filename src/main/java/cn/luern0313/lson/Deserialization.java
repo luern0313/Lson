@@ -362,7 +362,11 @@ public class Deserialization
         if(left != null && right != null)
         {
             if(comparator == PathType.PathFilter.FilterComparator.EQUAL)
+            {
+                if(left instanceof Number && right instanceof Number)
+                    return ((Number) left).doubleValue() == ((Number) right).doubleValue();
                 return left == right || left.equals(right);
+            }
             else if(comparator == PathType.PathFilter.FilterComparator.NOT_EQUAL)
                 return left != right;
             if(left instanceof Number && right instanceof Number)

@@ -19,7 +19,7 @@ import cn.luern0313.lson.json.LsonParser;
 import cn.luern0313.lson.util.TypeUtil;
 
 /**
- * Lson反序列化相关类。
+ * Lson相关类。
  *
  * @author luern0313
  */
