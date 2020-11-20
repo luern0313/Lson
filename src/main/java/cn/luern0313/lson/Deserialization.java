@@ -499,8 +499,7 @@ public class Deserialization
     private static DeserializationValueUtil getJsonPrimitiveData(TypeUtil type, LsonElement json)
     {
         while (json.isLsonArray())
-            if(json.getAsLsonArray().size() > 0)
-                json = json.getAsLsonArray().get(0);
+            json = json.getAsLsonArray().get(0);
         if(json.isLsonPrimitive())
             return new DeserializationValueUtil(json.getAsLsonPrimitive().get(), json.getAsLsonPrimitive().getValueClass());;
         return null;
@@ -610,11 +609,11 @@ public class Deserialization
                 return handleBuiltInClass(((DeserializationValueUtil) value).get(), fieldType);
             else if(value instanceof DeserializationValueUtil)
             {
-                if(fieldType.isNumber())
+                if(((DeserializationValueUtil) value).getCurrentType() == Double.class)
                     return finalValueHandle((DeserializationValueUtil) value, fieldType);
-                else if(fieldType.getName().equals(String.class.getName()))
+                else if(((DeserializationValueUtil) value).getCurrentType() == StringBuilder.class)
                     return ((DeserializationValueUtil) value).get().toString();
-                else if(fieldType.isBoolean())
+                else if(((DeserializationValueUtil) value).getCurrentType() == Boolean.class)
                     return ((DeserializationValueUtil) value).get();
                 else
                     return ((DeserializationValueUtil) value).get(fieldType);
@@ -624,7 +623,6 @@ public class Deserialization
         }
         catch (RuntimeException ignored)
         {
-            ignored.printStackTrace();
         }
         return null;
     }
