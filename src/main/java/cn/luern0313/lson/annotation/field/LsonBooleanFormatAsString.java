@@ -1,11 +1,14 @@
 package cn.luern0313.lson.annotation.field;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
+import cn.luern0313.lson.util.DataProcessUtil;
+import cn.luern0313.lson.util.TypeUtil;
 
 /**
  * 将传入的数转为{@code Boolean}类型。
@@ -16,7 +19,7 @@ import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
  * @author luern0313
  */
 
-@LsonDefinedAnnotation(acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.STRING, acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.BOOLEAN)
+@LsonDefinedAnnotation(config = LsonBooleanFormatAsString.LsonBooleanFormatAsStringConfig.class, acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.STRING, acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.BOOLEAN)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LsonBooleanFormatAsString
@@ -38,4 +41,24 @@ public @interface LsonBooleanFormatAsString
      * @author luern0313
      */
     String[] notEqual() default {};
+
+    class LsonBooleanFormatAsStringConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
+    {
+        @Override
+        public Object deserialization(Object value, Annotation annotation, TypeUtil fieldType)
+        {
+            int result = -1;
+            if(((LsonBooleanFormatAsString) annotation).equal().length > 0)
+                result = DataProcessUtil.getIndex(((StringBuilder) value).toString(), ((LsonBooleanFormatAsString) annotation).equal()) > -1 ? 1 : 0;
+            if(((LsonBooleanFormatAsString) annotation).notEqual().length > 0)
+                result = (DataProcessUtil.getIndex(((StringBuilder) value).toString(), ((LsonBooleanFormatAsString) annotation).notEqual()) == -1 && result != 0) ? 1 : 0;
+            return result != -1 ? result == 1 : !((StringBuilder) value).toString().equals("");
+        }
+
+        @Override
+        public Object serialization(Object value, Annotation annotation, TypeUtil fieldType)
+        {
+            return null;
+        }
+    }
 }

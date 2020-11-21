@@ -12,14 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
-import cn.luern0313.lson.annotation.field.LsonAddPrefix;
-import cn.luern0313.lson.annotation.field.LsonAddSuffix;
-import cn.luern0313.lson.annotation.field.LsonBooleanFormatAsNumber;
-import cn.luern0313.lson.annotation.field.LsonBooleanFormatAsString;
-import cn.luern0313.lson.annotation.field.LsonDateFormat;
-import cn.luern0313.lson.annotation.field.LsonNumberFormat;
 import cn.luern0313.lson.annotation.field.LsonPath;
-import cn.luern0313.lson.annotation.field.LsonReplaceAll;
 import cn.luern0313.lson.annotation.method.LsonCallMethod;
 import cn.luern0313.lson.element.LsonArray;
 import cn.luern0313.lson.element.LsonElement;
@@ -244,26 +237,19 @@ public class Serialization
             for (Object key : keys)
                 ((Map<Object, Object>) value).put(key, handleAnnotation(((Map<?, ?>) value).get(key), annotation, lsonDefinedAnnotation, fieldClass.getMapType()));
         }
-        else
+        else if(value instanceof DeserializationValueUtil)
         {
-            if(value instanceof DeserializationValueUtil)
-            {
-                Object object = handleAnnotationType((DeserializationValueUtil) value, lsonDefinedAnnotation.acceptableSerializationType());
-                if(object != null && LsonUtil.BUILT_IN_ANNOTATION.contains(annotation.annotationType().getName()))
-                    ((DeserializationValueUtil) value).set(handleBuiltInAnnotation(object, annotation, fieldClass));
-                else if(object != null)
-                    ((DeserializationValueUtil) value).set(LsonUtil.lsonAnnotationListener.handleDeserializationAnnotation(object, annotation, fieldClass));
+            Object object = handleAnnotationType((DeserializationValueUtil) value, lsonDefinedAnnotation.acceptableSerializationType());
+            if(object != null)
+                ((DeserializationValueUtil) value).set(handleSingleAnnotation(object, annotation, lsonDefinedAnnotation, fieldClass));
 
-                if(!((DeserializationValueUtil) value).isNull())
-                    ((DeserializationValueUtil) value).set(handleAnnotationType((DeserializationValueUtil) value, lsonDefinedAnnotation.acceptableDeserializationType()));
-                else
-                    return null;
-            }
-            else if(LsonUtil.BUILT_IN_ANNOTATION.contains(annotation.annotationType().getName()))
-                value = handleBuiltInAnnotation(value, annotation, fieldClass);
-            else if(LsonUtil.lsonAnnotationListener != null)
-                value = LsonUtil.lsonAnnotationListener.handleDeserializationAnnotation(value, annotation, fieldClass);
+            if(!((DeserializationValueUtil) value).isNull())
+                ((DeserializationValueUtil) value).set(handleAnnotationType((DeserializationValueUtil) value, lsonDefinedAnnotation.acceptableDeserializationType()));
+            else
+                return null;
         }
+        else
+            value = handleSingleAnnotation(value, annotation, lsonDefinedAnnotation, fieldClass);
         return value;
     }
 
@@ -281,41 +267,17 @@ public class Serialization
         return deserializationValueUtil.get();
     }
 
-    private static Object handleBuiltInAnnotation(Object value, Annotation annotation, TypeUtil fieldType)
+    private static Object handleSingleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, TypeUtil fieldType)
     {
         try
         {
-            if(LsonDateFormat.class.getName().equals(annotation.annotationType().getName()))
-                return DataProcessUtil.getTimeStamp(value.toString(), ((LsonDateFormat) annotation).value(), ((LsonDateFormat) annotation).mode());
-            else if(LsonAddPrefix.class.getName().equals(annotation.annotationType().getName()))
-            {
-                if(((StringBuilder) value).indexOf(((LsonAddPrefix) annotation).value()) == 0)
-                    return ((StringBuilder) value).delete(0, ((LsonAddPrefix) annotation).value().length());
-            }
-            else if(LsonAddSuffix.class.getName().equals(annotation.annotationType().getName()))
-            {
-                if(((StringBuilder) value).lastIndexOf(((LsonAddSuffix) annotation).value()) == ((StringBuilder) value).length() - ((LsonAddSuffix) annotation).value().length())
-                    return ((StringBuilder) value).delete(((StringBuilder) value).length() - ((LsonAddSuffix) annotation).value().length(), ((StringBuilder) value).length());
-            }
-            else if(LsonNumberFormat.class.getName().equals(annotation.annotationType().getName()))
-                return value;
-            else if(LsonReplaceAll.class.getName().equals(annotation.annotationType().getName()))
-            {
-                String[] regexArray = ((LsonReplaceAll) annotation).regex();
-                String[] replacementArray = ((LsonReplaceAll) annotation).replacement();
-                for (int i = 0; i < regexArray.length; i++)
-                    DataProcessUtil.replaceAll((StringBuilder) value, replacementArray[i], regexArray[i]);
-                return value;
-            }
-            else if(LsonBooleanFormatAsNumber.class.getName().equals(annotation.annotationType().getName()))
-                return null;
-            else if(LsonBooleanFormatAsString.class.getName().equals(annotation.annotationType().getName()))
-                return null;
+            Method method = lsonDefinedAnnotation.config().getDeclaredMethod("serialization", Object.class, Annotation.class, TypeUtil.class);
+            return method.invoke(lsonDefinedAnnotation.config().newInstance(), value, annotation, fieldType);
         }
-        catch (RuntimeException ignored)
+        catch (NoSuchMethodException | InvocationTargetException | java.lang.InstantiationException | IllegalAccessException ignored)
         {
         }
-        return value;
+        return null;
     }
 
     private static void handleMethod(Object t, LsonCallMethod.CallMethodTiming callMethodTiming)

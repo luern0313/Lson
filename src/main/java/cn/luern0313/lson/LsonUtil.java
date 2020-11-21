@@ -1,17 +1,9 @@
 package cn.luern0313.lson;
 
 import java.io.StringReader;
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import cn.luern0313.lson.annotation.field.LsonAddPrefix;
-import cn.luern0313.lson.annotation.field.LsonAddSuffix;
-import cn.luern0313.lson.annotation.field.LsonBooleanFormatAsNumber;
-import cn.luern0313.lson.annotation.field.LsonBooleanFormatAsString;
-import cn.luern0313.lson.annotation.field.LsonDateFormat;
-import cn.luern0313.lson.annotation.field.LsonNumberFormat;
-import cn.luern0313.lson.annotation.field.LsonReplaceAll;
 import cn.luern0313.lson.element.LsonArray;
 import cn.luern0313.lson.element.LsonElement;
 import cn.luern0313.lson.element.LsonObject;
@@ -26,8 +18,6 @@ import cn.luern0313.lson.util.TypeUtil;
 
 public class LsonUtil
 {
-    protected static LsonAnnotationListener lsonAnnotationListener;
-
     /**
      * 将一个JSON字符串解析为LsonElement对象。
      *
@@ -161,54 +151,6 @@ public class LsonUtil
         return lsonElement;
     }
 
-    /**
-     * 程序开始时，通过此方法传入实现{@link LsonAnnotationListener}接口类的实例，自定义注解才可正常运行。
-     *
-     * @param lsonAnnotationListener 实现{@link LsonAnnotationListener}接口的实例。
-     *
-     * @author luern0313
-     */
-    public static void setLsonAnnotationListener(LsonAnnotationListener lsonAnnotationListener)
-    {
-        LsonUtil.lsonAnnotationListener = lsonAnnotationListener;
-    }
-
-    /**
-     * 自定义注解相关。
-     *
-     * @author luern0313
-     */
-    public interface LsonAnnotationListener
-    {
-        /**
-         * 处理反序列化过程中的自定义注解。
-         *
-         * <p>开发者可以通过重写这个方法在反序列化中处理自定义注解。
-         *
-         * @param value 处理前的值。
-         * @param annotation 开发者自定义的注解实例。
-         * @param fieldType 要填充数据的目标变量的类型。
-         * @return 处理完成的值。
-         *
-         * @author luern0313
-         */
-        Object handleDeserializationAnnotation(Object value, Annotation annotation, TypeUtil fieldType);
-
-        /**
-         * 处理序列化过程中的自定义注解。
-         *
-         * 开发者可以通过重写这个方法在序列化中处理自定义注解。
-         *
-         * @param value 处理前的值。
-         * @param annotation 开发者自定义的注解实例。
-         * @param fieldType 要填充数据的目标变量的类型。
-         * @return 处理完成的值。
-         *
-         * @author luern0313
-         */
-        Object handleSerializationAnnotation(Object value, Annotation annotation, TypeUtil fieldType);
-    }
-
     protected static HashMap<String, Object> PRIMITIVE_DEFAULT_VALUE = new HashMap<String, Object>()
     {{
         put(int.class.getName(), 0);
@@ -219,16 +161,5 @@ public class LsonUtil
         put(long.class.getName(), 0L);
         put(short.class.getName(), (short) 0);
         put(boolean.class.getName(), false);
-    }};
-
-    protected static final ArrayList<String> BUILT_IN_ANNOTATION = new ArrayList<String>()
-    {{
-        add(LsonAddPrefix.class.getName());
-        add(LsonAddSuffix.class.getName());
-        add(LsonDateFormat.class.getName());
-        add(LsonNumberFormat.class.getName());
-        add(LsonReplaceAll.class.getName());
-        add(LsonBooleanFormatAsNumber.class.getName());
-        add(LsonBooleanFormatAsString.class.getName());
     }};
 }

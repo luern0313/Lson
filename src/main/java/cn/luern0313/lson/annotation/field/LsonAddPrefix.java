@@ -1,11 +1,13 @@
 package cn.luern0313.lson.annotation.field;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
+import cn.luern0313.lson.util.TypeUtil;
 
 /**
  * 为指定变量添加一个前缀。
@@ -16,7 +18,7 @@ import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
  * @author luern0313
  */
 
-@LsonDefinedAnnotation(acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.STRING, acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.STRING)
+@LsonDefinedAnnotation(config = LsonAddPrefix.LsonAddPrefixConfig.class, acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.STRING, acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.STRING)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LsonAddPrefix
@@ -29,4 +31,21 @@ public @interface LsonAddPrefix
      * @author luern0313
      */
     String value();
+
+    class LsonAddPrefixConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
+    {
+        @Override
+        public Object deserialization(Object value, Annotation annotation, TypeUtil fieldType)
+        {
+            return ((StringBuilder) value).insert(0, ((LsonAddPrefix) annotation).value());
+        }
+
+        @Override
+        public Object serialization(Object value, Annotation annotation, TypeUtil fieldType)
+        {
+            if(((StringBuilder) value).indexOf(((LsonAddPrefix) annotation).value()) == 0)
+                return ((StringBuilder) value).delete(0, ((LsonAddPrefix) annotation).value().length());
+            return value;
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package cn.luern0313.lson.annotation.field;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -9,6 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
+import cn.luern0313.lson.util.DataProcessUtil;
+import cn.luern0313.lson.util.TypeUtil;
 
 /**
  * 以指定方式保留数字指定的位数。
@@ -19,7 +22,7 @@ import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
  * @author luern0313
  */
 
-@LsonDefinedAnnotation(acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.NUMBER, acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.NUMBER)
+@LsonDefinedAnnotation(config = LsonNumberFormat.LsonNumberFormatConfig.class, acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.NUMBER, acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.NUMBER)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LsonNumberFormat
@@ -98,5 +101,20 @@ public @interface LsonNumberFormat
             put(HALF_DOWN, BigDecimal.ROUND_HALF_DOWN);
             put(HALF_EVEN, BigDecimal.ROUND_HALF_EVEN);
         }};
+    }
+
+    class LsonNumberFormatConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
+    {
+        @Override
+        public Object deserialization(Object value, Annotation annotation, TypeUtil fieldType)
+        {
+            return DataProcessUtil.getNumberFormat(value, ((LsonNumberFormat) annotation).digit(), ((LsonNumberFormat) annotation).mode(), fieldType);
+        }
+
+        @Override
+        public Object serialization(Object value, Annotation annotation, TypeUtil fieldType)
+        {
+            return value;
+        }
     }
 }

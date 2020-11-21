@@ -14,14 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
-import cn.luern0313.lson.annotation.field.LsonAddPrefix;
-import cn.luern0313.lson.annotation.field.LsonAddSuffix;
-import cn.luern0313.lson.annotation.field.LsonBooleanFormatAsNumber;
-import cn.luern0313.lson.annotation.field.LsonBooleanFormatAsString;
-import cn.luern0313.lson.annotation.field.LsonDateFormat;
-import cn.luern0313.lson.annotation.field.LsonNumberFormat;
 import cn.luern0313.lson.annotation.field.LsonPath;
-import cn.luern0313.lson.annotation.field.LsonReplaceAll;
 import cn.luern0313.lson.annotation.method.LsonCallMethod;
 import cn.luern0313.lson.element.LsonArray;
 import cn.luern0313.lson.element.LsonElement;
@@ -385,37 +378,32 @@ public class Deserialization
     }
 
     @SuppressWarnings("unchecked")
-    private static Object handleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, TypeUtil fieldClass)
+    private static Object handleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, TypeUtil fieldType)
     {
         if(value == null) return null;
 
         TypeUtil valueClass = new TypeUtil(value.getClass());
         if(valueClass.isArrayTypeClass() && !lsonDefinedAnnotation.isIgnoreArray())
             for (int i = 0; i < Array.getLength(value); i++)
-                Array.set(value, i, handleAnnotation(Array.get(value, i), annotation, lsonDefinedAnnotation, fieldClass.getArrayType()));
+                Array.set(value, i, handleAnnotation(Array.get(value, i), annotation, lsonDefinedAnnotation, fieldType.getArrayType()));
         else if(valueClass.isListTypeClass() && !lsonDefinedAnnotation.isIgnoreList())
             for (int i = 0; i < ((List<?>) value).size(); i++)
-                ((List<Object>) value).set(i, handleAnnotation(((List<?>) value).get(i), annotation, lsonDefinedAnnotation, fieldClass.getListType()));
+                ((List<Object>) value).set(i, handleAnnotation(((List<?>) value).get(i), annotation, lsonDefinedAnnotation, fieldType.getListType()));
         else if(valueClass.isListTypeClass() && !lsonDefinedAnnotation.isIgnoreMap())
         {
             Object[] keys = ((Map<?, ?>) value).keySet().toArray();
             for (Object key : keys)
-                ((Map<Object, Object>) value).put(key, handleAnnotation(((Map<?, ?>) value).get(key), annotation, lsonDefinedAnnotation, fieldClass.getMapType()));
+                ((Map<Object, Object>) value).put(key, handleAnnotation(((Map<?, ?>) value).get(key), annotation, lsonDefinedAnnotation, fieldType.getMapType()));
         }
         else
         {
             if(value instanceof DeserializationValueUtil)
             {
                 Object object = handleAnnotationType((DeserializationValueUtil) value, lsonDefinedAnnotation.acceptableDeserializationType());
-                if(object != null && LsonUtil.BUILT_IN_ANNOTATION.contains(annotation.annotationType().getName()))
-                    ((DeserializationValueUtil) value).set(handleBuiltInAnnotation(object, annotation, fieldClass));
-                else if(object != null)
-                    ((DeserializationValueUtil) value).set(LsonUtil.lsonAnnotationListener.handleDeserializationAnnotation(object, annotation, fieldClass));
+                ((DeserializationValueUtil) value).set(handleSingleAnnotation(object, annotation, lsonDefinedAnnotation, fieldType));
             }
-            else if(LsonUtil.BUILT_IN_ANNOTATION.contains(annotation.annotationType().getName()))
-                value = handleBuiltInAnnotation(value, annotation, fieldClass);
-            else if(LsonUtil.lsonAnnotationListener != null)
-                value = LsonUtil.lsonAnnotationListener.handleDeserializationAnnotation(value, annotation, fieldClass);
+            else
+                value = handleSingleAnnotation(value, annotation, lsonDefinedAnnotation, fieldType);
         }
         return value;
     }
@@ -432,43 +420,17 @@ public class Deserialization
         return deserializationValueUtil.get();
     }
 
-    private static Object handleBuiltInAnnotation(Object value, Annotation annotation, TypeUtil fieldType)
+    private static Object handleSingleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, TypeUtil fieldType)
     {
-        if(LsonDateFormat.class.getName().equals(annotation.annotationType().getName()))
-            return DataProcessUtil.getTime(((Number) value).longValue() * (((LsonDateFormat) annotation).mode() == LsonDateFormat.LsonDateFormatMode.SECOND ? 1000 : 0), ((LsonDateFormat) annotation).value());
-        else if(LsonAddPrefix.class.getName().equals(annotation.annotationType().getName()))
-            return ((StringBuilder) value).insert(0, ((LsonAddPrefix) annotation).value());
-        else if(LsonAddSuffix.class.getName().equals(annotation.annotationType().getName()))
-            return ((StringBuilder) value).append(((LsonAddSuffix) annotation).value());
-        else if(LsonNumberFormat.class.getName().equals(annotation.annotationType().getName()))
-            return DataProcessUtil.getNumberFormat(value, ((LsonNumberFormat) annotation).digit(), ((LsonNumberFormat) annotation).mode(), fieldType);
-        else if(LsonReplaceAll.class.getName().equals(annotation.annotationType().getName()))
+        try
         {
-            String[] regexArray = ((LsonReplaceAll) annotation).regex();
-            String[] replacementArray = ((LsonReplaceAll) annotation).replacement();
-            for (int i = 0; i < regexArray.length; i++)
-                DataProcessUtil.replaceAll((StringBuilder) value, regexArray[i], replacementArray[i]);
-            return value;
+            Method method = lsonDefinedAnnotation.config().getDeclaredMethod("deserialization", Object.class, Annotation.class, TypeUtil.class);
+            return method.invoke(lsonDefinedAnnotation.config().newInstance(), value, annotation, fieldType);
         }
-        else if(LsonBooleanFormatAsNumber.class.getName().equals(annotation.annotationType().getName()))
+        catch (NoSuchMethodException | InvocationTargetException | java.lang.InstantiationException | IllegalAccessException ignored)
         {
-            int result = -1;
-            if(((LsonBooleanFormatAsNumber) annotation).equal().length > 0)
-                result = DataProcessUtil.getIndex(((Number) value).doubleValue(), ((LsonBooleanFormatAsNumber) annotation).equal()) > -1 ? 1 : 0;
-            if(((LsonBooleanFormatAsNumber) annotation).notEqual().length > 0)
-                result = (DataProcessUtil.getIndex(((Number) value).doubleValue(), ((LsonBooleanFormatAsNumber) annotation).notEqual()) == -1 && result != 0) ? 1 : 0;
-            return result != -1 ? result == 1 : ((double) value) != 0;
         }
-        else if(LsonBooleanFormatAsString.class.getName().equals(annotation.annotationType().getName()))
-        {
-            int result = -1;
-            if(((LsonBooleanFormatAsString) annotation).equal().length > 0)
-                result = DataProcessUtil.getIndex(((StringBuilder) value).toString(), ((LsonBooleanFormatAsString) annotation).equal()) > -1 ? 1 : 0;
-            if(((LsonBooleanFormatAsString) annotation).notEqual().length > 0)
-                result = (DataProcessUtil.getIndex(((StringBuilder) value).toString(), ((LsonBooleanFormatAsString) annotation).notEqual()) == -1 && result != 0) ? 1 : 0;
-            return result != -1 ? result == 1 : !((StringBuilder) value).toString().equals("");
-        }
-        return value;
+        return null;
     }
 
     private static void handleMethod(Object t, LsonCallMethod.CallMethodTiming callMethodTiming)

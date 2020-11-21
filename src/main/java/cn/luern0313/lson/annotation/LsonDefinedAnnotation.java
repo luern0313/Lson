@@ -1,11 +1,13 @@
 package cn.luern0313.lson.annotation;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.luern0313.lson.LsonUtil;
+import cn.luern0313.lson.util.TypeUtil;
 
 /**
  * 此注解用来标记Lson注解，包括内置注解或开发者自定义的注解。
@@ -24,6 +26,8 @@ import cn.luern0313.lson.LsonUtil;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LsonDefinedAnnotation
 {
+    Class<? extends LsonDefinedAnnotationConfig> config();
+
     /**
      * 反序列化过程中，该注解<b>接受</b>的数据类型。
      *
@@ -94,5 +98,11 @@ public @interface LsonDefinedAnnotation
         STRING,
         NUMBER,
         BOOLEAN
+    }
+
+    interface LsonDefinedAnnotationConfig
+    {
+        Object deserialization(Object value, Annotation annotation, TypeUtil fieldType);
+        Object serialization(Object value, Annotation annotation, TypeUtil fieldType);
     }
 }

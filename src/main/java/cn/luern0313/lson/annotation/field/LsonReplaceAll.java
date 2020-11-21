@@ -1,11 +1,14 @@
 package cn.luern0313.lson.annotation.field;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
+import cn.luern0313.lson.util.DataProcessUtil;
+import cn.luern0313.lson.util.TypeUtil;
 
 /**
  * 可按规则替换字符串中的部分文本。
@@ -19,7 +22,7 @@ import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
  * @author luern0313
  */
 
-@LsonDefinedAnnotation(acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.STRING, acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.STRING)
+@LsonDefinedAnnotation(config = LsonReplaceAll.LsonReplaceAllConfig.class, acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.STRING, acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.STRING)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LsonReplaceAll
@@ -41,4 +44,27 @@ public @interface LsonReplaceAll
      * @author luern0313
      */
     String[] replacement();
+
+    class LsonReplaceAllConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
+    {
+        @Override
+        public Object deserialization(Object value, Annotation annotation, TypeUtil fieldType)
+        {
+            String[] regexArray = ((LsonReplaceAll) annotation).regex();
+            String[] replacementArray = ((LsonReplaceAll) annotation).replacement();
+            for (int i = 0; i < regexArray.length; i++)
+                DataProcessUtil.replaceAll((StringBuilder) value, regexArray[i], replacementArray[i]);
+            return value;
+        }
+
+        @Override
+        public Object serialization(Object value, Annotation annotation, TypeUtil fieldType)
+        {
+            String[] regexArray = ((LsonReplaceAll) annotation).regex();
+            String[] replacementArray = ((LsonReplaceAll) annotation).replacement();
+            for (int i = 0; i < regexArray.length; i++)
+                DataProcessUtil.replaceAll((StringBuilder) value, replacementArray[i], regexArray[i]);
+            return value;
+        }
+    }
 }
