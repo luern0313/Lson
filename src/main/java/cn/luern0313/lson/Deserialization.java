@@ -361,8 +361,12 @@ public class Deserialization
                 return left == right || left.equals(right);
             }
             else if(comparator == PathType.PathFilter.FilterComparator.NOT_EQUAL)
+            {
+                if(left instanceof Number && right instanceof Number)
+                    return ((Number) left).doubleValue() != ((Number) right).doubleValue();
                 return left != right;
-            if(left instanceof Number && right instanceof Number)
+            }
+            else if(left instanceof Number && right instanceof Number)
             {
                 if(comparator == PathType.PathFilter.FilterComparator.LESS)
                     return ((Number) left).doubleValue() < ((Number) right).doubleValue();
