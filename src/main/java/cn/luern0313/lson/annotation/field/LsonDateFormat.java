@@ -8,7 +8,6 @@ import java.lang.annotation.Target;
 
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
 import cn.luern0313.lson.util.DataProcessUtil;
-import cn.luern0313.lson.util.TypeUtil;
 
 /**
  * 将时间戳格式化为指定格式。
@@ -58,13 +57,13 @@ public @interface LsonDateFormat
     class LsonDateFormatConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
     {
         @Override
-        public Object deserialization(Object value, Annotation annotation, TypeUtil fieldType)
+        public Object deserialization(Object value, Annotation annotation)
         {
             return DataProcessUtil.getTime(((Number) value).longValue() * (((LsonDateFormat) annotation).mode() == LsonDateFormat.LsonDateFormatMode.SECOND ? 1000 : 0), ((LsonDateFormat) annotation).value());
         }
 
         @Override
-        public Object serialization(Object value, Annotation annotation, TypeUtil fieldType)
+        public Object serialization(Object value, Annotation annotation)
         {
             return DataProcessUtil.getTimeStamp(value.toString(), ((LsonDateFormat) annotation).value(), ((LsonDateFormat) annotation).mode());
         }

@@ -8,7 +8,6 @@ import java.lang.annotation.Target;
 
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
 import cn.luern0313.lson.util.DataProcessUtil;
-import cn.luern0313.lson.util.TypeUtil;
 
 /**
  * 可按规则替换字符串中的部分文本。
@@ -48,7 +47,7 @@ public @interface LsonReplaceAll
     class LsonReplaceAllConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
     {
         @Override
-        public Object deserialization(Object value, Annotation annotation, TypeUtil fieldType)
+        public Object deserialization(Object value, Annotation annotation)
         {
             String[] regexArray = ((LsonReplaceAll) annotation).regex();
             String[] replacementArray = ((LsonReplaceAll) annotation).replacement();
@@ -58,7 +57,7 @@ public @interface LsonReplaceAll
         }
 
         @Override
-        public Object serialization(Object value, Annotation annotation, TypeUtil fieldType)
+        public Object serialization(Object value, Annotation annotation)
         {
             String[] regexArray = ((LsonReplaceAll) annotation).regex();
             String[] replacementArray = ((LsonReplaceAll) annotation).replacement();

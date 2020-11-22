@@ -113,16 +113,16 @@ public class DataProcessUtil
         return 0;
     }
 
-    public static Object getNumberFormat(Object value, int digit, LsonNumberFormat.NumberFormatMode mode, TypeUtil fieldType)
+    public static Object getNumberFormat(Object value, int digit, LsonNumberFormat.NumberFormatMode mode)
     {
         try
         {
             BigDecimal bigDecimal = new BigDecimal(String.valueOf(value.toString()));
             bigDecimal = bigDecimal.setScale(digit, LsonNumberFormat.NumberFormatMode.modeIntegerMap.get(mode));
 
-            if(fieldType.isNumber())
+            // if(fieldType.isNumber())
                 return bigDecimal.doubleValue();
-            return bigDecimal.toString();
+            // return bigDecimal.toString();
         }
         catch (NumberFormatException e)
         {

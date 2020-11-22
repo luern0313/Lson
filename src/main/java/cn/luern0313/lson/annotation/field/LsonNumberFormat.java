@@ -11,7 +11,6 @@ import java.util.Map;
 
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
 import cn.luern0313.lson.util.DataProcessUtil;
-import cn.luern0313.lson.util.TypeUtil;
 
 /**
  * 以指定方式保留数字指定的位数。
@@ -106,13 +105,13 @@ public @interface LsonNumberFormat
     class LsonNumberFormatConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
     {
         @Override
-        public Object deserialization(Object value, Annotation annotation, TypeUtil fieldType)
+        public Object deserialization(Object value, Annotation annotation)
         {
-            return DataProcessUtil.getNumberFormat(value, ((LsonNumberFormat) annotation).digit(), ((LsonNumberFormat) annotation).mode(), fieldType);
+            return DataProcessUtil.getNumberFormat(value, ((LsonNumberFormat) annotation).digit(), ((LsonNumberFormat) annotation).mode());
         }
 
         @Override
-        public Object serialization(Object value, Annotation annotation, TypeUtil fieldType)
+        public Object serialization(Object value, Annotation annotation)
         {
             return value;
         }

@@ -7,7 +7,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
-import cn.luern0313.lson.util.TypeUtil;
 
 /**
  * 为指定变量添加一个后缀。
@@ -35,13 +34,13 @@ public @interface LsonAddSuffix
     class LsonAddSuffixConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
     {
         @Override
-        public Object deserialization(Object value, Annotation annotation, TypeUtil fieldType)
+        public Object deserialization(Object value, Annotation annotation)
         {
             return ((StringBuilder) value).append(((LsonAddSuffix) annotation).value());
         }
 
         @Override
-        public Object serialization(Object value, Annotation annotation, TypeUtil fieldType)
+        public Object serialization(Object value, Annotation annotation)
         {
             if(((StringBuilder) value).lastIndexOf(((LsonAddSuffix) annotation).value()) == ((StringBuilder) value).length() - ((LsonAddSuffix) annotation).value().length())
                 return ((StringBuilder) value).delete(((StringBuilder) value).length() - ((LsonAddSuffix) annotation).value().length(), ((StringBuilder) value).length());

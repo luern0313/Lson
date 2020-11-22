@@ -430,8 +430,8 @@ public class Deserialization
     {
         try
         {
-            Method method = lsonDefinedAnnotation.config().getDeclaredMethod("deserialization", Object.class, Annotation.class, TypeUtil.class);
-            return method.invoke(lsonDefinedAnnotation.config().newInstance(), value, annotation, fieldType);
+            Method method = lsonDefinedAnnotation.config().getDeclaredMethod("deserialization", Object.class, Annotation.class);
+            return method.invoke(lsonDefinedAnnotation.config().newInstance(), value, annotation);
         }
         catch (NoSuchMethodException | InvocationTargetException | java.lang.InstantiationException | IllegalAccessException ignored)
         {

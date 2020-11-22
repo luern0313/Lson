@@ -8,7 +8,6 @@ import java.lang.annotation.Target;
 
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
 import cn.luern0313.lson.util.DataProcessUtil;
-import cn.luern0313.lson.util.TypeUtil;
 
 /**
  * 将传入的数转为{@code Boolean}类型。
@@ -45,7 +44,7 @@ public @interface LsonBooleanFormatAsString
     class LsonBooleanFormatAsStringConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
     {
         @Override
-        public Object deserialization(Object value, Annotation annotation, TypeUtil fieldType)
+        public Object deserialization(Object value, Annotation annotation)
         {
             int result = -1;
             if(((LsonBooleanFormatAsString) annotation).equal().length > 0)
@@ -56,7 +55,7 @@ public @interface LsonBooleanFormatAsString
         }
 
         @Override
-        public Object serialization(Object value, Annotation annotation, TypeUtil fieldType)
+        public Object serialization(Object value, Annotation annotation)
         {
             return null;
         }

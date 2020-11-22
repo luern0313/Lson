@@ -7,7 +7,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
-import cn.luern0313.lson.util.TypeUtil;
 
 /**
  * 为指定变量添加一个前缀。
@@ -35,13 +34,13 @@ public @interface LsonAddPrefix
     class LsonAddPrefixConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
     {
         @Override
-        public Object deserialization(Object value, Annotation annotation, TypeUtil fieldType)
+        public Object deserialization(Object value, Annotation annotation)
         {
             return ((StringBuilder) value).insert(0, ((LsonAddPrefix) annotation).value());
         }
 
         @Override
-        public Object serialization(Object value, Annotation annotation, TypeUtil fieldType)
+        public Object serialization(Object value, Annotation annotation)
         {
             if(((StringBuilder) value).indexOf(((LsonAddPrefix) annotation).value()) == 0)
                 return ((StringBuilder) value).delete(0, ((LsonAddPrefix) annotation).value().length());

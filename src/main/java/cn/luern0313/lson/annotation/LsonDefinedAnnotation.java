@@ -6,15 +6,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.luern0313.lson.LsonUtil;
-import cn.luern0313.lson.util.TypeUtil;
-
 /**
  * 此注解用来标记Lson注解，包括内置注解或开发者自定义的注解。
  *
- * <p>开发者需要创建一个类，并实现接口{@link LsonUtil.LsonAnnotationListener}，在程序开始时
- * 通过静态方法{@link LsonUtil#setLsonAnnotationListener(LsonUtil.LsonAnnotationListener)}
- * 传入该类的实例。
+ * <p>开发者需要创建一个类，并实现接口{@link LsonDefinedAnnotationConfig}，用来在反序列化和序列化中
+ * 处理并返回注解处理后的值，并在{@link LsonDefinedAnnotation#config()}注明该类的Class。
  *
  * <p>自定义的注解需要标记此注解，并在你实体类需要的变量上添加此注解。Lson在处理时会将值与你的
  * 自定义注解传入你的注解处理类，由你自行处理。
@@ -26,6 +22,13 @@ import cn.luern0313.lson.util.TypeUtil;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LsonDefinedAnnotation
 {
+    /**
+     * 注明用来处理注解类的Class，该类需要实现接口{@link LsonDefinedAnnotationConfig}。
+     *
+     * @return 处理注解类的Class。
+     *
+     * @author luern0313
+     */
     Class<? extends LsonDefinedAnnotationConfig> config();
 
     /**
@@ -102,7 +105,24 @@ public @interface LsonDefinedAnnotation
 
     interface LsonDefinedAnnotationConfig
     {
-        Object deserialization(Object value, Annotation annotation, TypeUtil fieldType);
-        Object serialization(Object value, Annotation annotation, TypeUtil fieldType);
+        /**
+         * 在反序列化过程中处理注解。
+         *
+         * @param value 处理前的知，该值类型与{@link LsonDefinedAnnotation#acceptableDeserializationType()}
+         *              注明的类型相同。
+         * @param annotation 此注解类的实例。
+         * @return 处理完成的值。
+         */
+        Object deserialization(Object value, Annotation annotation);
+
+        /**
+         * 在序列化过程中处理注解。
+         *
+         * @param value 处理前的知，该值类型与{@link LsonDefinedAnnotation#acceptableDeserializationType()}
+         *              注明的类型相同。
+         * @param annotation 此注解类的实例。
+         * @return 处理完成的值。
+         */
+        Object serialization(Object value, Annotation annotation);
     }
 }
