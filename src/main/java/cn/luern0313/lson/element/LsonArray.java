@@ -13,7 +13,7 @@ import cn.luern0313.lson.LsonUtil;
 
 public class LsonArray extends LsonElement
 {
-    private ArrayList<LsonElement> list;
+    private final ArrayList<LsonElement> list;
 
     public LsonArray()
     {

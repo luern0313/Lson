@@ -14,7 +14,7 @@ import cn.luern0313.lson.LsonUtil;
 
 public class LsonObject extends LsonElement
 {
-    private LinkedHashMap<String, LsonElement> map;
+    private final LinkedHashMap<String, LsonElement> map;
 
     public LsonObject()
     {
