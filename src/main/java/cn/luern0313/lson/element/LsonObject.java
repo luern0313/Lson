@@ -26,11 +26,30 @@ public class LsonObject extends LsonElement
         this.map = map;
     }
 
+    /**
+     * 检查key在map中是否存在。
+     *
+     * @param key 要检查是否存在的key。
+     * @return 在map中是否存在。
+     */
     public boolean has(String key)
     {
         return map.containsKey(key);
     }
 
+    /**
+     * 检查key在map中是否存在，以及是否是指定的类型。
+     *
+     * <p>若不存在key，则按指定的类型新建并返回。
+     *
+     * <p>若存在且为指定的类型，同时不为{@link LsonPrimitive}，则直接返回。
+     *
+     * <p>若存在但不为指定的类型，或类型为{@link LsonPrimitive}，则返回null。
+     *
+     * @param key 要检查是否存在的key，
+     * @param clz key指定的类型
+     * @return key对应的对象或null。
+     */
     public LsonElement hasPut(String key, Class<? extends LsonElement> clz)
     {
         try
@@ -44,13 +63,18 @@ public class LsonObject extends LsonElement
                     return lsonElement;
             }
         }
-        catch (InstantiationException | IllegalAccessException e)
+        catch (InstantiationException | IllegalAccessException ignored)
         {
-            e.printStackTrace();
         }
         return null;
     }
 
+    /**
+     * 返回key对应的value。
+     *
+     * @param key 要获取value的key。
+     * @return key对应的value。
+     */
     public LsonElement get(String key)
     {
         LsonElement lsonElement = map.get(key);
@@ -59,26 +83,59 @@ public class LsonObject extends LsonElement
         return LsonNull.getJsonNull();
     }
 
+    /**
+     * 根据JSONPath返回对应的值。
+     *
+     * @param path JSONPath，用于描述要取到的值在json中的位置。
+     * @return JSONPath对应的值。
+     */
     public Object getFromPath(String path)
     {
         return LsonUtil.getValue(this, path);
     }
 
+    /**
+     * 根据JSONPath返回对应的值，并指明该值的类型。
+     *
+     * @param path JSONPath，用于描述要取到的值在json中的位置。
+     * @param clz 该值的类型，Lson会尝试将该值转为指定的类型。
+     * @param <T> 指定的类型。
+     * @return JSONPath对应的值。
+     */
     public <T> T getFromPath(String path, Class<T> clz)
     {
         return LsonUtil.getValue(this, path, clz);
     }
 
-    public void putFromPath(String path, Object value)
+    /**
+     * 根据JSONPath将数据填充至LsonElement中。
+     *
+     * @param path 标注数据位置的JSONPath。
+     * @param value 要填充的数据。
+     * @return 填充完成的LsonElement。
+     */
+    public LsonElement putFromPath(String path, Object value)
     {
-        LsonUtil.putValue(this, path, value);
+        return LsonUtil.putValue(this, path, value);
     }
 
+    /**
+     * 以数组的形式获取所有的key。
+     *
+     * @return 所有的key。
+     */
     public String[] getKeys()
     {
         return map.keySet().toArray(new String[0]);
     }
 
+    /**
+     * 填充key与value，若key存在则替换。
+     *
+     * @param key 要填充的key。
+     * @param value 要填充的value。
+     * @return 填充完成的LsonElement。
+     */
     public LsonElement put(String key, LsonElement value)
     {
         map.put(key, value == null ? LsonNull.getJsonNull() : value);
@@ -171,7 +228,7 @@ public class LsonObject extends LsonElement
     @Override
     public LsonObject getAsLsonObject()
     {
-        return (LsonObject) this;
+        return this;
     }
 
     @Override

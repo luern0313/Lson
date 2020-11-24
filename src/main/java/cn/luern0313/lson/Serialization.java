@@ -1,5 +1,7 @@
 package cn.luern0313.lson;
 
+import com.sun.istack.internal.NotNull;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -160,7 +162,7 @@ public class Serialization
     }
 
     @SuppressWarnings("unchecked")
-    public static void setValue(LsonElement value, String pathString, ArrayList<String> rootPath, LsonElement rootJson)
+    public static void setValue(LsonElement value, String pathString, @NotNull ArrayList<String> rootPath, LsonElement rootJson)
     {
         ArrayList<Object> jsonPaths = PathParser.parse(pathString);
         jsonPaths.addAll(0, rootPath);

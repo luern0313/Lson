@@ -115,7 +115,7 @@ public class LsonPrimitive extends LsonElement
     @Override
     public LsonPrimitive getAsLsonPrimitive()
     {
-        return (LsonPrimitive) this;
+        return this;
     }
 
     @Override

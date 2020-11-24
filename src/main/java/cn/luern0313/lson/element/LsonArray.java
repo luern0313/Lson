@@ -167,7 +167,7 @@ public class LsonArray extends LsonElement
     @Override
     public LsonArray getAsLsonArray()
     {
-        return (LsonArray) this;
+        return this;
     }
 
     @Override
