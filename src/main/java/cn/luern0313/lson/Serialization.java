@@ -1,7 +1,5 @@
 package cn.luern0313.lson;
 
-import com.sun.istack.internal.NotNull;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -28,6 +26,7 @@ import cn.luern0313.lson.util.TypeUtil;
 
 /**
  * Lson序列化相关类。
+ *
  *
  * @author luern0313
  */
