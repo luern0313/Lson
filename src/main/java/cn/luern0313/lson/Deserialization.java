@@ -237,7 +237,7 @@ public class Deserialization
 
             if(valueTypeArgument.isPrimitivePlus())
                 for (String key : keys)
-                    map.put(key, getJsonPrimitiveData(valueTypeArgument, json.getAsLsonObject().get(key)));
+                    map.put(key, getJsonPrimitiveData(json.getAsLsonObject().get(key)));
             else
             {
                 for (String key : keys)
@@ -269,9 +269,9 @@ public class Deserialization
         {
             if(json.isLsonArray())
                 for (int i = 0; i < json.getAsLsonArray().size(); i++)
-                    Array.set(array, i, getJsonPrimitiveData(actualTypeArgument, json.getAsLsonArray().get(i)));
+                    Array.set(array, i, getJsonPrimitiveData(json.getAsLsonArray().get(i)));
             else
-                Array.set(array, 0, getJsonPrimitiveData(actualTypeArgument, json));
+                Array.set(array, 0, getJsonPrimitiveData(json));
         }
         else
         {
@@ -300,9 +300,9 @@ public class Deserialization
         {
             if(json.isLsonArray())
                 for (int i = 0; i < json.getAsLsonArray().size(); i++)
-                    list.add(getJsonPrimitiveData(actualTypeArgument, json.getAsLsonArray().get(i)));
+                    list.add(getJsonPrimitiveData(json.getAsLsonArray().get(i)));
             else
-                list.add(getJsonPrimitiveData(actualTypeArgument, json));
+                list.add(getJsonPrimitiveData(json));
         }
         else
         {
@@ -464,7 +464,7 @@ public class Deserialization
         }
     }
 
-    private static DeserializationValueUtil getJsonPrimitiveData(TypeUtil type, LsonElement json)
+    private static DeserializationValueUtil getJsonPrimitiveData(LsonElement json)
     {
         while (json.isLsonArray())
             json = json.getAsLsonArray().get(0);

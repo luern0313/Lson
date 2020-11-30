@@ -112,9 +112,9 @@ public class LsonArray extends LsonElement
             return lsonElement.getAsLsonArray();
     }
 
-    public LsonObject getAsJsonObject(int key)
+    public LsonObject getAsJsonObject(int index)
     {
-        LsonElement lsonElement = list.get(key);
+        LsonElement lsonElement = list.get(index);
         if(!lsonElement.isLsonObject())
             return new LsonObject();
         else
