@@ -208,14 +208,14 @@ public class Deserialization
                 return getJsonPrimitiveData(fieldType, json);
             else if(fieldType.isBuiltInClass())
             {
-                Object data = getJsonPrimitiveData(fieldType, json);
+                Object data = getJsonPrimitiveData(json);
                 if(data == null)
                     return new DeserializationValueUtil(handleBuiltInClass(json, fieldType), fieldType.getAsClass());
                 else
                     return data;
             }
             else
-                return getClassData(fieldType, json, rootJson, t, jsonPaths);
+                return getClassData(fieldType, json, rootJson, t, jsonPaths);*/
         }
         catch (RuntimeException ignored)
         {
