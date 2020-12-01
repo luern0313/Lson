@@ -205,7 +205,7 @@ public class Deserialization
             }
 
             if(fieldType.isNull() || fieldType.isPrimitivePlus() || fieldType.getName().equals(Object.class.getName()))
-                return getJsonPrimitiveData(fieldType, json);
+                return getJsonPrimitiveData(json);
             else if(fieldType.isBuiltInClass())
             {
                 Object data = getJsonPrimitiveData(json);
@@ -215,7 +215,7 @@ public class Deserialization
                     return data;
             }
             else
-                return getClassData(fieldType, json, rootJson, t, jsonPaths);*/
+                return getClassData(fieldType, json, rootJson, t, jsonPaths);
         }
         catch (RuntimeException ignored)
         {
