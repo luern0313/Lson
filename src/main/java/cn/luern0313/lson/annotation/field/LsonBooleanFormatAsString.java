@@ -44,7 +44,7 @@ public @interface LsonBooleanFormatAsString
     class LsonBooleanFormatAsStringConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
     {
         @Override
-        public Object deserialization(Object value, Annotation annotation)
+        public Object deserialization(Object value, Annotation annotation, Object object)
         {
             int result = -1;
             if(((LsonBooleanFormatAsString) annotation).equal().length > 0)
@@ -55,7 +55,7 @@ public @interface LsonBooleanFormatAsString
         }
 
         @Override
-        public Object serialization(Object value, Annotation annotation)
+        public Object serialization(Object value, Annotation annotation, Object object)
         {
             return null;
         }

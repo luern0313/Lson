@@ -111,9 +111,10 @@ public @interface LsonDefinedAnnotation
          * @param value 处理前的知，该值类型与{@link LsonDefinedAnnotation#acceptableDeserializationType()}
          *              注明的类型相同。
          * @param annotation 此注解类的实例。
+         * @param object 反序列化目标类的实例。
          * @return 处理完成的值。
          */
-        Object deserialization(Object value, Annotation annotation);
+        Object deserialization(Object value, Annotation annotation, Object object);
 
         /**
          * 在序列化过程中处理注解。
@@ -121,8 +122,9 @@ public @interface LsonDefinedAnnotation
          * @param value 处理前的知，该值类型与{@link LsonDefinedAnnotation#acceptableDeserializationType()}
          *              注明的类型相同。
          * @param annotation 此注解类的实例。
+         * @param object 要序列化的目标对象。
          * @return 处理完成的值。
          */
-        Object serialization(Object value, Annotation annotation);
+        Object serialization(Object value, Annotation annotation, Object object);
     }
 }

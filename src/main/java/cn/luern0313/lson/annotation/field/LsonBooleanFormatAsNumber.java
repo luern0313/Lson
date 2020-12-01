@@ -44,7 +44,7 @@ public @interface LsonBooleanFormatAsNumber
     class LsonBooleanFormatAsNumberConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
     {
         @Override
-        public Object deserialization(Object value, Annotation annotation)
+        public Object deserialization(Object value, Annotation annotation, Object object)
         {
             int result = -1;
             if(((LsonBooleanFormatAsNumber) annotation).equal().length > 0)
@@ -55,7 +55,7 @@ public @interface LsonBooleanFormatAsNumber
         }
 
         @Override
-        public Object serialization(Object value, Annotation annotation)
+        public Object serialization(Object value, Annotation annotation, Object object)
         {
             return null;
         }

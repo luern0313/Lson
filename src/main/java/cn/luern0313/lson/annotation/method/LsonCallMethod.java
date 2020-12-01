@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 反序列化执行前后，调用被此注解标注的方法。
+ * 反序列化或序列化执行前后，调用被此注解标注的方法。
  *
  * @author luern0313
  */

@@ -57,13 +57,13 @@ public @interface LsonDateFormat
     class LsonDateFormatConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
     {
         @Override
-        public Object deserialization(Object value, Annotation annotation)
+        public Object deserialization(Object value, Annotation annotation, Object object)
         {
             return DataProcessUtil.getTime(((Number) value).longValue() * (((LsonDateFormat) annotation).mode() == LsonDateFormat.LsonDateFormatMode.SECOND ? 1000 : 0), ((LsonDateFormat) annotation).value());
         }
 
         @Override
-        public Object serialization(Object value, Annotation annotation)
+        public Object serialization(Object value, Annotation annotation, Object object)
         {
             return DataProcessUtil.getTimeStamp(value.toString(), ((LsonDateFormat) annotation).value(), ((LsonDateFormat) annotation).mode());
         }

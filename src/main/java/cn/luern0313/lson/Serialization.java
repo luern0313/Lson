@@ -121,7 +121,7 @@ public class Serialization
                     {
                         LsonDefinedAnnotation lsonDefinedAnnotation = annotations[i].annotationType().getAnnotation(LsonDefinedAnnotation.class);
                         if(lsonDefinedAnnotation != null && !annotations[i].annotationType().getName().equals(LsonPath.class.getName()))
-                            value = handleAnnotation(value, annotations[i], lsonDefinedAnnotation, valueType);
+                            value = handleAnnotation(value, annotations[i], lsonDefinedAnnotation, object);
                     }
 
                     value = finalValueHandle(value);
@@ -221,28 +221,28 @@ public class Serialization
     }
 
     @SuppressWarnings("unchecked")
-    private static Object handleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, TypeUtil fieldClass)
+    private static Object handleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, Object object)
     {
         if(value == null) return null;
 
         TypeUtil valueClass = new TypeUtil(value.getClass());
         if(valueClass.isArrayTypeClass() && !lsonDefinedAnnotation.isIgnoreArray())
             for (int i = 0; i < Array.getLength(value); i++)
-                Array.set(value, i, handleAnnotation(Array.get(value, i), annotation, lsonDefinedAnnotation, fieldClass.getArrayType()));
+                Array.set(value, i, handleAnnotation(Array.get(value, i), annotation, lsonDefinedAnnotation, object));
         else if(valueClass.isListTypeClass() && !lsonDefinedAnnotation.isIgnoreList())
             for (int i = 0; i < ((List<?>) value).size(); i++)
-                ((List<Object>) value).set(i, handleAnnotation(((List<?>) value).get(i), annotation, lsonDefinedAnnotation, fieldClass.getListType()));
+                ((List<Object>) value).set(i, handleAnnotation(((List<?>) value).get(i), annotation, lsonDefinedAnnotation, object));
         else if(valueClass.isListTypeClass() && !lsonDefinedAnnotation.isIgnoreMap())
         {
             Object[] keys = ((Map<?, ?>) value).keySet().toArray();
             for (Object key : keys)
-                ((Map<Object, Object>) value).put(key, handleAnnotation(((Map<?, ?>) value).get(key), annotation, lsonDefinedAnnotation, fieldClass.getMapType()));
+                ((Map<Object, Object>) value).put(key, handleAnnotation(((Map<?, ?>) value).get(key), annotation, lsonDefinedAnnotation, object));
         }
         else if(value instanceof DeserializationValueUtil)
         {
-            Object object = handleAnnotationType((DeserializationValueUtil) value, lsonDefinedAnnotation.acceptableSerializationType());
-            if(object != null)
-                ((DeserializationValueUtil) value).set(handleSingleAnnotation(object, annotation, lsonDefinedAnnotation, fieldClass));
+            Object o = handleAnnotationType((DeserializationValueUtil) value, lsonDefinedAnnotation.acceptableSerializationType());
+            if(o != null)
+                ((DeserializationValueUtil) value).set(handleSingleAnnotation(o, annotation, lsonDefinedAnnotation, object));
 
             if(!((DeserializationValueUtil) value).isNull())
                 ((DeserializationValueUtil) value).set(handleAnnotationType((DeserializationValueUtil) value, lsonDefinedAnnotation.acceptableDeserializationType()));
@@ -250,7 +250,7 @@ public class Serialization
                 return null;
         }
         else
-            value = handleSingleAnnotation(value, annotation, lsonDefinedAnnotation, fieldClass);
+            value = handleSingleAnnotation(value, annotation, lsonDefinedAnnotation, object);
         return value;
     }
 
@@ -268,12 +268,12 @@ public class Serialization
         return deserializationValueUtil.get();
     }
 
-    private static Object handleSingleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, TypeUtil fieldType)
+    private static Object handleSingleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, Object object)
     {
         try
         {
-            Method method = lsonDefinedAnnotation.config().getDeclaredMethod("serialization", Object.class, Annotation.class);
-            return method.invoke(lsonDefinedAnnotation.config().newInstance(), value, annotation);
+            Method method = lsonDefinedAnnotation.config().getDeclaredMethod("serialization", Object.class, Annotation.class, Object.class);
+            return method.invoke(lsonDefinedAnnotation.config().newInstance(), value, annotation, object);
         }
         catch (NoSuchMethodException | InvocationTargetException | java.lang.InstantiationException | IllegalAccessException ignored)
         {

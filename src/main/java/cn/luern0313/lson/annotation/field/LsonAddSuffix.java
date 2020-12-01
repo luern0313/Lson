@@ -34,13 +34,13 @@ public @interface LsonAddSuffix
     class LsonAddSuffixConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
     {
         @Override
-        public Object deserialization(Object value, Annotation annotation)
+        public Object deserialization(Object value, Annotation annotation, Object object)
         {
             return ((StringBuilder) value).append(((LsonAddSuffix) annotation).value());
         }
 
         @Override
-        public Object serialization(Object value, Annotation annotation)
+        public Object serialization(Object value, Annotation annotation, Object object)
         {
             if(((StringBuilder) value).lastIndexOf(((LsonAddSuffix) annotation).value()) == ((StringBuilder) value).length() - ((LsonAddSuffix) annotation).value().length())
                 return ((StringBuilder) value).delete(((StringBuilder) value).length() - ((LsonAddSuffix) annotation).value().length(), ((StringBuilder) value).length());

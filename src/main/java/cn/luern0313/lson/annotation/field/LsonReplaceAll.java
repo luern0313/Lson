@@ -47,7 +47,7 @@ public @interface LsonReplaceAll
     class LsonReplaceAllConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
     {
         @Override
-        public Object deserialization(Object value, Annotation annotation)
+        public Object deserialization(Object value, Annotation annotation, Object object)
         {
             String[] regexArray = ((LsonReplaceAll) annotation).regex();
             String[] replacementArray = ((LsonReplaceAll) annotation).replacement();
@@ -57,7 +57,7 @@ public @interface LsonReplaceAll
         }
 
         @Override
-        public Object serialization(Object value, Annotation annotation)
+        public Object serialization(Object value, Annotation annotation, Object object)
         {
             String[] regexArray = ((LsonReplaceAll) annotation).regex();
             String[] replacementArray = ((LsonReplaceAll) annotation).replacement();
