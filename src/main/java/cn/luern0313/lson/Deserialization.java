@@ -90,7 +90,7 @@ public class Deserialization
                             pathArray = new String[]{field.getName(), underScoreCase};
                     }
 
-                    Object value = getValue(json, pathArray, rootJsonPath, new TypeUtil(field.getGenericType()), t);
+                    Object value = getValue(json, pathArray, rootJsonPath, new TypeUtil(path.preClass() == Object.class ? field.getGenericType() : path.preClass()), t);
                     if(value != null && !(value instanceof LsonNull))
                     {
                         TypeUtil valueType = new TypeUtil(field.getGenericType());
@@ -470,7 +470,7 @@ public class Deserialization
         while (json.isLsonArray())
             json = json.getAsLsonArray().get(0);
         if(json.isLsonPrimitive())
-            return new DeserializationValueUtil(json.getAsLsonPrimitive().get(), json.getAsLsonPrimitive().getValueClass());;
+            return new DeserializationValueUtil(json.getAsLsonPrimitive().get(), json.getAsLsonPrimitive().getValueClass());
         return null;
     }
 
@@ -637,7 +637,7 @@ public class Deserialization
                 case "java.lang.Float":
                     return ((Number) value.get()).floatValue();
                 case "java.lang.String":
-                    return ((Number) value.get()).toString();
+                    return value.get().toString();
             }
         }
         return value.get();
