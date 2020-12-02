@@ -99,7 +99,7 @@ public class Deserialization
                         {
                             LsonDefinedAnnotation lsonDefinedAnnotation = annotation.annotationType().getAnnotation(LsonDefinedAnnotation.class);
                             if(lsonDefinedAnnotation != null && !annotation.annotationType().getName().equals(LsonPath.class.getName()))
-                                value = handleAnnotation(value, annotation, lsonDefinedAnnotation, valueType);
+                                value = handleAnnotation(value, annotation, lsonDefinedAnnotation, t);
                         }
 
                         value = finalValueHandle(value, valueType);
@@ -229,27 +229,24 @@ public class Deserialization
         while (json.isLsonArray() && ((LsonArray) json).size() > 0)
             json = ((LsonArray) json).get(0);
 
+        TypeUtil valueTypeArgument = fieldType.getMapType();
+        Map<String, Object> map = new LinkedHashMap<>();
         if(json.isLsonObject())
         {
-            TypeUtil valueTypeArgument = fieldType.getMapType();
-            Map<String, Object> map = new LinkedHashMap<>();
             String[] keys = json.getAsLsonObject().getKeys();
-
-            if(valueTypeArgument.isPrimitivePlus())
-                for (String key : keys)
-                    map.put(key, getJsonPrimitiveData(json.getAsLsonObject().get(key)));
-            else
+            for (String key : keys)
             {
-                for (String key : keys)
+                if(valueTypeArgument.isPrimitivePlus())
+                    map.put(key, getJsonPrimitiveData(json.getAsLsonObject().get(key)));
+                else
                 {
                     ArrayList<Object> tempPaths = (ArrayList<Object>) jsonPaths.clone();
                     tempPaths.add(new PathType.PathPath(key));
                     map.put(key, getClassData(valueTypeArgument, json.getAsLsonObject().get(key), rootJson, t, tempPaths));
                 }
             }
-            return map;
         }
-        return null;
+        return map;
     }
 
     @SuppressWarnings("unchecked")
@@ -265,25 +262,25 @@ public class Deserialization
         else
             array = Array.newInstance(double.class, json.isLsonArray() ? json.getAsLsonArray().size() : 1);
 
-        if(actualTypeArgument.isPrimitivePlus())
+        if(json.isLsonArray())
         {
-            if(json.isLsonArray())
-                for (int i = 0; i < json.getAsLsonArray().size(); i++)
-                    Array.set(array, i, getJsonPrimitiveData(json.getAsLsonArray().get(i)));
-            else
-                Array.set(array, 0, getJsonPrimitiveData(json));
-        }
-        else
-        {
-            if(json.isLsonArray())
+            for (int i = 0; i < json.getAsLsonArray().size(); i++)
             {
-                for (int i = 0; i < json.getAsLsonArray().size(); i++)
+                LsonElement lsonElement = json.getAsLsonArray().get(i);
+                if(actualTypeArgument.isPrimitivePlus())
+                    Array.set(array, i, getJsonPrimitiveData(lsonElement));
+                else
                 {
                     ArrayList<Object> tempPaths = (ArrayList<Object>) jsonPaths.clone();
                     tempPaths.add(new PathType.PathIndexArray(new ArrayList<>(Collections.singletonList(i))));
-                    Array.set(array, i, getClassData(actualTypeArgument, json.getAsLsonArray().get(i), rootJson, t, tempPaths));
+                    Array.set(array, i, getClassData(actualTypeArgument, lsonElement, rootJson, t, tempPaths));
                 }
             }
+        }
+        else
+        {
+            if(actualTypeArgument.isPrimitivePlus())
+                Array.set(array, 0, getJsonPrimitiveData(json));
             else
                 Array.set(array, 0, getClassData(actualTypeArgument, json, rootJson, t, jsonPaths));
         }
@@ -296,28 +293,25 @@ public class Deserialization
         TypeUtil actualTypeArgument = fieldType.getListType();
         ArrayList<Object> list = new ArrayList<>();
 
-        if(actualTypeArgument.isPrimitivePlus())
+        if(json.isLsonArray())
         {
-            if(json.isLsonArray())
-                for (int i = 0; i < json.getAsLsonArray().size(); i++)
-                    list.add(getJsonPrimitiveData(json.getAsLsonArray().get(i)));
-            else
-                list.add(getJsonPrimitiveData(json));
-        }
-        else
-        {
-            if(json.isLsonArray())
+            for (int i = 0; i < json.getAsLsonArray().size(); i++)
             {
-                for (int i = 0; i < json.getAsLsonArray().size(); i++)
+                LsonElement lsonElement = json.getAsLsonArray().get(i);
+                if(actualTypeArgument.isPrimitivePlus())
+                    list.add(getJsonPrimitiveData(lsonElement));
+                else
                 {
                     ArrayList<Object> tempPaths = (ArrayList<Object>) jsonPaths.clone();
                     tempPaths.add(new PathType.PathIndexArray(new ArrayList<>(Collections.singletonList(i))));
-                    list.add(getClassData(actualTypeArgument, json.getAsLsonArray().get(i), rootJson, t, tempPaths));
+                    list.add(getClassData(actualTypeArgument, lsonElement, rootJson, t, tempPaths));
                 }
             }
-            else
-                list.add(getClassData(actualTypeArgument, json, rootJson, t, jsonPaths));
         }
+        else if(json.isLsonPrimitive())
+            list.add(getJsonPrimitiveData(json));
+        else
+            list.add(getClassData(actualTypeArgument, json, rootJson, t, jsonPaths));
         return list;
     }
 
@@ -382,32 +376,39 @@ public class Deserialization
     }
 
     @SuppressWarnings("unchecked")
-    private static Object handleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, TypeUtil fieldType)
+    private static <T> Object handleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, T t)
     {
         if(value == null) return null;
 
         TypeUtil valueClass = new TypeUtil(value.getClass());
-        if(valueClass.isArrayTypeClass() && !lsonDefinedAnnotation.isIgnoreArray())
-            for (int i = 0; i < Array.getLength(value); i++)
-                Array.set(value, i, handleAnnotation(Array.get(value, i), annotation, lsonDefinedAnnotation, fieldType.getArrayType()));
-        else if(valueClass.isListTypeClass() && !lsonDefinedAnnotation.isIgnoreList())
-            for (int i = 0; i < ((List<?>) value).size(); i++)
-                ((List<Object>) value).set(i, handleAnnotation(((List<?>) value).get(i), annotation, lsonDefinedAnnotation, fieldType.getListType()));
+        if(valueClass.isListTypeClass())
+        {
+            if(lsonDefinedAnnotation.isIgnoreList())
+                value = handleAnnotation(finalValueHandle(value, TypeUtil.nullType()), annotation, lsonDefinedAnnotation, t);
+            else
+                for (int i = 0; i < ((List<?>) value).size(); i++)
+                    ((List<Object>) value).set(i, handleAnnotation(((List<?>) value).get(i), annotation, lsonDefinedAnnotation, t));
+        }
         else if(valueClass.isListTypeClass() && !lsonDefinedAnnotation.isIgnoreMap())
         {
-            Object[] keys = ((Map<?, ?>) value).keySet().toArray();
-            for (Object key : keys)
-                ((Map<Object, Object>) value).put(key, handleAnnotation(((Map<?, ?>) value).get(key), annotation, lsonDefinedAnnotation, fieldType.getMapType()));
+            if(lsonDefinedAnnotation.isIgnoreMap())
+                value = handleAnnotation(finalValueHandle(value, TypeUtil.nullType()), annotation, lsonDefinedAnnotation, t);
+            else
+            {
+                Object[] keys = ((Map<?, ?>) value).keySet().toArray();
+                for (Object key : keys)
+                    ((Map<Object, Object>) value).put(key, handleAnnotation(((Map<?, ?>) value).get(key), annotation, lsonDefinedAnnotation, t));
+            }
         }
         else
         {
             if(value instanceof DeserializationValueUtil)
             {
                 Object object = handleAnnotationType((DeserializationValueUtil) value, lsonDefinedAnnotation.acceptableDeserializationType());
-                ((DeserializationValueUtil) value).set(handleSingleAnnotation(object, annotation, lsonDefinedAnnotation, fieldType));
+                ((DeserializationValueUtil) value).set(handleSingleAnnotation(object, annotation, lsonDefinedAnnotation, t));
             }
             else
-                value = handleSingleAnnotation(value, annotation, lsonDefinedAnnotation, fieldType);
+                value = handleSingleAnnotation(value, annotation, lsonDefinedAnnotation, t);
         }
         return value;
     }
@@ -426,12 +427,12 @@ public class Deserialization
         return deserializationValueUtil.get();
     }
 
-    private static Object handleSingleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, TypeUtil fieldType)
+    private static <T> Object handleSingleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, T t)
     {
         try
         {
-            Method method = lsonDefinedAnnotation.config().getDeclaredMethod("deserialization", Object.class, Annotation.class);
-            return method.invoke(lsonDefinedAnnotation.config().newInstance(), value, annotation);
+            Method method = lsonDefinedAnnotation.config().getDeclaredMethod("deserialization", Object.class, Annotation.class, Object.class);
+            return method.invoke(lsonDefinedAnnotation.config().newInstance(), value, annotation, t);
         }
         catch (NoSuchMethodException | InvocationTargetException | java.lang.InstantiationException | IllegalAccessException ignored)
         {
@@ -476,6 +477,8 @@ public class Deserialization
     @SuppressWarnings("unchecked")
     private static Object getClassData(TypeUtil fieldType, LsonElement json, LsonElement rootJson, Object t, ArrayList<Object> paths)
     {
+        if(fieldType == null) return null;
+
         if(fieldType.getAsType() instanceof TypeVariable)
         {
             parameterizedTypes.add(((TypeVariable<?>) fieldType.getAsType()).getName());
@@ -573,7 +576,7 @@ public class Deserialization
                     finalValue.put((String) key, finalValueHandle(((Map<?, ?>) value).get(key), type));
                 return finalValue;
             }
-            else if(fieldType.isBuiltInClass())
+            else if(fieldType.isBuiltInClass() && value instanceof DeserializationValueUtil)
                 return handleBuiltInClass(((DeserializationValueUtil) value).get(), fieldType);
             else if(value instanceof DeserializationValueUtil)
             {
