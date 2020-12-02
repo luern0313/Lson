@@ -95,6 +95,8 @@ public class DeserializationValueUtil
     @Override
     public String toString()
     {
+        if(value == null) return null;
+
         String string = value.toString();
         if(DataProcessUtil.isDouble(string))
         {

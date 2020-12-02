@@ -36,6 +36,8 @@ public class Serialization
     @SuppressWarnings("unchecked")
     public static LsonElement toJson(Object object)
     {
+        if(object == null) return null;
+
         TypeUtil typeUtil = new TypeUtil(object.getClass());
         if(typeUtil.isPrimitivePlus())
             return new LsonPrimitive(object);
@@ -115,7 +117,6 @@ public class Serialization
                     LsonElement fieldElement = toJson(field.get(object));
                     Object value = getDeserializationValue(fieldElement);
 
-                    TypeUtil valueType = new TypeUtil(field.getGenericType());
                     Annotation[] annotations = field.getAnnotations();
                     for (int i = annotations.length - 1; i >= 0; i--)
                     {

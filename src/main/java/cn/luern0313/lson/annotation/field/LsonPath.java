@@ -28,4 +28,15 @@ public @interface LsonPath
      * @author luern0313
      */
     String[] value() default "";
+
+    /**
+     * 预处理为指定的类型。
+     *
+     * <p>这个类型决定了Lson在处理该变量所有的注解前，会将在json中取到的变量转为什么类型。
+     *
+     * <p>若为默认的{@link Object#getClass()}，Lson会以目标变量类型作为转换依据。
+     *
+     * @return 预处理转换的类型。
+     */
+    Class<?> preClass() default Object.class;
 }
