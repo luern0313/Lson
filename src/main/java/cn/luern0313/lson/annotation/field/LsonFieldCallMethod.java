@@ -9,7 +9,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
-import cn.luern0313.lson.element.LsonElement;
 
 /**
  * 被 luern0313 创建于 2020/11/28.
@@ -24,7 +23,6 @@ public @interface LsonFieldCallMethod
 
     String serialization() default "";
 
-    @SuppressWarnings("JavaReflectionInvocation")
     class LsonCallMethodConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
     {
         @Override
@@ -35,7 +33,7 @@ public @interface LsonFieldCallMethod
                 if(!((LsonFieldCallMethod) annotation).deserialization().equals(""))
                 {
                     Class<?> clz = object.getClass();
-                    Method method = clz.getDeclaredMethod(((LsonFieldCallMethod) annotation).deserialization(), LsonElement.class);
+                    Method method = clz.getDeclaredMethod(((LsonFieldCallMethod) annotation).deserialization(), value.getClass());
                     method.setAccessible(true);
                     return method.invoke(object, value);
                 }
@@ -54,7 +52,7 @@ public @interface LsonFieldCallMethod
                 if(!((LsonFieldCallMethod) annotation).serialization().equals(""))
                 {
                     Class<?> clz = object.getClass();
-                    Method method = clz.getDeclaredMethod(((LsonFieldCallMethod) annotation).serialization(), LsonElement.class);
+                    Method method = clz.getDeclaredMethod(((LsonFieldCallMethod) annotation).serialization(), value.getClass());
                     method.setAccessible(true);
                     return method.invoke(object, value);
                 }
