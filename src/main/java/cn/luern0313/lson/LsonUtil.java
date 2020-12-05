@@ -73,6 +73,21 @@ public class LsonUtil
     }
 
     /**
+     * 将json反序列化到指定的对象。
+     *
+     * @param json Lson解析过的json对象。
+     * @param t 要反序列化的对象。
+     * @param <T> 反序列化为的实体类。
+     * @return 返回反序列化后的实体类。
+     *
+     * @author luern0313
+     */
+    public static <T> T fromJson(LsonElement json, T t)
+    {
+        return Deserialization.fromJson(json, t, new ArrayList<>());
+    }
+
+    /**
      * 将json反序列化为指定的实体类。
      *
      * @param json Lson解析过的json对象。

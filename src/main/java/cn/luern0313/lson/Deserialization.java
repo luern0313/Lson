@@ -67,6 +67,12 @@ public class Deserialization
         return deserialization(json, typeUtil, t, rootJsonPath);
     }
 
+    protected static <T> T fromJson(LsonElement json, T t, ArrayList<Object> rootJsonPath)
+    {
+        handleMethod(t, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
+        return deserialization(json, new TypeUtil(t), t, rootJsonPath);
+    }
+
     private static <T> T deserialization(LsonElement json, TypeUtil clz, T t, ArrayList<Object> rootJsonPath)
     {
         TypeUtil superClass = new TypeUtil(clz.getAsClass().getSuperclass());
