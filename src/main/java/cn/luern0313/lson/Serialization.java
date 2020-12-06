@@ -141,16 +141,16 @@ public class Serialization
 
     private static Object getDeserializationValue(LsonElement lsonElement)
     {
-        if(lsonElement.isLsonPrimitive())
+        if(lsonElement != null && lsonElement.isLsonPrimitive())
             return new DeserializationValueUtil(lsonElement.getAsLsonPrimitive().get(), lsonElement.getAsLsonPrimitive().get().getClass());
-        else if(lsonElement.isLsonArray())
+        else if(lsonElement != null && lsonElement.isLsonArray())
         {
             ArrayList<Object> list = new ArrayList<>();
             for (int i = 0; i < lsonElement.getAsLsonArray().size(); i++)
                 list.add(getDeserializationValue(lsonElement.getAsLsonArray().get(i)));
             return list;
         }
-        else if(lsonElement.isLsonObject())
+        else if(lsonElement != null && lsonElement.isLsonObject())
         {
             LinkedHashMap<String, Object> map = new LinkedHashMap<>();
             String[] keys = lsonElement.getAsLsonObject().getKeys();
