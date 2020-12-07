@@ -22,7 +22,7 @@ public @interface LsonCallMethod
      *
      * @author luern0313
      */
-    CallMethodTiming[] timing() default CallMethodTiming.AFTER_DESERIALIZATION;
+    CallMethodTiming[] timing();
 
     enum CallMethodTiming
     {
