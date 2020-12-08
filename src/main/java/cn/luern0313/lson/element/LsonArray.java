@@ -3,8 +3,6 @@ package cn.luern0313.lson.element;
 
 import java.util.ArrayList;
 
-import cn.luern0313.lson.LsonUtil;
-
 /**
  * JSON数组类。
  *
@@ -44,21 +42,6 @@ public class LsonArray extends LsonElement
                 return lsonElement;
         }
         return new LsonNull();
-    }
-
-    public Object getFromPath(String path)
-    {
-        return LsonUtil.getValue(this, path);
-    }
-
-    public <T> T getFromPath(String path, Class<T> clz)
-    {
-        return LsonUtil.getValue(this, path, clz);
-    }
-
-    public void putFromPath(String path, Object value)
-    {
-        LsonUtil.putValue(this, path, value);
     }
 
     public boolean getAsBoolean(int key)
