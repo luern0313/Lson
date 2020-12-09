@@ -62,14 +62,32 @@ public class LsonUtil
      *
      * @param json Lson解析过的json对象。
      * @param clz 要反序列化实体类的Class对象。
+     * @param parameters 实例化类时，构造函数需要的参数。
      * @param <T> 反序列化为的实体类。
      * @return 返回反序列化后的实体类。
      *
      * @author luern0313
      */
-    public static <T> T fromJson(LsonElement json, Class<T> clz)
+    public static <T> T fromJson(LsonElement json, Class<T> clz, Object... parameters)
     {
-        return Deserialization.fromJson(json, new TypeUtil(clz), null, new ArrayList<>());
+        return Deserialization.fromJson(json, new TypeUtil(clz), new ArrayList<>(), null, getParameterTypes(parameters), parameters);
+    }
+
+    /**
+     * 将json反序列化为指定的实体类。
+     *
+     * @param json Lson解析过的json对象。
+     * @param clz 要反序列化实体类的Class对象。
+     * @param parameterTypes 实例化类时，构造函数需要参数的类型。
+     * @param parameters 实例化类时，构造函数需要的参数。
+     * @param <T> 反序列化为的实体类。
+     * @return 返回反序列化后的实体类。
+     *
+     * @author luern0313
+     */
+    public static <T> T fromJson(LsonElement json, Class<T> clz, Class<?>[] parameterTypes, Object[] parameters)
+    {
+        return Deserialization.fromJson(json, new TypeUtil(clz), new ArrayList<>(), null, parameterTypes, parameters);
     }
 
     /**
@@ -82,7 +100,7 @@ public class LsonUtil
      *
      * @author luern0313
      */
-    public static <T> T fromJson(LsonElement json, T t)
+    public static <T> T packFromJson(LsonElement json, T t)
     {
         return Deserialization.fromJson(json, t, new ArrayList<>());
     }
@@ -92,16 +110,36 @@ public class LsonUtil
      *
      * @param json Lson解析过的json对象。
      * @param typeReference {@link TypeReference}类，用于泛型类的反序列化。
+     * @param parameters 实例化类时，构造函数需要的参数。
      * @param <T> 反序列化为的实体类。
      * @return 返回反序列化后的实体类。
      *
      * @author luern0313
      */
-    public static <T> T fromJson(LsonElement json, TypeReference<T> typeReference)
+    public static <T> T fromJson(LsonElement json, TypeReference<T> typeReference, Object... parameters)
     {
         Deserialization.typeReference = typeReference;
         Deserialization.parameterizedTypes.clear();
-        return Deserialization.fromJson(json, new TypeUtil(typeReference.type), null, new ArrayList<>());
+        return Deserialization.fromJson(json, new TypeUtil(typeReference.type), new ArrayList<>(), null, getParameterTypes(parameters), parameters);
+    }
+
+    /**
+     * 将json反序列化为指定的实体类。
+     *
+     * @param json Lson解析过的json对象。
+     * @param typeReference {@link TypeReference}类，用于泛型类的反序列化。
+     * @param parameterTypes 实例化类时，构造函数需要参数的类型。
+     * @param parameters 实例化类时，构造函数需要的参数。
+     * @param <T> 反序列化为的实体类。
+     * @return 返回反序列化后的实体类。
+     *
+     * @author luern0313
+     */
+    public static <T> T fromJson(LsonElement json, TypeReference<T> typeReference, Class<?>[] parameterTypes, Object[] parameters)
+    {
+        Deserialization.typeReference = typeReference;
+        Deserialization.parameterizedTypes.clear();
+        return Deserialization.fromJson(json, new TypeUtil(typeReference.type), new ArrayList<>(), null, parameterTypes, parameters);
     }
 
     /**
@@ -164,6 +202,20 @@ public class LsonUtil
     {
         Serialization.setValue(Serialization.toJson(value), path, new ArrayList<>(), lsonElement);
         return lsonElement;
+    }
+
+    private static Class<?>[] getParameterTypes(Object[] parameters)
+    {
+        Class<?>[] parameterTypes = new Class<?>[parameters.length];
+        for (int i = 0; i < parameters.length; i++)
+        {
+            TypeUtil typeUtils = new TypeUtil(parameters[i].getClass());
+            if(typeUtils.isWrapClass())
+                parameterTypes[i] = typeUtils.getPrimitiveClass();
+            else
+                parameterTypes[i] = typeUtils.getAsClass();
+        }
+        return parameterTypes;
     }
 
     protected static HashMap<String, Object> PRIMITIVE_DEFAULT_VALUE = new HashMap<String, Object>()

@@ -41,27 +41,26 @@ public class Deserialization
     protected static ArrayList<String> parameterizedTypes = new ArrayList<>();
 
     @SuppressWarnings("unchecked")
-    protected static <T> T fromJson(LsonElement json, TypeUtil typeUtil, Object genericSuperclass, ArrayList<Object> rootJsonPath)
+    protected static <T> T fromJson(LsonElement json, TypeUtil typeUtil, ArrayList<Object> rootJsonPath, Object genericSuperclass, Class<?>[] parameterTypes, Object[] parameters)
     {
         T t = null;
         try
         {
-            Constructor<?> constructor1 = typeUtil.getConstructor();
+            Constructor<?> constructor1 = typeUtil.getConstructor(parameterTypes);
             if(constructor1 != null)
-                t = (T) constructor1.newInstance();
+                t = (T) constructor1.newInstance(parameters);
             else
             {
                 Constructor<?> constructor2 = typeUtil.getConstructor(genericSuperclass.getClass());
                 t = (T) constructor2.newInstance(genericSuperclass);
             }
         }
-        catch (IllegalAccessException | InvocationTargetException | NullPointerException ignored)
+        catch (IllegalAccessException | InvocationTargetException | NullPointerException | java.lang.InstantiationException ignored)
         {
         }
-        catch (java.lang.InstantiationException e)
-        {
+
+        if(t == null)
             throw new InstantiationException(typeUtil.getName());
-        }
 
         handleMethod(t, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
         return deserialization(json, typeUtil, t, rootJsonPath);
@@ -178,7 +177,10 @@ public class Deserialization
                     if(((PathType.PathIndex) pathType).step > 0 && end >= start)
                         for (int j = start; j < Math.min(end, json.getAsLsonArray().size()); j += ((PathType.PathIndex) pathType).step)
                             temp.add(json.getAsLsonArray().get(j));
-                    json = temp;
+                    if(temp.size() == 1)
+                        json = temp.get(0);
+                    else
+                        json = temp;
                 }
                 else if(pathType instanceof PathType.PathIndexArray && json.isLsonArray())
                 {
@@ -189,7 +191,10 @@ public class Deserialization
                         if(index < 0) index += json.getAsLsonArray().size();
                         temp.add(json.getAsLsonArray().get(index));
                     }
-                    json = temp;
+                    if(temp.size() == 1)
+                        json = temp.get(0);
+                    else
+                        json = temp;
                 }
                 else if(pathType instanceof PathType.PathFilter)
                 {
@@ -492,7 +497,7 @@ public class Deserialization
             for (int i = 0; i < parameterizedTypes.size() - 1; i++)
                 typeParameterizedMap = typeParameterizedMap.get(parameterizedTypes.get(i)).map;
 
-            Object result = fromJson(rootJson, new TypeUtil(typeParameterizedMap.get(parameterizedTypes.get(parameterizedTypes.size() - 1)).clz), t, paths);
+            Object result = fromJson(rootJson, new TypeUtil(typeParameterizedMap.get(parameterizedTypes.get(parameterizedTypes.size() - 1)).clz), paths, t, null, null);
             parameterizedTypes.remove(parameterizedTypes.size() - 1);
             return result;
         }
@@ -517,7 +522,7 @@ public class Deserialization
                 if(list.get(i) != null)
                     return list;
         }
-        return fromJson(rootJson, fieldType, t, paths);
+        return fromJson(rootJson, fieldType, paths, t, null, null);
     }
 
     private static Object handleBuiltInClass(Object value, TypeUtil fieldType)
