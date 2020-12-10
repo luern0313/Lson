@@ -80,6 +80,18 @@ public class TypeUtil
         return PRIMITIVE_TYPES.contains(getName());
     }
 
+    public boolean isWrapClass()
+    {
+        try
+        {
+            return ((Class<?>) getAsClass().getField("TYPE").get(null)).isPrimitive();
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+    }
+
     public boolean isBuiltInClass()
     {
         return BUILT_IN_CLASS.contains(getName());
@@ -143,6 +155,18 @@ public class TypeUtil
         if(isClass())
             return getAsClass().isArray();
         return getAsType() instanceof GenericArrayType;
+    }
+
+    public Class<?> getPrimitiveClass()
+    {
+        try
+        {
+            return (Class<?>) getAsClass().getField("TYPE").get(null);
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
     }
 
     public TypeUtil getMapType()
