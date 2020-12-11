@@ -65,6 +65,11 @@ public class TypeUtil
         return null;
     }
 
+    public void setType(Type type)
+    {
+        this.type = type;
+    }
+
     public boolean isNull()
     {
         return type == null;
@@ -197,9 +202,9 @@ public class TypeUtil
 
     public TypeUtil getArrayRealType()
     {
-        TypeUtil type = null;
-        while (isArrayTypeClass())
-            type = getArrayType();
+        TypeUtil type = this;
+        while (type.isArrayTypeClass())
+            type = type.getArrayType();
         return type;
     }
 

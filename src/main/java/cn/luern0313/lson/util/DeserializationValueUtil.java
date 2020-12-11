@@ -59,7 +59,11 @@ public class DeserializationValueUtil
             ((StringBuilder) this.value).append(value);
         }
         else if(value instanceof Number)
+        {
             this.value = ((Number) value).doubleValue();
+            if(Math.floor(((Number) value).byteValue()) < ((Number) value).doubleValue())
+                this.type.setType(double.class);
+        }
         else
             this.value = value;
         return this;
