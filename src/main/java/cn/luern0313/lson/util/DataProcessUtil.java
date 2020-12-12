@@ -120,9 +120,7 @@ public class DataProcessUtil
             BigDecimal bigDecimal = new BigDecimal(String.valueOf(value.toString()));
             bigDecimal = bigDecimal.setScale(digit, LsonNumberFormat.NumberFormatMode.modeIntegerMap.get(mode));
 
-            // if(fieldType.isNumber())
-                return bigDecimal.doubleValue();
-            // return bigDecimal.toString();
+            return bigDecimal.doubleValue();
         }
         catch (NumberFormatException e)
         {
