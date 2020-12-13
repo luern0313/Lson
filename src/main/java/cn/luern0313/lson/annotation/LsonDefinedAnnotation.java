@@ -26,8 +26,6 @@ public @interface LsonDefinedAnnotation
      * 注明用来处理注解类的Class，该类需要实现接口{@link LsonDefinedAnnotationConfig}。
      *
      * @return 处理注解类的Class。
-     *
-     * @author luern0313
      */
     Class<? extends LsonDefinedAnnotationConfig> config();
 
@@ -39,8 +37,6 @@ public @interface LsonDefinedAnnotation
      * <p>Lson会先试着将该数据转为该类型，如不能转换则不执行本次注解处理。
      *
      * @return 类型数据
-     *
-     * @author luern0313
      */
     AcceptableType acceptableDeserializationType() default AcceptableType.NOT_HANDLE;
 
@@ -52,8 +48,6 @@ public @interface LsonDefinedAnnotation
      * <p>Lson会先试着将该数据转为该类型，如不能转换则不执行本次注解处理。
      *
      * @return 类型数据
-     *
-     * @author luern0313
      */
     AcceptableType acceptableSerializationType() default AcceptableType.NOT_HANDLE;
 
@@ -64,8 +58,6 @@ public @interface LsonDefinedAnnotation
      * 注解处理类处理，但如果设置为true，Lson会忽略数组类型，将整个变量传入你的注解处理类。
      *
      * @return 是否忽略数组。
-     *
-     * @author luern0313
      */
     boolean isIgnoreArray() default false;
 
@@ -77,8 +69,6 @@ public @interface LsonDefinedAnnotation
      * 你的注解处理类。
      *
      * @return 是否忽略List及相关类型。
-     *
-     * @author luern0313
      */
     boolean isIgnoreList() default false;
 
@@ -90,8 +80,6 @@ public @interface LsonDefinedAnnotation
      * 你的注解处理类。
      *
      * @return 是否忽略Map及相关类型。
-     *
-     * @author luern0313
      */
     boolean isIgnoreMap() default false;
 

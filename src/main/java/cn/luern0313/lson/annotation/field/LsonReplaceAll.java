@@ -30,8 +30,6 @@ public @interface LsonReplaceAll
      * 要替换的文本或正则表达式。
      *
      * @return 要替换的文本数组。
-     *
-     * @author luern0313
      */
     String[] regex();
 
@@ -39,8 +37,6 @@ public @interface LsonReplaceAll
      * 替换后的文本。
      *
      * @return 替换后的文本数组。
-     *
-     * @author luern0313
      */
     String[] replacement();
 

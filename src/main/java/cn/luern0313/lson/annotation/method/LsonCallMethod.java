@@ -19,8 +19,6 @@ public @interface LsonCallMethod
      * 在何时调用此方法，可传入多个值。
      *
      * @return 在何时调用此方法。
-     *
-     * @author luern0313
      */
     CallMethodTiming[] timing();
 

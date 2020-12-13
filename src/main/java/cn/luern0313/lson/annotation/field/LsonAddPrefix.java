@@ -26,8 +26,6 @@ public @interface LsonAddPrefix
      * 你要添加的前缀。
      *
      * @return 前缀文本。
-     *
-     * @author luern0313
      */
     String value();
 

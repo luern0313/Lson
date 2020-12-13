@@ -27,8 +27,6 @@ public @interface LsonBooleanFormatAsString
      * 若此数组不为空，且传入的数据在此数组中，则输出true。
      *
      * @return 数字数组。
-     *
-     * @author luern0313
      */
     String[] equal() default {};
 
@@ -36,8 +34,6 @@ public @interface LsonBooleanFormatAsString
      * 若此数组不为空，且传入的数据不在此数组中，则输出true。
      *
      * @return 数字数组。
-     *
-     * @author luern0313
      */
     String[] notEqual() default {};
 

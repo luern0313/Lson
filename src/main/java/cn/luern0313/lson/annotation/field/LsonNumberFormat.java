@@ -34,8 +34,6 @@ public @interface LsonNumberFormat
      * <p>支持0或负数，若为0，则保留至个位数，负数则表示保留至十位、百位等。
      *
      * @return 数字保留位数。
-     *
-     * @author luern0313
      */
     int digit();
 
@@ -45,8 +43,6 @@ public @interface LsonNumberFormat
      * <p>默认为{@link NumberFormatMode#HALF_UP}，即四舍五入(大于等于0.5则进位)
      *
      * @return 数字保留模式。
-     *
-     * @author luern0313
      */
     NumberFormatMode mode() default NumberFormatMode.HALF_UP;
 

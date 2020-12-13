@@ -11,7 +11,12 @@ import java.lang.reflect.Method;
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
 
 /**
- * 被 luern0313 创建于 2020/11/28.
+ * 以变量为参数，调用类内的方法。
+ *
+ * <p>反序列化中：输入任意类型，输出任意类型。
+ * <p>序列化中：输入任意类型，输出任意类型。
+ *
+ * @author luern0313
  */
 
 @LsonDefinedAnnotation(config = LsonFieldCallMethod.LsonCallMethodConfig.class, acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.NOT_HANDLE, acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.NOT_HANDLE, isIgnoreArray = true, isIgnoreList = true, isIgnoreMap = true)
@@ -19,8 +24,18 @@ import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LsonFieldCallMethod
 {
+    /**
+     * 反序列化中，需要调用的方法名称。
+     *
+     * @return 方法名称。
+     */
     String deserialization() default "";
 
+    /**
+     * 序列化中，需要调用的方法名称。
+     *
+     * @return 方法名称。
+     */
     String serialization() default "";
 
     class LsonCallMethodConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig

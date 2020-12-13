@@ -26,8 +26,6 @@ public @interface LsonAddSuffix
      * 你要添加的后缀。
      *
      * @return 后缀文本。
-     *
-     * @author luern0313
      */
     String value();
 

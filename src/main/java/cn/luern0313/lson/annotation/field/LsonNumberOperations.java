@@ -11,8 +11,12 @@ import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
 /**
  * 对数字进行数学运算。
  *
+ * <p>注明运算符和数字时，请以反序列化为标准注明。序列化时会自动反向运算。
+ *
  * <p>反序列化中：输入{@code Number}类型，输出{@code Number}类型。
  * <p>序列化中：输入{@code Number}类型，输出{@code Number}类型。
+ *
+ * @author luern0313
  */
 
 @LsonDefinedAnnotation(config = LsonNumberOperations.LsonNumberOperationsConfig.class, acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.NUMBER, acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.NUMBER)
@@ -20,8 +24,18 @@ import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LsonNumberOperations
 {
+    /**
+     * 要对数字进行运算的运算符。
+     *
+     * @return 运算符。
+     */
     Operator operator();
 
+    /**
+     * 要对被注解数进行运算的右侧数字，如加数/减数等。
+     *
+     * @return 算式中右侧的数字。
+     */
     double number();
 
     enum Operator

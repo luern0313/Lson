@@ -27,8 +27,6 @@ public @interface LsonDateFormat
      * 时间格式，用于格式化时间。
      *
      * @return 格式化时间格式。
-     *
-     * @author luern0313
      */
     String value();
 
@@ -36,8 +34,6 @@ public @interface LsonDateFormat
      * 指定要格式化时间戳的类型
      *
      * @return 时间戳类型
-     *
-     * @author luern0313
      */
     LsonDateFormatMode mode() default LsonDateFormatMode.SECOND;
 
@@ -51,7 +47,7 @@ public @interface LsonDateFormat
         /**
          * 毫秒级时间戳（13位）
          */
-        MILLI_SECOND;
+        MILLI_SECOND
     }
 
     class LsonDateFormatConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
