@@ -168,7 +168,7 @@ public class Serialization
         jsonPaths.addAll(0, rootPath);
 
         ArrayList<LsonElement> jsonTempArrayList = new ArrayList<>(Collections.singletonList(rootJson));
-        for (int i = 0; i < jsonPaths.size() - 1; i++)
+        for (int i = 0; i < jsonPaths.size(); i++)
         {
             Object pathType = jsonPaths.get(i);
             ArrayList<LsonElement> jsonArrayList = (ArrayList<LsonElement>) jsonTempArrayList.clone();
@@ -182,20 +182,49 @@ public class Serialization
                     jsonTempArrayList.add(j, rootJson);
                 else if(pathType instanceof PathType.PathJsonCurrent)
                     jsonTempArrayList.add(j, rootJson);
-                else if(pathType instanceof PathType.PathPath && json.isLsonObject())
+                else if(pathType instanceof PathType.PathPath)
                 {
-                    Object nextPath = jsonPaths.get(i + 1);
-                    if(nextPath instanceof PathType.PathIndex || nextPath instanceof PathType.PathIndexArray || nextPath instanceof PathType.PathFilter)
-                        jsonTempArrayList.add(json.getAsLsonObject().hasPut(((PathType.PathPath) pathType).path, LsonArray.class));
+                    if(i < jsonPaths.size() -1)
+                    {
+                        if(json.isLsonObject())
+                        {
+                            Object nextPath = jsonPaths.get(i + 1);
+                            if(nextPath instanceof PathType.PathIndex || nextPath instanceof PathType.PathIndexArray || nextPath instanceof PathType.PathFilter)
+                                jsonTempArrayList.add(json.getAsLsonObject().hasPut(((PathType.PathPath) pathType).path, LsonArray.class));
+                            else
+                                jsonTempArrayList.add(json.getAsLsonObject().hasPut(((PathType.PathPath) pathType).path, LsonObject.class));
+                        }
+                        else if(json.isLsonArray())
+                            for (int k = 0; k < value.getAsLsonArray().size(); k++)
+                                jsonTempArrayList.add(json.getAsLsonObject().hasPut(((PathType.PathPath) pathType).path, LsonObject.class));
+                    }
                     else
-                        jsonTempArrayList.add(json.getAsLsonObject().hasPut(((PathType.PathPath) pathType).path, LsonObject.class));
+                    {
+                        if(jsonArrayList.size() > 1 && value.isLsonArray())
+                            for (int k = 0; k < jsonArrayList.size(); k++)
+                                jsonArrayList.get(k).getAsLsonObject().put(((PathType.PathPath) pathType).path, value.getAsLsonArray().get(k));
+                        else if(value.isLsonArray() && value.getAsLsonArray().size() == 1)
+                            jsonArrayList.get(0).getAsLsonObject().put(((PathType.PathPath) pathType).path, value.getAsLsonArray().get(0));
+                        else
+                            jsonArrayList.get(0).getAsLsonObject().put(((PathType.PathPath) pathType).path, value);
+                    }
                 }
-                else if(pathType instanceof PathType.PathPath && json.isLsonArray())
-                    for (int k = 0; k < value.getAsLsonArray().size(); k++)
-                        jsonTempArrayList.add(json.getAsLsonObject().hasPut(((PathType.PathPath) pathType).path, LsonObject.class));
                 else if(pathType instanceof PathType.PathIndexArray && json.isLsonArray())
-                    for (int k = 0; k < ((PathType.PathIndexArray) pathType).index.size(); k++)
-                        jsonTempArrayList.add(json.getAsLsonArray().hasSet(((PathType.PathIndexArray) pathType).index.get(k), LsonObject.class));
+                {
+                    if(i < jsonPaths.size() - 1)
+                        for (int k = 0; k < ((PathType.PathIndexArray) pathType).index.size(); k++)
+                            jsonTempArrayList.add(json.getAsLsonArray().hasSet(((PathType.PathIndexArray) pathType).index.get(k), LsonObject.class));
+                    else
+                    {
+                        for (int k = 0; k < jsonArrayList.size(); k++)
+                        {
+                            LsonElement lsonElement = jsonArrayList.get(k);
+                            if(lsonElement.isLsonArray())
+                                for (int l = 0; l < ((PathType.PathIndexArray) pathType).index.size(); l++)
+                                    lsonElement.getAsLsonArray().set(((PathType.PathIndexArray) pathType).index.get(l), value);
+                        }
+                    }
+                }
                 else if(pathType instanceof PathType.PathIndex && json.isLsonArray())
                 {
                     int start = ((PathType.PathIndex) pathType).start;
@@ -203,22 +232,40 @@ public class Serialization
                     int end = ((PathType.PathIndex) pathType).end;
                     if(end < 0) end += json.getAsLsonArray().size();
                     if(((PathType.PathIndex) pathType).step > 0 && end >= start)
+                    {
                         for (int k = start; k < Math.min(end, start + value.getAsLsonArray().size()); k += ((PathType.PathIndex) pathType).step)
-                            jsonTempArrayList.add(json.getAsLsonArray().hasSet(k, LsonObject.class));
+                        {
+                            if(i < jsonPaths.size() - 1)
+                                jsonTempArrayList.add(json.getAsLsonArray().hasSet(k, LsonObject.class));
+                            else
+                            {
+                                for (int l = 0; l < jsonArrayList.size(); l++)
+                                {
+                                    LsonElement lsonElement = jsonArrayList.get(l);
+                                    if(lsonElement.isLsonArray())
+                                        lsonElement.getAsLsonArray().set(k, value);
+                                }
+                            }
+                        }
+                    }
                 }
                 else if(pathType instanceof PathType.PathFilter && json.isLsonArray())
-                    for (int k = 0; k < value.getAsLsonArray().size(); k++)
-                        jsonTempArrayList.add(json.getAsLsonArray().add(new LsonObject()));
+                {
+                    if(i < jsonPaths.size() - 1)
+                        for (int k = 0; k < value.getAsLsonArray().size(); k++)
+                            jsonTempArrayList.add(json.getAsLsonArray().add(new LsonObject()));
+                    else
+                    {
+                        for (int k = 0; k < jsonArrayList.size(); k++)
+                        {
+                            LsonElement lsonElement = jsonArrayList.get(k);
+                            if(lsonElement.isLsonArray())
+                                lsonElement.getAsLsonArray().add(value);
+                        }
+                    }
+                }
             }
         }
-
-        if(jsonTempArrayList.size() > 1 && value.isLsonArray())
-            for (int i = 0; i < jsonTempArrayList.size(); i++)
-                jsonTempArrayList.get(i).getAsLsonObject().put(((PathType.PathPath) jsonPaths.get(jsonPaths.size() - 1)).path, value.getAsLsonArray().get(i));
-        else if(value.isLsonArray() && value.getAsLsonArray().size() == 1)
-            jsonTempArrayList.get(0).getAsLsonObject().put(((PathType.PathPath) jsonPaths.get(jsonPaths.size() - 1)).path, value.getAsLsonArray().get(0));
-        else
-            jsonTempArrayList.get(0).getAsLsonObject().put(((PathType.PathPath) jsonPaths.get(jsonPaths.size() - 1)).path, value);
     }
 
     @SuppressWarnings("unchecked")
