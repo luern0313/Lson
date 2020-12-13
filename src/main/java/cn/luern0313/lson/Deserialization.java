@@ -99,7 +99,7 @@ public class Deserialization
                     if(value != null && !(value instanceof LsonNull))
                     {
                         TypeUtil valueType = new TypeUtil(field.getGenericType());
-                        Annotation[] annotations = field.getAnnotations();
+                        Annotation[] annotations = sortAnnotation(field.getAnnotations(), path.annotationsOrder());
                         for (Annotation annotation : annotations)
                         {
                             LsonDefinedAnnotation lsonDefinedAnnotation = annotation.annotationType().getAnnotation(LsonDefinedAnnotation.class);
@@ -123,6 +123,29 @@ public class Deserialization
         }
         handleMethod(t, LsonCallMethod.CallMethodTiming.AFTER_DESERIALIZATION);
         return t;
+    }
+
+    private static Annotation[] sortAnnotation(Annotation[] annotations, Class<?>[] annotationsOrder)
+    {
+        for (int i = 0; i < annotationsOrder.length; i++)
+        {
+            for (int j = 0; j < annotations.length; j++)
+            {
+                if(i != j && annotations[j].annotationType() != annotationsOrder[i])
+                {
+                    try
+                    {
+                        Annotation temp = annotations[i];
+                        annotations[i] = annotations[j];
+                        annotations[j] = temp;
+                    }
+                    catch (IndexOutOfBoundsException ignored)
+                    {
+                    }
+                }
+            }
+        }
+        return annotations;
     }
 
     public static Object getValue(LsonElement rootJson, String[] pathArray, ArrayList<Object> rootPath, TypeUtil fieldType, Object t)
