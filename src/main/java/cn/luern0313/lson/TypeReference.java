@@ -13,18 +13,19 @@ import java.util.LinkedHashMap;
 
 public class TypeReference<T>
 {
-    public Class<?> type;
+    public Type type;
+    public Class<?> rawType;
 
     public LinkedHashMap<String, TypeParameterized> typeMap = new LinkedHashMap<>();
 
     public TypeReference()
     {
         Type superClass = getClass().getGenericSuperclass();
-        Type c = ((ParameterizedType) superClass).getActualTypeArguments()[0];
-        type = (Class<?>) ((ParameterizedType) c).getRawType();
+        type = ((ParameterizedType) superClass).getActualTypeArguments()[0];
+        rawType = (Class<?>) ((ParameterizedType) type).getRawType();
 
-        Type[] parameterizedTypes = ((ParameterizedType) c).getActualTypeArguments();
-        TypeVariable<? extends Class<?>>[] typeVariables = type.getTypeParameters();
+        Type[] parameterizedTypes = ((ParameterizedType) type).getActualTypeArguments();
+        TypeVariable<? extends Class<?>>[] typeVariables = rawType.getTypeParameters();
         for (int i = 0; i < parameterizedTypes.length; i++)
             typeMap.put(typeVariables[i].getName(), handleType(parameterizedTypes[i]));
     }

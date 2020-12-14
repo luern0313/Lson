@@ -1,6 +1,7 @@
 package cn.luern0313.lson;
 
 import java.io.StringReader;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -109,7 +110,7 @@ public class LsonUtil
      * 将json反序列化为指定的实体类。
      *
      * @param json Lson解析过的json对象。
-     * @param typeReference {@link TypeReference}类，用于泛型类的反序列化。
+     * @param typeReference 用于描述一个泛型类。
      * @param parameters 实例化类时，构造函数需要的参数。
      * @param <T> 反序列化为的实体类。
      * @return 返回反序列化后的实体类。
@@ -120,7 +121,7 @@ public class LsonUtil
     {
         Deserialization.typeReference = typeReference;
         Deserialization.parameterizedTypes.clear();
-        return Deserialization.fromJson(json, new TypeUtil(typeReference.type), new ArrayList<>(), null, getParameterTypes(parameters), parameters);
+        return Deserialization.fromJson(json, new TypeUtil(typeReference.rawType), new ArrayList<>(), null, getParameterTypes(parameters), parameters);
     }
 
     /**
@@ -139,7 +140,7 @@ public class LsonUtil
     {
         Deserialization.typeReference = typeReference;
         Deserialization.parameterizedTypes.clear();
-        return Deserialization.fromJson(json, new TypeUtil(typeReference.type), new ArrayList<>(), null, parameterTypes, parameters);
+        return Deserialization.fromJson(json, new TypeUtil(typeReference.rawType), new ArrayList<>(), null, parameterTypes, parameters);
     }
 
     /**
@@ -168,12 +169,12 @@ public class LsonUtil
      * @author luern0313
      */
     @SuppressWarnings("unchecked")
-    public static <T> T getValue(LsonElement json, String path, Class<T> clz)
+    public static <T> T getValue(LsonElement json, String path, Type clz)
     {
         TypeUtil typeUtil = new TypeUtil(clz);
         T t = (T) Deserialization.finalValueHandle(Deserialization.getValue(json, new String[]{path}, new ArrayList<>(), typeUtil, null), typeUtil);
         if(t == null && typeUtil.isPrimitive())
-            return (T) PRIMITIVE_DEFAULT_VALUE.get(clz.getName());
+            return (T) PRIMITIVE_DEFAULT_VALUE.get(typeUtil.getName());
         return t;
     }
 

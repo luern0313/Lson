@@ -1,6 +1,7 @@
 package cn.luern0313.lson.element;
 
 import cn.luern0313.lson.LsonUtil;
+import cn.luern0313.lson.TypeReference;
 
 /**
  * JSON元素基类。
@@ -67,6 +68,19 @@ public abstract class LsonElement
     public <T> T getFromPath(String path, Class<T> clz)
     {
         return LsonUtil.getValue(this, path, clz);
+    }
+
+    /**
+     * 根据JSONPath返回对应的值，并在存在泛型的情况下指明该值的类型。
+     *
+     * @param path JSONPath，用于描述要取到的值在json中的位置。
+     * @param typeReference 用于描述一个泛型类。
+     * @param <T> 指定的类型。
+     * @return JSONPath对应的值。
+     */
+    public <T> T getFromPath(String path, TypeReference<T> typeReference)
+    {
+        return LsonUtil.getValue(this, path, typeReference.type);
     }
 
     /**
