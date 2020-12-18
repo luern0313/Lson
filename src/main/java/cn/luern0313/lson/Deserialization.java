@@ -210,7 +210,7 @@ public class Deserialization
                     LsonArray temp = new LsonArray();
                     for (int j = 0; j < ((PathType.PathIndexArray) pathType).index.size(); j++)
                     {
-                        int index = ((PathType.PathIndexArray) pathType).index.get(j);
+                        int index = (int) ((PathType.PathIndexArray) pathType).index.get(j);
                         if(index < 0) index += json.getAsLsonArray().size();
                         temp.add(json.getAsLsonArray().get(index));
                     }
@@ -405,6 +405,10 @@ public class Deserialization
                 else if(comparator == PathType.PathFilter.FilterComparator.GREATER_EQUAL)
                     return ((Number) left).doubleValue() >= ((Number) right).doubleValue();
             }
+            else if(comparator == PathType.PathFilter.FilterComparator.IN && right instanceof ArrayList)
+                return DataProcessUtil.getIndex(left, (ArrayList<?>) right) > -1;
+            else if(comparator == PathType.PathFilter.FilterComparator.NOT_IN && right instanceof ArrayList)
+                return DataProcessUtil.getIndex(left, (ArrayList<?>) right) == -1;
         }
         return false;
     }

@@ -69,9 +69,9 @@ public class PathType
 
     public static class PathIndexArray
     {
-        public ArrayList<Integer> index;
+        public ArrayList<Object> index;
 
-        public PathIndexArray(ArrayList<Integer> index)
+        public PathIndexArray(ArrayList<Object> index)
         {
             this.index = index;
         }
@@ -123,7 +123,7 @@ public class PathType
             GREATER_EQUAL,
             REGULAR,
             IN,
-            NOT_IN;
+            NOT_IN
         }
 
         public static class PathFilterPart
@@ -142,7 +142,7 @@ public class PathType
                 UNSPECIFIED,
                 PATH,
                 ARRAY,
-                SINGLE;
+                SINGLE
             }
 
             @Override

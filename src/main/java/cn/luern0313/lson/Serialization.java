@@ -212,8 +212,11 @@ public class Serialization
                 else if(pathType instanceof PathType.PathIndexArray && json.isLsonArray())
                 {
                     if(i < jsonPaths.size() - 1)
+                    {
                         for (int k = 0; k < ((PathType.PathIndexArray) pathType).index.size(); k++)
-                            jsonTempArrayList.add(json.getAsLsonArray().hasSet(((PathType.PathIndexArray) pathType).index.get(k), LsonObject.class));
+                            if(((PathType.PathIndexArray) pathType).index.get(k) instanceof Integer)
+                                jsonTempArrayList.add(json.getAsLsonArray().hasSet((int) ((PathType.PathIndexArray) pathType).index.get(k), LsonObject.class));
+                    }
                     else
                     {
                         for (int k = 0; k < jsonArrayList.size(); k++)
@@ -221,7 +224,8 @@ public class Serialization
                             LsonElement lsonElement = jsonArrayList.get(k);
                             if(lsonElement.isLsonArray())
                                 for (int l = 0; l < ((PathType.PathIndexArray) pathType).index.size(); l++)
-                                    lsonElement.getAsLsonArray().set(((PathType.PathIndexArray) pathType).index.get(l), value);
+                                    if(((PathType.PathIndexArray) pathType).index.get(l) instanceof Integer)
+                                        lsonElement.getAsLsonArray().set((int) ((PathType.PathIndexArray) pathType).index.get(l), value);
                         }
                     }
                 }

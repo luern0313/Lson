@@ -25,39 +25,41 @@ class TokenReader
     TokenType readNextToken()
     {
         char ch;
-        if(!reader.hasMore())
-            return TokenType.END_DOCUMENT;
-        /*while (true)
+        while (true)
         {
-            /*if(!isWhiteSpace(ch))
+            if(reader.hasMore())
             {
-                break;
+                ch = reader.peek();
+                if(isWhiteSpace(ch))
+                    reader.next();
+                else
+                    break;
             }
-            reader.next(); // skip white space
-        }*/
-        ch = reader.peek();
+            else
+                return TokenType.END_DOCUMENT;
+        }
         switch (ch)
         {
             case '$':
-                reader.next(); // skip
+                reader.next();
                 return TokenType.JSON_ROOT;
             case '@':
-                reader.next(); // skip
+                reader.next();
                 return TokenType.JSON_CURRENT;
             case '.':
-                reader.next(); // skip
+                reader.next();
                 return TokenType.SPLIT_POINT;
             case ':':
-                reader.next(); // skip
+                reader.next();
                 return TokenType.SPLIT_COLON;
             case ',':
-                reader.next(); // skip
+                reader.next();
                 return TokenType.SPLIT_COMMA;
             case '[':
-                reader.next(); // skip
+                reader.next();
                 return TokenType.EXPRESSION_START;
             case ']':
-                reader.next(); // skip
+                reader.next();
                 return TokenType.EXPRESSION_END;
             case '*':
                 reader.next();
@@ -84,32 +86,48 @@ class TokenReader
             return TokenType.STRING;
     }
 
-    String readString(boolean isRemoveQuotationMarks)
+    String readString(boolean isExpressionPath, boolean isDeleteQuotationMarks)
     {
-        Character[] safeChar = new Character[]{'.', ',', ':', '[', ']', '(', ')', '*', '-', '<', '>', '?', '@', '$', '~', '=', '!', '/'};
+        return readStringBuilder(isExpressionPath, isDeleteQuotationMarks).toString();
+    }
+
+    StringBuilder readStringBuilder(boolean isExpressionPath, boolean isDeleteQuotationMarks)
+    {
+        Character[] expressionStopChar = new Character[]{']', ','};
+        Character[] pathStopChar = new Character[]{'.', ',', ':', '[', ']', '(', ')', '*', '-', '<', '>', '?', '@', '$', '~', '=', '!', '/', ' '};
         StringBuilder sb = new StringBuilder(16);
-        char ch;
+        boolean isQuotationMarks = false;
         while (reader.hasMore())
         {
-            ch = reader.peek();
-            if(DataProcessUtil.getIndex(ch, safeChar) > -1)
+            char ch = reader.peek();
+            if((!isExpressionPath && DataProcessUtil.getIndex(ch, pathStopChar) > -1) || (isExpressionPath && isQuotationMarks && DataProcessUtil.getIndex(ch, expressionStopChar) > -1))
                 break;
             else
             {
+                if(isExpressionPath && (ch == '\'' || ch == '"'))
+                    isQuotationMarks = true;
                 reader.next();
                 sb.append(ch);
             }
         }
 
-        if(isRemoveQuotationMarks)
+        if(isDeleteQuotationMarks)
+            deleteQuotationMarks(sb);
+        return sb;
+    }
+
+    static boolean isHasQuotationMarks(StringBuilder sb)
+    {
+        return (sb.charAt(0) == '\'' && sb.charAt(sb.length() - 1) == '\'') || (sb.charAt(0) == '"' && sb.charAt(sb.length() - 1) == '"');
+    }
+
+    static void deleteQuotationMarks(StringBuilder sb)
+    {
+        if(isHasQuotationMarks(sb))
         {
-            if((sb.charAt(0) == '\'' && sb.charAt(sb.length() - 1) == '\'') || (sb.charAt(0) == '"' && sb.charAt(sb.length() - 1) == '"'))
-            {
-                sb.deleteCharAt(0);
-                sb.deleteCharAt(sb.length() - 1);
-            }
+            sb.deleteCharAt(0);
+            sb.deleteCharAt(sb.length() - 1);
         }
-        return sb.toString();
     }
 
     PathType.PathFilter.FilterComparator readComparator()
@@ -137,12 +155,24 @@ class TokenReader
                     reader.next();
                     return PathType.PathFilter.FilterComparator.EQUAL;
                 }
+                break;
             case '!':
                 if(reader.peek() == '=')
                 {
                     reader.next();
                     return PathType.PathFilter.FilterComparator.NOT_EQUAL;
                 }
+                break;
+            case 'i':
+                if(reader.peek() == 'n')
+                {
+                    reader.next();
+                    return PathType.PathFilter.FilterComparator.IN;
+                }
+                break;
+            case 'n':
+                if(reader.next(2).equals("in"))
+                    return PathType.PathFilter.FilterComparator.NOT_IN;
         }
         throw new PathParseException("Unexpected char: " + reader.next(), reader.getErrorMessage());
     }

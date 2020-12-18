@@ -5,6 +5,7 @@ import java.io.StringReader;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -61,6 +62,14 @@ public class DataProcessUtil
     {
         for (int i = 0; i < array.length; i++)
             if(object == array[i])
+                return i;
+        return -1;
+    }
+
+    public static int getIndex(Object object, ArrayList<?> list)
+    {
+        for (int i = 0; i < list.size(); i++)
+            if(object == list.get(i) || object.equals(list.get(i)))
                 return i;
         return -1;
     }

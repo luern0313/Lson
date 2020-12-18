@@ -7,7 +7,22 @@ import java.util.ArrayList;
 import cn.luern0313.lson.exception.PathParseException;
 import cn.luern0313.lson.util.CharReaderUtil;
 
-import static cn.luern0313.lson.path.Status.*;
+import static cn.luern0313.lson.path.Status.STATUS_EXPECT_COLON;
+import static cn.luern0313.lson.path.Status.STATUS_EXPECT_COMMA;
+import static cn.luern0313.lson.path.Status.STATUS_EXPECT_END_DOCUMENT;
+import static cn.luern0313.lson.path.Status.STATUS_EXPECT_EXPRESSION_ELEMENT;
+import static cn.luern0313.lson.path.Status.STATUS_EXPECT_EXPRESSION_END;
+import static cn.luern0313.lson.path.Status.STATUS_EXPECT_EXPRESSION_START;
+import static cn.luern0313.lson.path.Status.STATUS_EXPECT_FILTER_COMPARISON;
+import static cn.luern0313.lson.path.Status.STATUS_EXPECT_FILTER_END;
+import static cn.luern0313.lson.path.Status.STATUS_EXPECT_FILTER_SINGLE_STRING;
+import static cn.luern0313.lson.path.Status.STATUS_EXPECT_FILTER_START;
+import static cn.luern0313.lson.path.Status.STATUS_EXPECT_JSON_CURRENT;
+import static cn.luern0313.lson.path.Status.STATUS_EXPECT_JSON_ROOT;
+import static cn.luern0313.lson.path.Status.STATUS_EXPECT_NUMBER;
+import static cn.luern0313.lson.path.Status.STATUS_EXPECT_PATH_POINT;
+import static cn.luern0313.lson.path.Status.STATUS_EXPECT_POINT;
+import static cn.luern0313.lson.path.Status.STATUS_EXPECT_SYNTAX_ASTERISK;
 
 /**
  * 被 luern0313 创建于 2020/8/8.
@@ -89,43 +104,61 @@ public class PathParser
                     }
                     throw new PathParseException("Unexpected .", reader.reader.getErrorMessage());
                 case STRING:
-                    if(hasStatus(status, STATUS_EXPECT_PATH_POINT.index))
+                    if(hasStatus(status, STATUS_EXPECT_EXPRESSION_ELEMENT.index))
                     {
-                        String path = reader.readString(false);
-                        PathType.PathPath pathPath = new PathType.PathPath(path);
-                        if(stack.getTopValueType() == StackValue.TYPE_BASE_PATH)
-                        {
-                            stack.peek().add(pathPath);
-                            status = STATUS_EXPECT_POINT.index | STATUS_EXPECT_EXPRESSION_START.index | STATUS_EXPECT_END_DOCUMENT.index;
-                        }
-                        else if(stack.getTopValueType() == StackValue.TYPE_EXPRESSION)
-                        {
-                            stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().mode = StackValue.Expression.ExpressionMode.PATH;
-                            stack.peek().add(pathPath);
-                            status = STATUS_EXPECT_COMMA.index | STATUS_EXPECT_EXPRESSION_END.index;
-                        }
-                        else if(stack.getTopValueType() == StackValue.TYPE_FILTER)
-                        {
-                            stack.peek().add(pathPath);
-                            status = STATUS_EXPECT_POINT.index | STATUS_EXPECT_EXPRESSION_START.index | STATUS_EXPECT_FILTER_COMPARISON.index | STATUS_EXPECT_FILTER_END.index;
-                        }
-                        continue;
-                    }
-                    else if(hasStatus(status, STATUS_EXPECT_PATH_EXPRESSION.index))
-                    {
-                        String path = reader.readString(true);
-                        PathType.PathPath pathPath = new PathType.PathPath(path);
+                        String string = reader.readString(true, true);
                         if(stack.getTopValueType() == StackValue.TYPE_EXPRESSION)
                         {
-                            stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().mode = StackValue.Expression.ExpressionMode.PATH;
-                            stack.peek().add(pathPath);
+                            stack.peek().add(string);
                             status = STATUS_EXPECT_COMMA.index | STATUS_EXPECT_EXPRESSION_END.index;
                             continue;
                         }
-                        else if(stack.getTopValueType() == StackValue.TYPE_FILTER)
+                    }
+                    else if(hasStatus(status, STATUS_EXPECT_FILTER_COMPARISON.index))
+                    {
+                        PathType.PathFilter.FilterComparator comparator = reader.readComparator();
+                        if(stack.peek(StackValue.TYPE_FILTER).valueAsFilter().index == 0)
                         {
-                            stack.peek().add(pathPath);
-                            status = STATUS_EXPECT_POINT.index | STATUS_EXPECT_EXPRESSION_START.index | STATUS_EXPECT_FILTER_COMPARISON.index | STATUS_EXPECT_FILTER_END.index;
+                            stack.peek().valueAsFilter().comparator = comparator;
+                            stack.peek().valueAsFilter().index = 1;
+                            status = STATUS_EXPECT_JSON_ROOT.index | STATUS_EXPECT_JSON_CURRENT.index | STATUS_EXPECT_PATH_POINT.index | STATUS_EXPECT_NUMBER.index | STATUS_EXPECT_EXPRESSION_START.index;
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        StringBuilder stringBuilder = reader.readStringBuilder(false, false);
+                        if(!TokenReader.isHasQuotationMarks(stringBuilder) && hasStatus(status, STATUS_EXPECT_PATH_POINT.index))
+                        {
+                            PathType.PathPath pathPath = new PathType.PathPath(stringBuilder.toString());
+                            if(stack.getTopValueType() == StackValue.TYPE_BASE_PATH)
+                            {
+                                stack.peek().add(pathPath);
+                                status = STATUS_EXPECT_POINT.index | STATUS_EXPECT_EXPRESSION_START.index | STATUS_EXPECT_END_DOCUMENT.index;
+                            }
+                            else if(stack.getTopValueType() == StackValue.TYPE_EXPRESSION)
+                            {
+                                stack.peek().add(pathPath);
+                                status = STATUS_EXPECT_COMMA.index | STATUS_EXPECT_EXPRESSION_END.index;
+                            }
+                            else if(stack.getTopValueType() == StackValue.TYPE_FILTER)
+                            {
+                                stack.peek().add(pathPath);
+                                status = STATUS_EXPECT_POINT.index | STATUS_EXPECT_EXPRESSION_START.index | STATUS_EXPECT_FILTER_COMPARISON.index | STATUS_EXPECT_FILTER_END.index;
+                            }
+                            continue;
+                        }
+                        else if(TokenReader.isHasQuotationMarks(stringBuilder) && hasStatus(status, STATUS_EXPECT_FILTER_SINGLE_STRING.index))
+                        {
+                            TokenReader.deleteQuotationMarks(stringBuilder);
+                            StackValue.Filter.FilterPart filterPart = stack.peek(StackValue.TYPE_FILTER).valueAsFilter().getCurrentPart();
+                            filterPart.changeMode(PathType.PathFilter.PathFilterPart.FilterPartMode.SINGLE);
+                            filterPart.part.add(stringBuilder.toString());
+
+                            if(stack.peek(StackValue.TYPE_FILTER).valueAsFilter().index == 0)
+                                status = STATUS_EXPECT_FILTER_COMPARISON.index | STATUS_EXPECT_FILTER_END.index;
+                            else
+                                status = STATUS_EXPECT_FILTER_END.index;
                             continue;
                         }
                     }
@@ -134,7 +167,7 @@ public class PathParser
                     if(hasStatus(status, STATUS_EXPECT_EXPRESSION_START.index))
                     {
                         stack.push(StackValue.newExpression());
-                        status = STATUS_EXPECT_FILTER_START.index | STATUS_EXPECT_NUMBER.index | STATUS_EXPECT_COLON.index | STATUS_EXPECT_PATH_EXPRESSION.index | STATUS_EXPECT_SYNTAX_ASTERISK.index;
+                        status = STATUS_EXPECT_FILTER_START.index | STATUS_EXPECT_COLON.index | STATUS_EXPECT_EXPRESSION_ELEMENT.index | STATUS_EXPECT_SYNTAX_ASTERISK.index;
                         continue;
                     }
                     throw new PathParseException("Unexpected [", reader.reader.getErrorMessage());
@@ -142,18 +175,22 @@ public class PathParser
                     if(hasStatus(status, STATUS_EXPECT_NUMBER.index))
                     {
                         int number = reader.readNumber().intValue();
+                        if(stack.getTopValueType() == StackValue.TYPE_FILTER)
+                        {
+                            stack.peek().add(number);
+                            stack.peek().valueAsFilter().getCurrentPart().changeMode(PathType.PathFilter.PathFilterPart.FilterPartMode.SINGLE);
+                            status = STATUS_EXPECT_FILTER_COMPARISON.index | STATUS_EXPECT_FILTER_END.index;
+                            continue;
+                        }
+                    }
+                    else if(hasStatus(status, STATUS_EXPECT_EXPRESSION_ELEMENT.index))
+                    {
+                        int number = reader.readNumber().intValue();
                         if(stack.getTopValueType() == StackValue.TYPE_EXPRESSION)
                         {
                             stack.peek().add(number);
                             stack.peek().valueAsExpression().isJustColon = false;
                             status = STATUS_EXPECT_COLON.index | STATUS_EXPECT_COMMA.index | STATUS_EXPECT_EXPRESSION_END.index;
-                            continue;
-                        }
-                        else if(stack.getTopValueType() == StackValue.TYPE_FILTER)
-                        {
-                            stack.peek().add(number);
-                            stack.peek().valueAsFilter().getCurrentPart().changeMode(PathType.PathFilter.PathFilterPart.FilterPartMode.SINGLE);
-                            status = STATUS_EXPECT_FILTER_COMPARISON.index | STATUS_EXPECT_FILTER_END.index;
                             continue;
                         }
                     }
@@ -166,16 +203,16 @@ public class PathParser
                             stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().index.add(Integer.MIN_VALUE);
                         else
                             stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().isJustColon = true;
-                        status = STATUS_EXPECT_NUMBER.index | STATUS_EXPECT_EXPRESSION_END.index | STATUS_EXPECT_COLON.index;
+                        status = STATUS_EXPECT_EXPRESSION_ELEMENT.index | STATUS_EXPECT_EXPRESSION_END.index | STATUS_EXPECT_COLON.index;
                         continue;
                     }
                     throw new PathParseException("Unexpected :", reader.reader.getErrorMessage());
                 case SPLIT_COMMA: // ,
                     if(hasStatus(status, STATUS_EXPECT_COMMA.index))
                     {
-                        if(stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().mode == StackValue.Expression.ExpressionMode.INDEX_ARRAY)
+                        if(stack.peek(StackValue.TYPE_EXPRESSION).valueAsExpression().mode == StackValue.Expression.ExpressionMode.ARRAY)
                         {
-                            status = STATUS_EXPECT_NUMBER.index;
+                            status = STATUS_EXPECT_EXPRESSION_ELEMENT.index;
                             continue;
                         }
                     }
@@ -225,7 +262,7 @@ public class PathParser
                         {
                             stack.peek().valueAsFilter().comparator = comparator;
                             stack.peek().valueAsFilter().index = 1;
-                            status = STATUS_EXPECT_JSON_ROOT.index | STATUS_EXPECT_JSON_CURRENT.index | STATUS_EXPECT_PATH_POINT.index | STATUS_EXPECT_NUMBER.index | STATUS_EXPECT_EXPRESSION_START.index;
+                            status = STATUS_EXPECT_JSON_ROOT.index | STATUS_EXPECT_JSON_CURRENT.index | STATUS_EXPECT_PATH_POINT.index | STATUS_EXPECT_NUMBER.index | STATUS_EXPECT_FILTER_SINGLE_STRING.index | STATUS_EXPECT_EXPRESSION_START.index;
                             continue;
                         }
                     }
@@ -240,16 +277,19 @@ public class PathParser
                             if(expression.mode == StackValue.Expression.ExpressionMode.INDEX)
                             {
                                 if(expression.index.size() == 3)
-                                    pathPath = new PathType.PathIndex(expression.index.get(0), expression.index.get(1), expression.index.get(2));
+                                    pathPath = new PathType.PathIndex((int) expression.index.get(0), (int) expression.index.get(1), (int) expression.index.get(2));
                                 else if(expression.index.size() == 2)
-                                    pathPath = new PathType.PathIndex(expression.index.get(0), expression.index.get(1));
+                                    pathPath = new PathType.PathIndex((int) expression.index.get(0), (int) expression.index.get(1));
                                 else if(expression.index.size() == 1)
-                                    pathPath = new PathType.PathIndex(expression.index.get(0));
+                                    pathPath = new PathType.PathIndex((int) expression.index.get(0));
                             }
-                            else if(expression.mode == StackValue.Expression.ExpressionMode.INDEX_ARRAY)
-                                pathPath = new PathType.PathIndexArray(expression.index);
-                            else if(expression.mode == StackValue.Expression.ExpressionMode.PATH)
-                                pathPath = new PathType.PathPath(expression.path);
+                            else if(expression.mode == StackValue.Expression.ExpressionMode.ARRAY)
+                            {
+                                if(expression.index.size() == 1 && expression.index.get(0) instanceof String)
+                                    pathPath = new PathType.PathPath((String) expression.index.get(0));
+                                else
+                                    pathPath = new PathType.PathIndexArray(expression.index);
+                            }
                             else if(expression.mode == StackValue.Expression.ExpressionMode.FILTER)
                                 pathPath = new PathType.PathFilter(expression.filter);
 
@@ -259,7 +299,7 @@ public class PathParser
                                 if(stack.getTopValueType() == StackValue.TYPE_BASE_PATH)
                                     status = STATUS_EXPECT_POINT.index | STATUS_EXPECT_EXPRESSION_START.index | STATUS_EXPECT_END_DOCUMENT.index;
                                 else if(stack.getTopValueType() == StackValue.TYPE_FILTER)
-                                    status = STATUS_EXPECT_POINT.index | STATUS_EXPECT_EXPRESSION_START.index;
+                                    status = STATUS_EXPECT_POINT.index | STATUS_EXPECT_EXPRESSION_START.index | STATUS_EXPECT_FILTER_END.index;
                                 continue;
                             }
                         }

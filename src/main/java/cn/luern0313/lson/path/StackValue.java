@@ -76,30 +76,26 @@ class StackValue
 
     static class Expression extends StackValueObject
     {
-        ExpressionMode mode = ExpressionMode.INDEX_ARRAY;
+        ExpressionMode mode = ExpressionMode.ARRAY;
 
-        ArrayList<Integer> index = new ArrayList<>();
+        ArrayList<Object> index = new ArrayList<>(16);
         boolean isJustColon = true;
-        String path;
         Filter filter;
 
         @Override
         void add(Object object)
         {
-            if(mode == ExpressionMode.INDEX_ARRAY || mode == ExpressionMode.INDEX)
-                index.add((Integer) object);
-            else if(mode == ExpressionMode.PATH)
-                this.path = ((PathType.PathPath) object).path;
+            if(mode == ExpressionMode.ARRAY || mode == ExpressionMode.INDEX)
+                index.add(object);
             else if(mode == ExpressionMode.FILTER)
                 this.filter = (Filter) object;
         }
 
         enum ExpressionMode
         {
-            INDEX_ARRAY,
+            ARRAY,
             INDEX,
-            PATH,
-            FILTER;
+            FILTER
         }
     }
 
@@ -113,10 +109,19 @@ class StackValue
         @Override
         void add(Object path)
         {
+            FilterPart filterPart;
             if(index == 0)
-                left.part.add(path);
+                filterPart = left;
             else
-                right.part.add(path);
+                filterPart = right;
+
+            if(path instanceof PathType.PathIndexArray)
+            {
+                filterPart.changeMode(PathType.PathFilter.PathFilterPart.FilterPartMode.ARRAY);
+                filterPart.part.addAll(((PathType.PathIndexArray) path).index);
+            }
+            else
+                filterPart.part.add(path);
         }
 
         FilterPart getCurrentPart()

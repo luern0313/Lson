@@ -16,7 +16,7 @@ class Stack
 
     public Stack()
     {
-        this.SIZE = 100;
+        this.SIZE = 128;
         this.array = new StackValue[this.SIZE];
     }
 
