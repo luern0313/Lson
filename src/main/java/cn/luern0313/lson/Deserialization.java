@@ -95,7 +95,8 @@ public class Deserialization
                             pathArray = new String[]{field.getName(), underScoreCase};
                     }
 
-                    Object value = getValue(json, pathArray, rootJsonPath, new TypeUtil(path.preClass() == Object.class ? field.getGenericType() : path.preClass()), t);
+                    TypeUtil targetType = new TypeUtil(path.preClass() == Object.class ? field.getGenericType() : path.preClass());
+                    Object value = getValue(json, pathArray, rootJsonPath, targetType, t);
                     if(value != null && !(value instanceof LsonNull))
                     {
                         TypeUtil valueType = new TypeUtil(field.getGenericType());
@@ -287,14 +288,7 @@ public class Deserialization
     private static Object getArrayData(LsonElement json, LsonElement rootJson, TypeUtil fieldType, ArrayList<Object> jsonPaths, Object t)
     {
         TypeUtil actualTypeArgument = fieldType.getArrayType();
-        TypeUtil realTypeArgument = fieldType.getArrayRealType();
-        Object array;
-        if(!realTypeArgument.isNumber())
-            array = Array.newInstance(actualTypeArgument.getAsClass(), json.isLsonArray() ? json.getAsLsonArray().size() : 1);
-        else if(actualTypeArgument.isArrayTypeClass())
-            array = Array.newInstance(double[].class, json.isLsonArray() ? json.getAsLsonArray().size() : 1);
-        else
-            array = Array.newInstance(double.class, json.isLsonArray() ? json.getAsLsonArray().size() : 1);
+        Object array = Array.newInstance(Object.class, json.isLsonArray() ? json.getAsLsonArray().size() : 1);
 
         if(json.isLsonArray())
         {
@@ -419,18 +413,26 @@ public class Deserialization
         if(value == null) return null;
 
         TypeUtil valueClass = new TypeUtil(value.getClass());
-        if(valueClass.isListTypeClass())
+        if(valueClass.isArrayTypeClass())
         {
-            if(lsonDefinedAnnotation.isIgnoreList())
-                value = handleAnnotation(finalValueHandle(value, TypeUtil.nullType()), annotation, lsonDefinedAnnotation, t);
+            if(lsonDefinedAnnotation.isIgnoreArray())
+                value = handleSingleAnnotation(finalValueHandle(value, valueClass), annotation, lsonDefinedAnnotation, t);
             else
                 for (int i = 0; i < ((List<?>) value).size(); i++)
                     ((List<Object>) value).set(i, handleAnnotation(((List<?>) value).get(i), annotation, lsonDefinedAnnotation, t));
         }
-        else if(valueClass.isListTypeClass() && !lsonDefinedAnnotation.isIgnoreMap())
+        else if(valueClass.isListTypeClass())
+        {
+            if(lsonDefinedAnnotation.isIgnoreList())
+                value = handleSingleAnnotation(finalValueHandle(value, valueClass), annotation, lsonDefinedAnnotation, t);
+            else
+                for (int i = 0; i < ((List<?>) value).size(); i++)
+                    ((List<Object>) value).set(i, handleAnnotation(((List<?>) value).get(i), annotation, lsonDefinedAnnotation, t));
+        }
+        else if(valueClass.isMapTypeClass())
         {
             if(lsonDefinedAnnotation.isIgnoreMap())
-                value = handleAnnotation(finalValueHandle(value, TypeUtil.nullType()), annotation, lsonDefinedAnnotation, t);
+                value = handleSingleAnnotation(finalValueHandle(value, valueClass), annotation, lsonDefinedAnnotation, t);
             else
             {
                 Object[] keys = ((Map<?, ?>) value).keySet().toArray();
@@ -549,6 +551,8 @@ public class Deserialization
                 if(list.get(i) != null)
                     return list;
         }
+        else if(fieldType.getName().equals(Object.class.getName()))
+            return getJsonPrimitiveData(json);
         return fromJson(rootJson, fieldType, paths, t, null, null);
     }
 

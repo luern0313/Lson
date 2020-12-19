@@ -91,10 +91,10 @@ public class TypeUtil
         {
             return ((Class<?>) getAsClass().getField("TYPE").get(null)).isPrimitive();
         }
-        catch (Exception e)
+        catch (Exception ignored)
         {
-            return false;
         }
+        return false;
     }
 
     public boolean isBuiltInClass()
@@ -125,10 +125,10 @@ public class TypeUtil
             constructor.setAccessible(true);
             return constructor;
         }
-        catch (Exception e)
+        catch (Exception ignored)
         {
-            return null;
         }
+        return null;
     }
 
     public boolean isMapTypeClass()
@@ -168,36 +168,36 @@ public class TypeUtil
         {
             return (Class<?>) getAsClass().getField("TYPE").get(null);
         }
-        catch (Exception e)
+        catch (Exception ignored)
         {
-            return null;
         }
+        return null;
     }
 
     public TypeUtil getMapType()
     {
-        Type t = getAsType();
-        if (t instanceof ParameterizedType)
-            t = ((ParameterizedType) t).getActualTypeArguments()[1];
-        return new TypeUtil(t);
+        Type type = getAsType();
+        if (type instanceof ParameterizedType)
+            return new TypeUtil(((ParameterizedType) type).getActualTypeArguments()[1]);
+        return new TypeUtil(Object.class);
     }
 
     public TypeUtil getListType()
     {
-        Type t = getAsType();
-        if(t instanceof ParameterizedType)
-            t = ((ParameterizedType) t).getActualTypeArguments()[0];
-        return new TypeUtil(t);
+        Type type = getAsType();
+        if(type instanceof ParameterizedType)
+            return new TypeUtil(((ParameterizedType) type).getActualTypeArguments()[0]);
+        return new TypeUtil(Object.class);
     }
 
     public TypeUtil getArrayType()
     {
-        Type t = getAsType();
+        Type type = getAsType();
         if(isClass())
-            t = getAsClass().getComponentType();
-        else if(t instanceof GenericArrayType)
-            t = ((GenericArrayType) t).getGenericComponentType();
-        return new TypeUtil(t);
+            return new TypeUtil(getAsClass().getComponentType());
+        else if(type instanceof GenericArrayType)
+            return new TypeUtil(((GenericArrayType) type).getGenericComponentType());
+        return new TypeUtil(Object.class);
     }
 
     public TypeUtil getArrayRealType()

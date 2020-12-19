@@ -294,11 +294,18 @@ public class Serialization
         {
             Object o = handleAnnotationType((DeserializationValueUtil) value, lsonDefinedAnnotation.acceptableSerializationType());
             if(o != null)
-                ((DeserializationValueUtil) value).set(handleSingleAnnotation(o, annotation, lsonDefinedAnnotation, object));
+            {
+                Object result = handleSingleAnnotation(o, annotation, lsonDefinedAnnotation, object);
+                TypeUtil resultType = new TypeUtil(result);
+                if(resultType.isPrimitivePlus() || resultType.isBuiltInClass())
+                    ((DeserializationValueUtil) value).set(handleSingleAnnotation(o, annotation, lsonDefinedAnnotation, object));
+                else
+                    value = result;
+            }
 
-            if(!((DeserializationValueUtil) value).isNull())
+            if(value instanceof DeserializationValueUtil && !((DeserializationValueUtil) value).isNull())
                 ((DeserializationValueUtil) value).set(handleAnnotationType((DeserializationValueUtil) value, lsonDefinedAnnotation.acceptableDeserializationType()));
-            else
+            else if(value instanceof DeserializationValueUtil)
                 return null;
         }
         else
@@ -365,7 +372,14 @@ public class Serialization
             if(value == null) return null;
 
             TypeUtil valueClass = new TypeUtil(value.getClass());
-            if(valueClass.isListTypeClass())
+            if(valueClass.isArrayTypeClass())
+            {
+                LsonArray finalValue = new LsonArray();
+                for (int i = 0; i < Array.getLength(value); i++)
+                    finalValue.add(finalValueHandle(Array.get(value, i)));
+                return finalValue;
+            }
+            else if(valueClass.isListTypeClass())
             {
                 LsonArray finalValue = new LsonArray();
                 for (int i = 0; i < ((List<?>) value).size(); i++)
