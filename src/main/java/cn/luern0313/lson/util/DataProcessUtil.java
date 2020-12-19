@@ -242,4 +242,20 @@ public class DataProcessUtil
         }
         return null;
     }
+
+    public static String join(ArrayList<?> arrayList, String separator)
+    {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < arrayList.size(); i++)
+            stringBuilder.append(i == 0 ? "" : separator).append(arrayList.get(i));
+        return stringBuilder.toString();
+    }
+
+    public static String join(Object[] array, String separator)
+    {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < array.length; i++)
+            stringBuilder.append(i == 0 ? "" : separator).append(array[i]);
+        return stringBuilder.toString();
+    }
 }
