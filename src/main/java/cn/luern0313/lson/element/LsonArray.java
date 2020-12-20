@@ -44,12 +44,12 @@ public class LsonArray extends LsonElement
         return new LsonNull();
     }
 
-    public boolean getAsBoolean(int key)
+    public boolean getBoolean(int key)
     {
-        return getAsBoolean(key, false);
+        return getBoolean(key, false);
     }
 
-    public boolean getAsBoolean(int key, boolean def)
+    public boolean getBoolean(int key, boolean def)
     {
         LsonElement lsonElement = list.get(key);
         if(lsonElement == null || !(lsonElement.isLsonPrimitive() && lsonElement.getAsLsonPrimitive().isBoolean()))
@@ -58,12 +58,12 @@ public class LsonArray extends LsonElement
             return lsonElement.getAsLsonPrimitive().getAsBoolean();
     }
 
-    public String getAsString(int key)
+    public String getString(int key)
     {
-        return getAsString(key, "");
+        return getString(key, "");
     }
 
-    public String getAsString(int key, String def)
+    public String getString(int key, String def)
     {
         LsonElement lsonElement = list.get(key);
         if(lsonElement == null || !(lsonElement.isLsonPrimitive() && lsonElement.getAsLsonPrimitive().isString()))
@@ -72,12 +72,12 @@ public class LsonArray extends LsonElement
             return lsonElement.getAsLsonPrimitive().getAsString();
     }
 
-    public int getAsInt(int key)
+    public int getInt(int key)
     {
-        return getAsInt(key, 0);
+        return getInt(key, 0);
     }
 
-    public int getAsInt(int key, int def)
+    public int getInt(int key, int def)
     {
         LsonElement lsonElement = list.get(key);
         if(lsonElement == null || !(lsonElement.isLsonPrimitive() && lsonElement.getAsLsonPrimitive().isNumber()))
@@ -86,7 +86,7 @@ public class LsonArray extends LsonElement
             return lsonElement.getAsLsonPrimitive().getAsInt();
     }
 
-    public LsonArray getAsJsonArray(int key)
+    public LsonArray getJsonArray(int key)
     {
         LsonElement lsonElement = list.get(key);
         if(!lsonElement.isLsonArray())
@@ -95,7 +95,7 @@ public class LsonArray extends LsonElement
             return lsonElement.getAsLsonArray();
     }
 
-    public LsonObject getAsJsonObject(int index)
+    public LsonObject getJsonObject(int index)
     {
         LsonElement lsonElement = list.get(index);
         if(!lsonElement.isLsonObject())

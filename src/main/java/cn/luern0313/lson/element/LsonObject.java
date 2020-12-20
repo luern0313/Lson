@@ -104,12 +104,12 @@ public class LsonObject extends LsonElement
         return value;
     }
 
-    public boolean getAsBoolean(String key)
+    public boolean getBoolean(String key)
     {
-        return getAsBoolean(key, false);
+        return getBoolean(key, false);
     }
 
-    public boolean getAsBoolean(String key, boolean def)
+    public boolean getBoolean(String key, boolean def)
     {
         LsonElement lsonElement = map.get(key);
         if(lsonElement == null || !(lsonElement.isLsonPrimitive() && lsonElement.getAsLsonPrimitive().isBoolean()))
@@ -118,12 +118,12 @@ public class LsonObject extends LsonElement
             return lsonElement.getAsLsonPrimitive().getAsBoolean();
     }
 
-    public String getAsString(String key)
+    public String getString(String key)
     {
-        return getAsString(key, "");
+        return getString(key, "");
     }
 
-    public String getAsString(String key, String def)
+    public String getString(String key, String def)
     {
         LsonElement lsonElement = map.get(key);
         if(lsonElement == null || !(lsonElement.isLsonPrimitive() && lsonElement.getAsLsonPrimitive().isString()))
@@ -132,12 +132,12 @@ public class LsonObject extends LsonElement
             return lsonElement.getAsLsonPrimitive().getAsString();
     }
 
-    public int getAsInt(String key)
+    public int getInt(String key)
     {
-        return getAsInt(key, 0);
+        return getInt(key, 0);
     }
 
-    public int getAsInt(String key, int def)
+    public int getInt(String key, int def)
     {
         LsonElement lsonElement = map.get(key);
         if(lsonElement == null || !(lsonElement instanceof LsonPrimitive && lsonElement.getAsLsonPrimitive().isNumber()))
@@ -146,7 +146,7 @@ public class LsonObject extends LsonElement
             return lsonElement.getAsLsonPrimitive().getAsInt();
     }
 
-    public LsonArray getAsJsonArray(String key)
+    public LsonArray getJsonArray(String key)
     {
         LsonElement lsonElement = map.get(key);
         if(!lsonElement.isLsonArray())
@@ -155,7 +155,7 @@ public class LsonObject extends LsonElement
             return lsonElement.getAsLsonArray();
     }
 
-    public LsonObject getAsJsonObject(String key)
+    public LsonObject getJsonObject(String key)
     {
         LsonElement lsonElement = map.get(key);
         if(!lsonElement.isLsonObject())
