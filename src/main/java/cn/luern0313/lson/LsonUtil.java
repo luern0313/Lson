@@ -188,7 +188,20 @@ public class LsonUtil
      */
     public static String toJson(Object object)
     {
-        return Serialization.toJson(object).toString();
+        return toJsonElement(object).toString();
+    }
+
+    /**
+     * 将任意类型数据序列化为LsonElement。
+     *
+     * @param object 要序列化的数据。
+     * @return 序列化结果。
+     *
+     * @author luern0313
+     */
+    public static LsonElement toJsonElement(Object object)
+    {
+        return Serialization.toJson(object);
     }
 
     /**
