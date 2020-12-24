@@ -40,27 +40,16 @@ public class Deserialization
 
     protected static ArrayList<String> parameterizedTypes = new ArrayList<>();
 
-    @SuppressWarnings("unchecked")
     protected static <T> T fromJson(LsonElement json, T t, ArrayList<Object> rootJsonPath)
     {
-        handleMethod(t, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
-        return (T) getClassData(new TypeUtil(t), json, json, t, rootJsonPath, null, null);
+        return fromJson(json, new TypeUtil(t), rootJsonPath, t, null, null);
     }
 
     @SuppressWarnings("unchecked")
     protected static <T> T fromJson(LsonElement json, TypeUtil typeUtil, ArrayList<Object> rootJsonPath, Object genericSuperclass, Class<?>[] parameterTypes, Object[] parameters)
     {
         handleMethod(typeUtil, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
-        /*if(1 != 2)
-        {
-            Class<?>[] newParameterTypes = new Class[parameterTypes.length + 1];
-            Object[] newParameters = new Object[parameters.length + 1];
-            System.arraycopy(parameterTypes, 0, newParameterTypes, 1, parameterTypes.length);
-            System.arraycopy(parameters, 0, newParameters, 1, parameters.length);
-            return (T) deserialization(json, typeUtil, rootJsonPath, genericSuperclass, newParameterTypes, newParameters);
-        }
-        else*/
-            return (T) getClassData(typeUtil, json, json, genericSuperclass, rootJsonPath, parameterTypes, parameters);
+        return (T) getClassData(typeUtil, json, json, genericSuperclass, rootJsonPath, parameterTypes, parameters);
     }
 
     @SuppressWarnings("unchecked")
