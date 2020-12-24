@@ -121,7 +121,7 @@ public class LsonUtil
     {
         Deserialization.typeReference = typeReference;
         Deserialization.parameterizedTypes.clear();
-        return Deserialization.fromJson(json, new TypeUtil(typeReference.rawType), new ArrayList<>(), null, getParameterTypes(parameters), parameters);
+        return Deserialization.fromJson(json, new TypeUtil(typeReference.type), new ArrayList<>(), null, getParameterTypes(parameters), parameters);
     }
 
     /**

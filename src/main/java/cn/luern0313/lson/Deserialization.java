@@ -41,7 +41,30 @@ public class Deserialization
     protected static ArrayList<String> parameterizedTypes = new ArrayList<>();
 
     @SuppressWarnings("unchecked")
+    protected static <T> T fromJson(LsonElement json, T t, ArrayList<Object> rootJsonPath)
+    {
+        handleMethod(t, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
+        return (T) getClassData(new TypeUtil(t), json, json, t, rootJsonPath, null, null);
+    }
+
+    @SuppressWarnings("unchecked")
     protected static <T> T fromJson(LsonElement json, TypeUtil typeUtil, ArrayList<Object> rootJsonPath, Object genericSuperclass, Class<?>[] parameterTypes, Object[] parameters)
+    {
+        handleMethod(typeUtil, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
+        /*if(1 != 2)
+        {
+            Class<?>[] newParameterTypes = new Class[parameterTypes.length + 1];
+            Object[] newParameters = new Object[parameters.length + 1];
+            System.arraycopy(parameterTypes, 0, newParameterTypes, 1, parameterTypes.length);
+            System.arraycopy(parameters, 0, newParameters, 1, parameters.length);
+            return (T) deserialization(json, typeUtil, rootJsonPath, genericSuperclass, newParameterTypes, newParameters);
+        }
+        else*/
+            return (T) getClassData(typeUtil, json, json, genericSuperclass, rootJsonPath, parameterTypes, parameters);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T deserialization(LsonElement json, TypeUtil typeUtil, ArrayList<Object> rootJsonPath, Object genericSuperclass, Class<?>[] parameterTypes, Object[] parameters)
     {
         T t = null;
         try
@@ -62,14 +85,7 @@ public class Deserialization
         if(t == null)
             throw new InstantiationException(typeUtil.getName());
 
-        handleMethod(t, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
         return deserialization(json, typeUtil, t, rootJsonPath);
-    }
-
-    protected static <T> T fromJson(LsonElement json, T t, ArrayList<Object> rootJsonPath)
-    {
-        handleMethod(t, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
-        return deserialization(json, new TypeUtil(t), t, rootJsonPath);
     }
 
     private static <T> T deserialization(LsonElement json, TypeUtil clz, T t, ArrayList<Object> rootJsonPath)
@@ -250,7 +266,7 @@ public class Deserialization
                     return data;
             }
             else
-                return getClassData(fieldType, json, rootJson, t, jsonPaths);
+                return getClassData(fieldType, json, rootJson, t, jsonPaths, null, null);
         }
         catch (RuntimeException ignored)
         {
@@ -277,7 +293,7 @@ public class Deserialization
                 {
                     ArrayList<Object> tempPaths = (ArrayList<Object>) jsonPaths.clone();
                     tempPaths.add(new PathType.PathPath(key));
-                    map.put(key, getClassData(valueTypeArgument, json.getAsLsonObject().get(key), rootJson, t, tempPaths));
+                    map.put(key, getClassData(valueTypeArgument, json.getAsLsonObject().get(key), rootJson, t, tempPaths, null, null));
                 }
             }
         }
@@ -288,7 +304,7 @@ public class Deserialization
     private static Object getArrayData(LsonElement json, LsonElement rootJson, TypeUtil fieldType, ArrayList<Object> jsonPaths, Object t)
     {
         TypeUtil actualTypeArgument = fieldType.getArrayType();
-        Object array = Array.newInstance(Object.class, json.isLsonArray() ? json.getAsLsonArray().size() : 1);
+        Object array = Array.newInstance(actualTypeArgument.getAsClass(), json.isLsonArray() ? json.getAsLsonArray().size() : 1);
 
         if(json.isLsonArray())
         {
@@ -301,7 +317,7 @@ public class Deserialization
                 {
                     ArrayList<Object> tempPaths = (ArrayList<Object>) jsonPaths.clone();
                     tempPaths.add(new PathType.PathIndexArray(new ArrayList<>(Collections.singletonList(i))));
-                    Array.set(array, i, getClassData(actualTypeArgument, lsonElement, rootJson, t, tempPaths));
+                    Array.set(array, i, getClassData(actualTypeArgument, lsonElement, rootJson, t, tempPaths, null, null));
                 }
             }
         }
@@ -310,7 +326,7 @@ public class Deserialization
             if(actualTypeArgument.isPrimitivePlus())
                 Array.set(array, 0, getJsonPrimitiveData(json));
             else
-                Array.set(array, 0, getClassData(actualTypeArgument, json, rootJson, t, jsonPaths));
+                Array.set(array, 0, getClassData(actualTypeArgument, json, rootJson, t, jsonPaths, null, null));
         }
         return array;
     }
@@ -332,14 +348,14 @@ public class Deserialization
                 {
                     ArrayList<Object> tempPaths = (ArrayList<Object>) jsonPaths.clone();
                     tempPaths.add(new PathType.PathIndexArray(new ArrayList<>(Collections.singletonList(i))));
-                    list.add(getClassData(actualTypeArgument, lsonElement, rootJson, t, tempPaths));
+                    list.add(getClassData(actualTypeArgument, lsonElement, rootJson, t, tempPaths, null, null));
                 }
             }
         }
         else if(json.isLsonPrimitive())
             list.add(getJsonPrimitiveData(json));
         else
-            list.add(getClassData(actualTypeArgument, json, rootJson, t, jsonPaths));
+            list.add(getClassData(actualTypeArgument, json, rootJson, t, jsonPaths, null, null));
         return list;
     }
 
@@ -515,7 +531,7 @@ public class Deserialization
     }
 
     @SuppressWarnings("unchecked")
-    private static Object getClassData(TypeUtil fieldType, LsonElement json, LsonElement rootJson, Object t, ArrayList<Object> paths)
+    public static Object getClassData(TypeUtil fieldType, LsonElement json, LsonElement rootJson, Object t, ArrayList<Object> paths, Class<?>[] parameterTypes, Object[] parameters)
     {
         if(fieldType == null) return null;
 
@@ -553,7 +569,7 @@ public class Deserialization
         }
         else if(fieldType.getName().equals(Object.class.getName()))
             return getJsonPrimitiveData(json);
-        return fromJson(rootJson, fieldType, paths, t, null, null);
+        return deserialization(rootJson, fieldType, paths, t, parameterTypes, parameters);
     }
 
     private static Object handleBuiltInClass(Object value, TypeUtil fieldType)
