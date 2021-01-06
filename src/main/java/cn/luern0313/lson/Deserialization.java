@@ -42,7 +42,9 @@ public class Deserialization
 
     protected static <T> T fromJson(LsonElement json, T t, ArrayList<Object> rootJsonPath)
     {
-        return fromJson(json, new TypeUtil(t), rootJsonPath, t, null, null);
+        TypeUtil typeUtil = new TypeUtil(t);
+        handleMethod(typeUtil, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
+        return deserialization(json, typeUtil, t, rootJsonPath);
     }
 
     @SuppressWarnings("unchecked")
