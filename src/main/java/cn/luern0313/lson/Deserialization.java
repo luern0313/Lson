@@ -124,9 +124,8 @@ public class Deserialization
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception ignored)
             {
-                e.printStackTrace();
             }
         }
         handleMethod(t, LsonCallMethod.CallMethodTiming.AFTER_DESERIALIZATION);
@@ -295,7 +294,11 @@ public class Deserialization
     private static Object getArrayData(LsonElement json, LsonElement rootJson, TypeUtil fieldType, ArrayList<Object> jsonPaths, Object t)
     {
         TypeUtil actualTypeArgument = fieldType.getArrayType();
-        Object array = Array.newInstance(actualTypeArgument.getAsClass(), json.isLsonArray() ? json.getAsLsonArray().size() : 1);
+        Object array;
+        if(actualTypeArgument.isPrimitivePlus())
+            array = Array.newInstance(DeserializationValueUtil.class, json.isLsonArray() ? json.getAsLsonArray().size() : 1);
+        else
+            array = Array.newInstance(actualTypeArgument.getAsClass(), json.isLsonArray() ? json.getAsLsonArray().size() : 1);
 
         if(json.isLsonArray())
         {
@@ -425,8 +428,8 @@ public class Deserialization
             if(lsonDefinedAnnotation.isIgnoreArray())
                 value = handleSingleAnnotation(finalValueHandle(value, valueClass), annotation, lsonDefinedAnnotation, t);
             else
-                for (int i = 0; i < ((List<?>) value).size(); i++)
-                    ((List<Object>) value).set(i, handleAnnotation(((List<?>) value).get(i), annotation, lsonDefinedAnnotation, t));
+                for (int i = 0; i < Array.getLength(value); i++)
+                    Array.set(value, i, handleAnnotation(Array.get(value, i), annotation, lsonDefinedAnnotation, t));
         }
         else if(valueClass.isListTypeClass())
         {
@@ -604,7 +607,12 @@ public class Deserialization
             TypeUtil valueClass = new TypeUtil(value.getClass());
             if(valueClass.isArrayTypeClass())
             {
-                Object finalValue = Array.newInstance(fieldType.getArrayType().getAsClass(), Array.getLength(value));
+                Object finalValue;
+                if(fieldType.getArrayType().getAsClass().equals(DeserializationValueUtil.class))
+                    finalValue = Array.newInstance(((DeserializationValueUtil) Array.get(value, 0)).getType(), Array.getLength(value));
+                else
+                    finalValue = Array.newInstance(fieldType.getArrayType().getAsClass(), Array.getLength(value));
+
                 for (int i = 0; i < Array.getLength(value); i++)
                     Array.set(finalValue, i, finalValueHandle(Array.get(value, i), fieldType.getArrayType()));
                 return finalValue;
