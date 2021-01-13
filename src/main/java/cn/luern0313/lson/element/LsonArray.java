@@ -33,6 +33,11 @@ public class LsonArray extends LsonElement
         return list.size();
     }
 
+    public boolean isNull(int index)
+    {
+        return get(index) == null;
+    }
+
     public LsonElement get(int index)
     {
         if(index >= 0 && index < list.size())

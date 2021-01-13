@@ -15,6 +15,11 @@ public class LsonPrimitive extends LsonElement
         this.value = value;
     }
 
+    public boolean isNull(int index)
+    {
+        return get() == null;
+    }
+
     public Object get()
     {
         return value;

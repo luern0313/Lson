@@ -35,6 +35,11 @@ public class LsonObject extends LsonElement
         return map.containsKey(key);
     }
 
+    public boolean isNull(String key)
+    {
+        return get(key).isLsonNull();
+    }
+
     /**
      * 检查key在map中是否存在，以及是否是指定的类型。
      *
@@ -57,7 +62,7 @@ public class LsonObject extends LsonElement
             else
             {
                 LsonElement lsonElement = get(key);
-                if(lsonElement.getClass().getName().equals(clz.getName()) && !lsonElement.isLsonPrimitive())
+                if(lsonElement.getClass().equals(clz) && !lsonElement.isLsonPrimitive())
                     return lsonElement;
             }
         }
