@@ -255,7 +255,7 @@ public class Deserialization
                 else
                     return data;
             }
-            else
+            else if(!json.isLsonNull())
                 return getClassData(fieldType, json, rootJson, t, jsonPaths, null, null);
         }
         catch (RuntimeException ignored)
