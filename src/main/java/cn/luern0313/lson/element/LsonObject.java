@@ -154,7 +154,7 @@ public class LsonObject extends LsonElement
     public LsonArray getJsonArray(String key)
     {
         LsonElement lsonElement = map.get(key);
-        if(!lsonElement.isLsonArray())
+        if(lsonElement == null || !lsonElement.isLsonArray())
             return new LsonArray();
         else
             return lsonElement.getAsLsonArray();
@@ -163,7 +163,7 @@ public class LsonObject extends LsonElement
     public LsonObject getJsonObject(String key)
     {
         LsonElement lsonElement = map.get(key);
-        if(!lsonElement.isLsonObject())
+        if(lsonElement == null || !lsonElement.isLsonObject())
             return new LsonObject();
         else
             return lsonElement.getAsLsonObject();
