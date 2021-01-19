@@ -40,18 +40,19 @@ public class Deserialization
 
     protected static ArrayList<String> parameterizedTypes = new ArrayList<>();
 
+    @SuppressWarnings("unchecked")
     protected static <T> T fromJson(LsonElement json, T t, ArrayList<Object> rootJsonPath)
     {
         TypeUtil typeUtil = new TypeUtil(t);
         handleMethod(typeUtil, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
-        return deserialization(json, typeUtil, t, rootJsonPath);
+        return (T) finalValueHandle(deserialization(json, typeUtil, t, rootJsonPath), typeUtil);
     }
 
     @SuppressWarnings("unchecked")
     protected static <T> T fromJson(LsonElement json, TypeUtil typeUtil, ArrayList<Object> rootJsonPath, Object genericSuperclass, Class<?>[] parameterTypes, Object[] parameters)
     {
         handleMethod(typeUtil, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
-        return (T) getClassData(typeUtil, json, json, genericSuperclass, rootJsonPath, parameterTypes, parameters);
+        return (T) finalValueHandle(getClassData(typeUtil, json, json, genericSuperclass, rootJsonPath, parameterTypes, parameters), typeUtil);
     }
 
     @SuppressWarnings("unchecked")
