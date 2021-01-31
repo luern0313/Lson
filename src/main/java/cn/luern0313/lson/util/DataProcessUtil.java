@@ -205,8 +205,8 @@ public class DataProcessUtil
      *
      * <p>例如：<br><code>video_author_uid→videoAuthorUid</code>
      *
-     * @param name 小驼峰命名法的变量名
-     * @return 下划线命名法变量名
+     * @param name 划线命命名法的变量名
+     * @return 小驼峰命名法变量名
      *
      * @author luern0313
      */

@@ -6,6 +6,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,29 +37,23 @@ import cn.luern0313.lson.util.TypeUtil;
 
 public class Deserialization
 {
-    protected static TypeReference<?> typeReference;
-
-    protected static ArrayList<String> parameterizedTypes = new ArrayList<>();
-
     @SuppressWarnings("unchecked")
-    protected static <T> T fromJson(LsonElement json, T t, ArrayList<Object> rootJsonPath)
+    protected static <T> T fromJson(LsonElement json, TypeUtil typeUtil, T t, ArrayList<Object> rootJsonPath)
     {
-        TypeUtil typeUtil = new TypeUtil(t);
-        handleMethod(typeUtil, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
+        handleMethod(typeUtil, t, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
         return (T) finalValueHandle(deserialization(json, typeUtil, t, rootJsonPath), typeUtil);
     }
 
     @SuppressWarnings("unchecked")
     protected static <T> T fromJson(LsonElement json, TypeUtil typeUtil, ArrayList<Object> rootJsonPath, Object genericSuperclass, Class<?>[] parameterTypes, Object[] parameters)
     {
-        handleMethod(typeUtil, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
         return (T) finalValueHandle(getClassData(typeUtil, json, json, genericSuperclass, rootJsonPath, parameterTypes, parameters), typeUtil);
     }
 
     @SuppressWarnings("unchecked")
     private static <T> T deserialization(LsonElement json, TypeUtil typeUtil, ArrayList<Object> rootJsonPath, Object genericSuperclass, Class<?>[] parameterTypes, Object[] parameters)
     {
-        T t = null;
+        T t;
         try
         {
             Constructor<?> constructor1 = typeUtil.getConstructor(parameterTypes);
@@ -70,12 +65,10 @@ public class Deserialization
                 t = (T) constructor2.newInstance(genericSuperclass);
             }
         }
-        catch (IllegalAccessException | InvocationTargetException | NullPointerException | java.lang.InstantiationException ignored)
+        catch (IllegalAccessException | InvocationTargetException | NullPointerException | java.lang.InstantiationException e)
         {
+            throw new InstantiationException(typeUtil.getName(), e.toString());
         }
-
-        if(t == null)
-            throw new InstantiationException(typeUtil.getName());
 
         return deserialization(json, typeUtil, t, rootJsonPath);
     }
@@ -84,7 +77,7 @@ public class Deserialization
     {
         TypeUtil superClass = new TypeUtil(clz.getAsClass().getSuperclass());
         if(superClass.getAsClass() != Object.class)
-            deserialization(json, superClass, t, rootJsonPath);
+            fromJson(json, superClass, t, rootJsonPath);
 
         Field[] fieldArray = clz.getAsClass().getDeclaredFields();
         for (Field field : fieldArray)
@@ -103,11 +96,16 @@ public class Deserialization
                             pathArray = new String[]{field.getName(), underScoreCase};
                     }
 
-                    TypeUtil targetType = new TypeUtil(path.preClass() == Object.class ? field.getGenericType() : path.preClass());
-                    Object value = getValue(json, pathArray, rootJsonPath, targetType, t);
+                    Type type = field.getGenericType();
+                    TypeUtil fieldType, targetType;
+                    if(clz.getAsType() instanceof TypeVariable)
+                        fieldType = new TypeUtil(type, clz.getTypeReference().typeMap.get(((TypeVariable<?>) clz.getAsType()).getName()));
+                    else
+                        fieldType = new TypeUtil(type, clz.getTypeReference());
+                    targetType = new TypeUtil(path.preClass());
+                    Object value = getValue(json, pathArray, rootJsonPath, targetType.getAsClass() == Object.class ? fieldType : targetType, t);
                     if(value != null && !(value instanceof LsonNull))
                     {
-                        TypeUtil valueType = new TypeUtil(field.getGenericType());
                         Annotation[] annotations = sortAnnotation(field.getAnnotations(), path.annotationsOrder());
                         for (Annotation annotation : annotations)
                         {
@@ -116,7 +114,7 @@ public class Deserialization
                                 value = handleAnnotation(value, annotation, lsonDefinedAnnotation, t);
                         }
 
-                        value = finalValueHandle(value, valueType);
+                        value = finalValueHandle(value, fieldType);
                         if(value != null)
                         {
                             field.setAccessible(true);
@@ -127,9 +125,10 @@ public class Deserialization
             }
             catch (Exception ignored)
             {
+                ignored.printStackTrace();
             }
         }
-        handleMethod(t, LsonCallMethod.CallMethodTiming.AFTER_DESERIALIZATION);
+        handleMethod(clz, t, LsonCallMethod.CallMethodTiming.AFTER_DESERIALIZATION);
         return t;
     }
 
@@ -491,12 +490,11 @@ public class Deserialization
         return null;
     }
 
-    private static void handleMethod(Object t, LsonCallMethod.CallMethodTiming callMethodTiming)
+    private static void handleMethod(TypeUtil typeUtil, Object t, LsonCallMethod.CallMethodTiming callMethodTiming)
     {
         if(t != null)
         {
-            Class<?> clz = t.getClass();
-            Method[] methods = clz.getDeclaredMethods();
+            Method[] methods = typeUtil.getAsClass().getDeclaredMethods();
             for (Method method : methods)
             {
                 try
@@ -530,7 +528,7 @@ public class Deserialization
     {
         if(fieldType == null) return null;
 
-        if(fieldType.getAsType() instanceof TypeVariable)
+        /*if(fieldType.getAsType() instanceof TypeVariable)
         {
             parameterizedTypes.add(((TypeVariable<?>) fieldType.getAsType()).getName());
             LinkedHashMap<String, TypeReference.TypeParameterized> typeParameterizedMap = (LinkedHashMap<String, TypeReference.TypeParameterized>) typeReference.typeMap.clone();
@@ -541,7 +539,7 @@ public class Deserialization
             parameterizedTypes.remove(parameterizedTypes.size() - 1);
             return result;
         }
-        else if(fieldType.isMapTypeClass())
+        else */if(fieldType.isMapTypeClass())
         {
             Map<String, ?> map = (Map<String, ?>) getMapData(json, rootJson, fieldType, paths, t);
             for (Object object : map.values().toArray())
@@ -564,12 +562,13 @@ public class Deserialization
         }
         else if(fieldType.getName().equals(Object.class.getName()))
             return getJsonPrimitiveData(json);
+        handleMethod(fieldType, t, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
         return deserialization(rootJson, fieldType, paths, t, parameterTypes, parameters);
     }
 
     private static Object handleBuiltInClass(Object value, TypeUtil fieldType)
     {
-        TypeUtil valueType = new TypeUtil(value);
+        TypeUtil valueType = new TypeUtil(value.getClass());
         if(fieldType.getName().equals(StringBuilder.class.getName()))
             return new StringBuilder(value.toString());
         else if(fieldType.getName().equals(StringBuffer.class.getName()))

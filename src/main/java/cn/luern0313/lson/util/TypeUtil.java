@@ -4,10 +4,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import cn.luern0313.lson.TypeReference;
 import cn.luern0313.lson.element.LsonArray;
 import cn.luern0313.lson.element.LsonElement;
 import cn.luern0313.lson.element.LsonObject;
@@ -19,16 +21,24 @@ import cn.luern0313.lson.element.LsonPrimitive;
 
 public class TypeUtil
 {
-    Type type;
+    private Type type;
+
+    private final TypeReference<?> typeReference;
 
     public TypeUtil(Object value)
     {
-        this(value.getClass());
+        this(value != null ? value.getClass() : null);
     }
 
     public TypeUtil(Type type)
     {
+        this(type, null);
+    }
+
+    public TypeUtil(Type type, TypeReference<?> typeReference)
+    {
         this.type = type;
+        this.typeReference = typeReference;
     }
 
     public static TypeUtil nullType()
@@ -36,9 +46,19 @@ public class TypeUtil
         return new TypeUtil(null);
     }
 
+    private TypeUtil extendType(Type type)
+    {
+        return new TypeUtil(type, typeReference);
+    }
+
     public Type getAsType()
     {
         return type;
+    }
+
+    public TypeReference<?> getTypeReference()
+    {
+        return typeReference;
     }
 
     public boolean isClass()
@@ -50,6 +70,8 @@ public class TypeUtil
     {
         if(type instanceof ParameterizedType)
             return (Class<?>) ((ParameterizedType) type).getRawType();
+        else if(type instanceof TypeVariable)
+            return typeReference.typeMap.get(((TypeVariable<?>) type).getName()).rawType;
         return (Class<?>) getAsType();
     }
 
@@ -178,26 +200,26 @@ public class TypeUtil
     {
         Type type = getAsType();
         if (type instanceof ParameterizedType)
-            return new TypeUtil(((ParameterizedType) type).getActualTypeArguments()[1]);
-        return new TypeUtil(Object.class);
+            return extendType(((ParameterizedType) type).getActualTypeArguments()[1]);
+        return extendType(Object.class);
     }
 
     public TypeUtil getListType()
     {
         Type type = getAsType();
         if(type instanceof ParameterizedType)
-            return new TypeUtil(((ParameterizedType) type).getActualTypeArguments()[0]);
-        return new TypeUtil(Object.class);
+            return extendType(((ParameterizedType) type).getActualTypeArguments()[0]);
+        return extendType(Object.class);
     }
 
     public TypeUtil getArrayType()
     {
         Type type = getAsType();
         if(isClass())
-            return new TypeUtil(getAsClass().getComponentType());
+            return extendType(getAsClass().getComponentType());
         else if(type instanceof GenericArrayType)
-            return new TypeUtil(((GenericArrayType) type).getGenericComponentType());
-        return new TypeUtil(Object.class);
+            return extendType(((GenericArrayType) type).getGenericComponentType());
+        return extendType(Object.class);
     }
 
     public TypeUtil getArrayRealType()

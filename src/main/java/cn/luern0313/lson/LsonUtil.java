@@ -42,7 +42,7 @@ public class LsonUtil
      */
     public static LsonObject parseAsObject(String json)
     {
-        return LsonParser.parse(new StringReader(json)).getAsLsonObject();
+        return parse(json).getAsLsonObject();
     }
 
     /**
@@ -55,7 +55,7 @@ public class LsonUtil
      */
     public static LsonArray parseAsArray(String json)
     {
-        return LsonParser.parse(new StringReader(json)).getAsLsonArray();
+        return parse(json).getAsLsonArray();
     }
 
     /**
@@ -103,7 +103,7 @@ public class LsonUtil
      */
     public static <T> T packFromJson(LsonElement json, T t)
     {
-        return Deserialization.fromJson(json, t, new ArrayList<>());
+        return Deserialization.fromJson(json, new TypeUtil(t.getClass()), t, new ArrayList<>());
     }
 
     /**
@@ -119,9 +119,7 @@ public class LsonUtil
      */
     public static <T> T fromJson(LsonElement json, TypeReference<T> typeReference, Object... parameters)
     {
-        Deserialization.typeReference = typeReference;
-        Deserialization.parameterizedTypes.clear();
-        return Deserialization.fromJson(json, new TypeUtil(typeReference.type), new ArrayList<>(), null, getParameterTypes(parameters), parameters);
+        return Deserialization.fromJson(json, new TypeUtil(typeReference.type, typeReference), new ArrayList<>(), null, getParameterTypes(parameters), parameters);
     }
 
     /**
@@ -138,9 +136,7 @@ public class LsonUtil
      */
     public static <T> T fromJson(LsonElement json, TypeReference<T> typeReference, Class<?>[] parameterTypes, Object[] parameters)
     {
-        Deserialization.typeReference = typeReference;
-        Deserialization.parameterizedTypes.clear();
-        return Deserialization.fromJson(json, new TypeUtil(typeReference.rawType), new ArrayList<>(), null, parameterTypes, parameters);
+        return Deserialization.fromJson(json, new TypeUtil(typeReference.rawType, typeReference), new ArrayList<>(), null, parameterTypes, parameters);
     }
 
     /**

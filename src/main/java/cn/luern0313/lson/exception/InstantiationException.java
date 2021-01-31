@@ -6,8 +6,8 @@ package cn.luern0313.lson.exception;
 
 public class InstantiationException extends RuntimeException
 {
-    public InstantiationException(String className)
+    public InstantiationException(String className, String reason)
     {
-        super(String.format("Instantiation %s class error.", className));
+        super(String.format("Instantiation %s class error. %s", className, reason));
     }
 }
