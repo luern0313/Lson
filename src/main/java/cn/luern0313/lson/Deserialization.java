@@ -10,7 +10,6 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -125,7 +124,6 @@ public class Deserialization
             }
             catch (Exception ignored)
             {
-                ignored.printStackTrace();
             }
         }
         handleMethod(clz, t, LsonCallMethod.CallMethodTiming.AFTER_DESERIALIZATION);
@@ -265,13 +263,13 @@ public class Deserialization
     }
 
     @SuppressWarnings("unchecked")
-    private static Object getMapData(LsonElement json, LsonElement rootJson, TypeUtil fieldType, ArrayList<Object> jsonPaths, Object t)
+    private static Object getMapData(LsonElement json, LsonElement rootJson, TypeUtil fieldType, ArrayList<Object> jsonPaths, Object t) throws IllegalAccessException, java.lang.InstantiationException
     {
         while (json.isLsonArray() && ((LsonArray) json).size() > 0)
             json = ((LsonArray) json).get(0);
 
-        TypeUtil valueTypeArgument = fieldType.getMapType();
-        Map<String, Object> map = new LinkedHashMap<>();
+        TypeUtil valueTypeArgument = fieldType.getMapElementType();
+        Map<String, Object> map = (Map<String, Object>) fieldType.getMapType().newInstance();
         if(json.isLsonObject())
         {
             String[] keys = json.getAsLsonObject().getKeys();
@@ -326,10 +324,10 @@ public class Deserialization
     }
 
     @SuppressWarnings("unchecked")
-    private static Object getListData(LsonElement json, LsonElement rootJson, TypeUtil fieldType, ArrayList<Object> jsonPaths, Object t)
+    private static Object getListData(LsonElement json, LsonElement rootJson, TypeUtil fieldType, ArrayList<Object> jsonPaths, Object t) throws IllegalAccessException, java.lang.InstantiationException
     {
-        TypeUtil actualTypeArgument = fieldType.getListType();
-        ArrayList<Object> list = new ArrayList<>();
+        TypeUtil actualTypeArgument = fieldType.getListElementType();
+        List<Object> list = (List<Object>) fieldType.getListType().newInstance();
 
         if(json.isLsonArray())
         {
@@ -451,15 +449,7 @@ public class Deserialization
             }
         }
         else
-        {
-            if(value instanceof DeserializationValueUtil)
-            {
-                Object object = handleAnnotationType((DeserializationValueUtil) value, lsonDefinedAnnotation.acceptableDeserializationType());
-                ((DeserializationValueUtil) value).set(handleSingleAnnotation(object, annotation, lsonDefinedAnnotation, t));
-            }
-            else
-                value = handleSingleAnnotation(value, annotation, lsonDefinedAnnotation, t);
-        }
+            value = handleSingleAnnotation(value, annotation, lsonDefinedAnnotation, t);
         return value;
     }
 
@@ -481,8 +471,19 @@ public class Deserialization
     {
         try
         {
+            Object o = value;
+            if(o instanceof DeserializationValueUtil)
+                o = handleAnnotationType((DeserializationValueUtil) value, lsonDefinedAnnotation.acceptableDeserializationType());
+
             Method method = lsonDefinedAnnotation.config().getDeclaredMethod("deserialization", Object.class, Annotation.class, Object.class);
-            return method.invoke(lsonDefinedAnnotation.config().newInstance(), value, annotation, t);
+            Object object = method.invoke(lsonDefinedAnnotation.config().newInstance(), o, annotation, t);
+
+             TypeUtil typeUtil = new TypeUtil(object);
+            if(value instanceof DeserializationValueUtil && !typeUtil.isPrimitivePlus())
+                return ((DeserializationValueUtil) value).set(object);
+            else if(typeUtil.isPrimitivePlus())
+                return new DeserializationValueUtil(object);
+            return object;
         }
         catch (NoSuchMethodException | InvocationTargetException | java.lang.InstantiationException | IllegalAccessException ignored)
         {
@@ -526,44 +527,40 @@ public class Deserialization
     @SuppressWarnings("unchecked")
     public static Object getClassData(TypeUtil fieldType, LsonElement json, LsonElement rootJson, Object t, ArrayList<Object> paths, Class<?>[] parameterTypes, Object[] parameters)
     {
-        if(fieldType == null) return null;
+        try
+        {
+            if(fieldType == null) return null;
 
-        /*if(fieldType.getAsType() instanceof TypeVariable)
-        {
-            parameterizedTypes.add(((TypeVariable<?>) fieldType.getAsType()).getName());
-            LinkedHashMap<String, TypeReference.TypeParameterized> typeParameterizedMap = (LinkedHashMap<String, TypeReference.TypeParameterized>) typeReference.typeMap.clone();
-            for (int i = 0; i < parameterizedTypes.size() - 1; i++)
-                typeParameterizedMap = typeParameterizedMap.get(parameterizedTypes.get(i)).map;
-
-            Object result = fromJson(rootJson, new TypeUtil(typeParameterizedMap.get(parameterizedTypes.get(parameterizedTypes.size() - 1)).clz), paths, t, null, null);
-            parameterizedTypes.remove(parameterizedTypes.size() - 1);
-            return result;
+            if(fieldType.isMapTypeClass())
+            {
+                Map<String, ?> map = (Map<String, ?>) getMapData(json, rootJson, fieldType, paths, t);
+                for (Object object : map.values().toArray())
+                    if(object != null)
+                        return map;
+            }
+            else if(fieldType.isArrayTypeClass())
+            {
+                Object array = getArrayData(json, rootJson, fieldType, paths, t);
+                for (int i = 0; i < Array.getLength(array); i++)
+                    if(Array.get(array, i) != null)
+                        return array;
+            }
+            else if(fieldType.isListTypeClass())
+            {
+                List<?> list = (List<?>) getListData(json, rootJson, fieldType, paths, t);
+                for (int i = 0; i < list.size(); i++)
+                    if(list.get(i) != null)
+                        return list;
+            }
+            else if(fieldType.getName().equals(Object.class.getName()))
+                return getJsonPrimitiveData(json);
+            handleMethod(fieldType, t, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
+            return deserialization(rootJson, fieldType, paths, t, parameterTypes, parameters);
         }
-        else */if(fieldType.isMapTypeClass())
+        catch (java.lang.InstantiationException | IllegalAccessException ignored)
         {
-            Map<String, ?> map = (Map<String, ?>) getMapData(json, rootJson, fieldType, paths, t);
-            for (Object object : map.values().toArray())
-                if(object != null)
-                    return map;
         }
-        else if(fieldType.isArrayTypeClass())
-        {
-            Object array = getArrayData(json, rootJson, fieldType, paths, t);
-            for (int i = 0; i < Array.getLength(array); i++)
-                if(Array.get(array, i) != null)
-                    return array;
-        }
-        else if(fieldType.isListTypeClass())
-        {
-            List<?> list = (List<?>) getListData(json, rootJson, fieldType, paths, t);
-            for (int i = 0; i < list.size(); i++)
-                if(list.get(i) != null)
-                    return list;
-        }
-        else if(fieldType.getName().equals(Object.class.getName()))
-            return getJsonPrimitiveData(json);
-        handleMethod(fieldType, t, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
-        return deserialization(rootJson, fieldType, paths, t, parameterTypes, parameters);
+        return null;
     }
 
     private static Object handleBuiltInClass(Object value, TypeUtil fieldType)
@@ -598,6 +595,7 @@ public class Deserialization
         return value;
     }
 
+    @SuppressWarnings("unchecked")
     public static Object finalValueHandle(Object value, TypeUtil fieldType)
     {
         try
@@ -619,16 +617,16 @@ public class Deserialization
             }
             else if(valueClass.isListTypeClass())
             {
-                TypeUtil type = fieldType.getListType();
-                ArrayList<Object> finalValue = new ArrayList<>();
+                TypeUtil type = fieldType.getListElementType();
+                List<Object> finalValue = (List<Object>) valueClass.getListType().newInstance();
                 for (int i = 0; i < ((List<?>) value).size(); i++)
                     finalValue.add(finalValueHandle(((List<?>) value).get(i), type));
                 return finalValue;
             }
             else if(valueClass.isMapTypeClass())
             {
-                TypeUtil type = fieldType.getMapType();
-                Map<String, Object> finalValue = new LinkedHashMap<>();
+                TypeUtil type = fieldType.getMapElementType();
+                Map<String, Object> finalValue = (Map<String, Object>) valueClass.getMapType().newInstance();
                 for (Object key : ((Map<?, ?>) value).keySet().toArray())
                     finalValue.put((String) key, finalValueHandle(((Map<?, ?>) value).get(key), type));
                 return finalValue;
@@ -649,7 +647,7 @@ public class Deserialization
             else
                 return value;
         }
-        catch (RuntimeException ignored)
+        catch (RuntimeException | java.lang.InstantiationException | IllegalAccessException ignored)
         {
         }
         return null;

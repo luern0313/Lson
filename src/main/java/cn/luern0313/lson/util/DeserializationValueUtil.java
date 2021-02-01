@@ -19,6 +19,16 @@ public class DeserializationValueUtil
         this(string, null);
     }
 
+    public DeserializationValueUtil(Object value)
+    {
+        TypeUtil typeUtil = new TypeUtil(value.getClass());
+        if(typeUtil.getAsClass() == StringBuilder.class)
+            typeUtil.setType(String.class);
+
+        this.value = value;
+        this.type = typeUtil;
+    }
+
     public DeserializationValueUtil(Object value, Class<?> type)
     {
         TypeUtil typeUtil = new TypeUtil(value.getClass());

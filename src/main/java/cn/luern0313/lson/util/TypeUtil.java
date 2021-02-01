@@ -2,10 +2,12 @@ package cn.luern0313.lson.util;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -155,26 +157,12 @@ public class TypeUtil
 
     public boolean isMapTypeClass()
     {
-        try
-        {
-            return Map.class.isAssignableFrom(getAsClass()) || getConstructor().newInstance() instanceof Map;
-        }
-        catch (Exception ignored)
-        {
-        }
-        return false;
+        return Map.class.isAssignableFrom(getAsClass());
     }
 
     public boolean isListTypeClass()
     {
-        try
-        {
-            return List.class.isAssignableFrom(getAsClass()) || getConstructor().newInstance() instanceof List;
-        }
-        catch (Exception ignored)
-        {
-        }
-        return false;
+        return List.class.isAssignableFrom(getAsClass());
     }
 
     public boolean isArrayTypeClass()
@@ -196,7 +184,41 @@ public class TypeUtil
         return null;
     }
 
-    public TypeUtil getMapType()
+    public Class<?> getMapType()
+    {
+        try
+        {
+            Class<?> clz = getAsClass();
+            if(!clz.isInterface() && !Modifier.isAbstract(clz.getModifiers()))
+            {
+                clz.getConstructor();
+                return clz;
+            }
+        }
+        catch (NoSuchMethodException ignored)
+        {
+        }
+        return LinkedHashMap.class;
+    }
+
+    public Class<?> getListType()
+    {
+        try
+        {
+            Class<?> clz = getAsClass();
+            if(!clz.isInterface() && !Modifier.isAbstract(clz.getModifiers()))
+            {
+                clz.getConstructor();
+                return clz;
+            }
+        }
+        catch (NoSuchMethodException ignored)
+        {
+        }
+        return ArrayList.class;
+    }
+
+    public TypeUtil getMapElementType()
     {
         Type type = getAsType();
         if (type instanceof ParameterizedType)
@@ -204,7 +226,7 @@ public class TypeUtil
         return extendType(Object.class);
     }
 
-    public TypeUtil getListType()
+    public TypeUtil getListElementType()
     {
         Type type = getAsType();
         if(type instanceof ParameterizedType)
