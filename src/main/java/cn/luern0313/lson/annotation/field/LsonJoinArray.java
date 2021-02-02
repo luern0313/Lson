@@ -5,7 +5,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.ArrayList;
+import java.util.List;
 
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
 import cn.luern0313.lson.util.DataProcessUtil;
@@ -38,9 +38,9 @@ public @interface LsonJoinArray
         public Object deserialization(Object value, Annotation annotation, Object object)
         {
             TypeUtil typeUtil = new TypeUtil(value);
-            if(typeUtil.isListTypeClass())
-                return DataProcessUtil.join((ArrayList<?>) value, ((LsonJoinArray) annotation).value());
-            else if(typeUtil.isArrayTypeClass())
+            if(typeUtil.isListType())
+                return DataProcessUtil.join((List<?>) value, ((LsonJoinArray) annotation).value());
+            else if(typeUtil.isArrayType())
                 return DataProcessUtil.join((Object[]) value, ((LsonJoinArray) annotation).value());
             return null;
         }

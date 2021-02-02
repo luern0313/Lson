@@ -7,6 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
 import cn.luern0313.lson.util.DataProcessUtil;
@@ -34,30 +35,47 @@ public @interface LsonSplitString
     String value();
 
     /**
-     * 是否输出{@link ArrayList}，若否，则使用{@link String[]}。
+     * 输出数组的类型，默认为String[]。
      *
-     * @return 是否输出ArrayList类型。
+     * <p>如使用List，请确保目标Class实现List接口且不为接口或抽象类。
+     * <p>如使用Array，数组类型只能为String。
+     *
+     * @return 输出的数组类型。
      */
-    boolean useArrayList() default false;
+    Class<?> arrayType() default String[].class;
 
     class LsonSplitStringConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
     {
+        @SuppressWarnings("unchecked")
         @Override
         public Object deserialization(Object value, Annotation annotation, Object object)
         {
-            String[] array = ((StringBuilder) value).toString().split(((LsonSplitString) annotation).value());
-            if(((LsonSplitString) annotation).useArrayList())
-                return new ArrayList<>(Arrays.asList(array));
-            return array;
+            try
+            {
+                TypeUtil typeUtil = new TypeUtil(((LsonSplitString) annotation).arrayType());
+                String[] array = ((StringBuilder) value).toString().split(((LsonSplitString) annotation).value());
+                if(typeUtil.isArrayType() && typeUtil.getArrayElementType().getAsClass() == String.class)
+                    return array;
+                else if(typeUtil.isListType())
+                {
+                    List<String> list = (List<String>) typeUtil.getListType().newInstance();
+                    list.addAll(Arrays.asList(array));
+                    return list;
+                }
+            }
+            catch (InstantiationException | IllegalAccessException ignored)
+            {
+            }
+            return null;
         }
 
         @Override
         public Object serialization(Object value, Annotation annotation, Object object)
         {
             TypeUtil typeUtil = new TypeUtil(value);
-            if(typeUtil.isListTypeClass())
+            if(typeUtil.isListType())
                 return DataProcessUtil.join((ArrayList<?>) value, ((LsonSplitString) annotation).value());
-            else if(typeUtil.isArrayTypeClass())
+            else if(typeUtil.isArrayType())
                 return DataProcessUtil.join((Object[]) value, ((LsonSplitString) annotation).value());
             return null;
         }

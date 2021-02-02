@@ -41,11 +41,11 @@ public class Serialization
         TypeUtil typeUtil = new TypeUtil(object.getClass());
         if(typeUtil.isPrimitivePlus())
             return new LsonPrimitive(object);
-        else if(typeUtil.isArrayTypeClass())
+        else if(typeUtil.isArrayType())
             return arrayToJson(object);
-        else if(typeUtil.isListTypeClass())
+        else if(typeUtil.isListType())
             return listToJson((List<?>) object);
-        else if(typeUtil.isMapTypeClass())
+        else if(typeUtil.isMapType())
             return mapToJson((Map<String, ?>) object);
         else if(typeUtil.isBuiltInClass())
             return builtInClassToJson(object, typeUtil);
@@ -278,13 +278,13 @@ public class Serialization
         if(value == null) return null;
 
         TypeUtil valueClass = new TypeUtil(value.getClass());
-        if(valueClass.isArrayTypeClass() && !lsonDefinedAnnotation.isIgnoreArray())
+        if(valueClass.isArrayType() && !lsonDefinedAnnotation.isIgnoreArray())
             for (int i = 0; i < Array.getLength(value); i++)
                 Array.set(value, i, handleAnnotation(Array.get(value, i), annotation, lsonDefinedAnnotation, object));
-        else if(valueClass.isListTypeClass() && !lsonDefinedAnnotation.isIgnoreList())
+        else if(valueClass.isListType() && !lsonDefinedAnnotation.isIgnoreList())
             for (int i = 0; i < ((List<?>) value).size(); i++)
                 ((List<Object>) value).set(i, handleAnnotation(((List<?>) value).get(i), annotation, lsonDefinedAnnotation, object));
-        else if(valueClass.isListTypeClass() && !lsonDefinedAnnotation.isIgnoreMap())
+        else if(valueClass.isListType() && !lsonDefinedAnnotation.isIgnoreMap())
         {
             Object[] keys = ((Map<?, ?>) value).keySet().toArray();
             for (Object key : keys)
@@ -372,21 +372,21 @@ public class Serialization
             if(value == null) return null;
 
             TypeUtil valueClass = new TypeUtil(value.getClass());
-            if(valueClass.isArrayTypeClass())
+            if(valueClass.isArrayType())
             {
                 LsonArray finalValue = new LsonArray();
                 for (int i = 0; i < Array.getLength(value); i++)
                     finalValue.add(finalValueHandle(Array.get(value, i)));
                 return finalValue;
             }
-            else if(valueClass.isListTypeClass())
+            else if(valueClass.isListType())
             {
                 LsonArray finalValue = new LsonArray();
                 for (int i = 0; i < ((List<?>) value).size(); i++)
                     finalValue.add(finalValueHandle(((List<?>) value).get(i)));
                 return finalValue;
             }
-            else if(valueClass.isMapTypeClass())
+            else if(valueClass.isMapType())
             {
                 LsonObject finalValue = new LsonObject();
                 for (Object key : ((Map<?, ?>) value).keySet().toArray())

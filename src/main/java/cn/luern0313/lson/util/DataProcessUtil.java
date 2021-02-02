@@ -7,6 +7,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import cn.luern0313.lson.annotation.field.LsonDateFormat;
@@ -243,7 +244,7 @@ public class DataProcessUtil
         return null;
     }
 
-    public static String join(ArrayList<?> arrayList, String separator)
+    public static String join(List<?> arrayList, String separator)
     {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < arrayList.size(); i++)

@@ -18,7 +18,10 @@ import cn.luern0313.lson.element.LsonObject;
 import cn.luern0313.lson.element.LsonPrimitive;
 
 /**
- * 被 luern0313 创建于 2020/9/8.
+ * Type或Class的封装类。
+ *
+ * @Date 2020/09/08
+ * @author luern0313
  */
 
 public class TypeUtil
@@ -155,17 +158,17 @@ public class TypeUtil
         return null;
     }
 
-    public boolean isMapTypeClass()
+    public boolean isMapType()
     {
         return Map.class.isAssignableFrom(getAsClass());
     }
 
-    public boolean isListTypeClass()
+    public boolean isListType()
     {
         return List.class.isAssignableFrom(getAsClass());
     }
 
-    public boolean isArrayTypeClass()
+    public boolean isArrayType()
     {
         if(isClass())
             return getAsClass().isArray();
@@ -234,7 +237,7 @@ public class TypeUtil
         return extendType(Object.class);
     }
 
-    public TypeUtil getArrayType()
+    public TypeUtil getArrayElementType()
     {
         Type type = getAsType();
         if(isClass())
@@ -244,11 +247,11 @@ public class TypeUtil
         return extendType(Object.class);
     }
 
-    public TypeUtil getArrayRealType()
+    public TypeUtil getArrayElementRealType()
     {
         TypeUtil type = this;
-        while (type.isArrayTypeClass())
-            type = type.getArrayType();
+        while (type.isArrayType())
+            type = type.getArrayElementType();
         return type;
     }
 

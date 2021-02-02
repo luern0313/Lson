@@ -291,7 +291,7 @@ public class Deserialization
     @SuppressWarnings("unchecked")
     private static Object getArrayData(LsonElement json, LsonElement rootJson, TypeUtil fieldType, ArrayList<Object> jsonPaths, Object t)
     {
-        TypeUtil actualTypeArgument = fieldType.getArrayType();
+        TypeUtil actualTypeArgument = fieldType.getArrayElementType();
         Object array;
         if(actualTypeArgument.isPrimitivePlus())
             array = Array.newInstance(DeserializationValueUtil.class, json.isLsonArray() ? json.getAsLsonArray().size() : 1);
@@ -421,7 +421,7 @@ public class Deserialization
         if(value == null) return null;
 
         TypeUtil valueClass = new TypeUtil(value.getClass());
-        if(valueClass.isArrayTypeClass())
+        if(valueClass.isArrayType())
         {
             if(lsonDefinedAnnotation.isIgnoreArray())
                 value = handleSingleAnnotation(finalValueHandle(value, valueClass), annotation, lsonDefinedAnnotation, t);
@@ -429,7 +429,7 @@ public class Deserialization
                 for (int i = 0; i < Array.getLength(value); i++)
                     Array.set(value, i, handleAnnotation(Array.get(value, i), annotation, lsonDefinedAnnotation, t));
         }
-        else if(valueClass.isListTypeClass())
+        else if(valueClass.isListType())
         {
             if(lsonDefinedAnnotation.isIgnoreList())
                 value = handleSingleAnnotation(finalValueHandle(value, valueClass), annotation, lsonDefinedAnnotation, t);
@@ -437,7 +437,7 @@ public class Deserialization
                 for (int i = 0; i < ((List<?>) value).size(); i++)
                     ((List<Object>) value).set(i, handleAnnotation(((List<?>) value).get(i), annotation, lsonDefinedAnnotation, t));
         }
-        else if(valueClass.isMapTypeClass())
+        else if(valueClass.isMapType())
         {
             if(lsonDefinedAnnotation.isIgnoreMap())
                 value = handleSingleAnnotation(finalValueHandle(value, valueClass), annotation, lsonDefinedAnnotation, t);
@@ -478,7 +478,7 @@ public class Deserialization
             Method method = lsonDefinedAnnotation.config().getDeclaredMethod("deserialization", Object.class, Annotation.class, Object.class);
             Object object = method.invoke(lsonDefinedAnnotation.config().newInstance(), o, annotation, t);
 
-             TypeUtil typeUtil = new TypeUtil(object);
+            TypeUtil typeUtil = new TypeUtil(object);
             if(value instanceof DeserializationValueUtil && !typeUtil.isPrimitivePlus())
                 return ((DeserializationValueUtil) value).set(object);
             else if(typeUtil.isPrimitivePlus())
@@ -531,21 +531,21 @@ public class Deserialization
         {
             if(fieldType == null) return null;
 
-            if(fieldType.isMapTypeClass())
+            if(fieldType.isMapType())
             {
                 Map<String, ?> map = (Map<String, ?>) getMapData(json, rootJson, fieldType, paths, t);
                 for (Object object : map.values().toArray())
                     if(object != null)
                         return map;
             }
-            else if(fieldType.isArrayTypeClass())
+            else if(fieldType.isArrayType())
             {
                 Object array = getArrayData(json, rootJson, fieldType, paths, t);
                 for (int i = 0; i < Array.getLength(array); i++)
                     if(Array.get(array, i) != null)
                         return array;
             }
-            else if(fieldType.isListTypeClass())
+            else if(fieldType.isListType())
             {
                 List<?> list = (List<?>) getListData(json, rootJson, fieldType, paths, t);
                 for (int i = 0; i < list.size(); i++)
@@ -603,19 +603,19 @@ public class Deserialization
             if(value == null) return null;
 
             TypeUtil valueClass = new TypeUtil(value.getClass());
-            if(valueClass.isArrayTypeClass())
+            if(valueClass.isArrayType())
             {
                 Object finalValue;
-                if(fieldType.getArrayType().getAsClass().equals(DeserializationValueUtil.class))
+                if(fieldType.getArrayElementType().getAsClass().equals(DeserializationValueUtil.class))
                     finalValue = Array.newInstance(((DeserializationValueUtil) Array.get(value, 0)).getType(), Array.getLength(value));
                 else
-                    finalValue = Array.newInstance(fieldType.getArrayType().getAsClass(), Array.getLength(value));
+                    finalValue = Array.newInstance(fieldType.getArrayElementType().getAsClass(), Array.getLength(value));
 
                 for (int i = 0; i < Array.getLength(value); i++)
-                    Array.set(finalValue, i, finalValueHandle(Array.get(value, i), fieldType.getArrayType()));
+                    Array.set(finalValue, i, finalValueHandle(Array.get(value, i), fieldType.getArrayElementType()));
                 return finalValue;
             }
-            else if(valueClass.isListTypeClass())
+            else if(valueClass.isListType())
             {
                 TypeUtil type = fieldType.getListElementType();
                 List<Object> finalValue = (List<Object>) valueClass.getListType().newInstance();
@@ -623,7 +623,7 @@ public class Deserialization
                     finalValue.add(finalValueHandle(((List<?>) value).get(i), type));
                 return finalValue;
             }
-            else if(valueClass.isMapTypeClass())
+            else if(valueClass.isMapType())
             {
                 TypeUtil type = fieldType.getMapElementType();
                 Map<String, Object> finalValue = (Map<String, Object>) valueClass.getMapType().newInstance();
