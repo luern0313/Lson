@@ -66,6 +66,7 @@ public class Deserialization
         }
         catch (IllegalAccessException | InvocationTargetException | NullPointerException | java.lang.InstantiationException e)
         {
+            e.printStackTrace();
             throw new InstantiationException(typeUtil.getName(), e.toString());
         }
 
