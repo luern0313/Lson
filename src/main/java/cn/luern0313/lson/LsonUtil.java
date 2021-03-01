@@ -219,7 +219,7 @@ public class LsonUtil
         Class<?>[] parameterTypes = new Class<?>[parameters.length];
         for (int i = 0; i < parameters.length; i++)
         {
-            TypeUtil typeUtils = new TypeUtil(parameters[i].getClass());
+            TypeUtil typeUtils = new TypeUtil(parameters[i] != null ? parameters[i].getClass() : null);
             if(typeUtils.isWrapClass())
                 parameterTypes[i] = typeUtils.getPrimitiveClass();
             else

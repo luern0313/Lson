@@ -148,9 +148,29 @@ public class TypeUtil
     {
         try
         {
-            Constructor<?> constructor = getAsClass().getDeclaredConstructor(parameterTypes);
-            constructor.setAccessible(true);
-            return constructor;
+            Constructor<?>[] constructors = getAsClass().getDeclaredConstructors();
+            for (Constructor<?> value : constructors)
+            {
+                Class<?>[] constructorTypes = value.getParameterTypes();
+                if(constructorTypes.length == 0 && parameterTypes == null)
+                {
+                    value.setAccessible(true);
+                    return value;
+                }
+                else if(constructorTypes.length == parameterTypes.length)
+                {
+                    boolean flag = false;
+                    for (int j = 0; j < parameterTypes.length; j++)
+                        if(parameterTypes[j] != constructorTypes[j])
+                            if(parameterTypes[j] != null || new TypeUtil(constructorTypes[j]).isWrapClass())
+                                flag = true;
+                    if(!flag)
+                    {
+                        value.setAccessible(true);
+                        return value;
+                    }
+                }
+            }
         }
         catch (Exception ignored)
         {
