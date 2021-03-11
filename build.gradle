@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'cn.luern0313.lson'
-version '0.85'
+version '0.90'
 
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"

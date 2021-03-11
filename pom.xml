@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cn.luern0313.lson</groupId>
     <artifactId>Lson</artifactId>
-    <version>0.85</version>
+    <version>0.90</version>
     <packaging>jar</packaging>
     <url>https://github.com/luern0313/Lson</url>
     <description>A Java library for JSON serialization/deserialization, it has good performance and high expansibility.</description>
