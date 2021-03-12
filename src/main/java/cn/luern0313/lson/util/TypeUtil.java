@@ -19,8 +19,8 @@ import cn.luern0313.lson.element.LsonPrimitive;
 
 /**
  * Type或Class的封装类。
+ * 2020/09/08
  *
- * @Date 2020/09/08
  * @author luern0313
  */
 
