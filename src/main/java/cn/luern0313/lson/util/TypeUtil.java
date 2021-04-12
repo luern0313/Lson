@@ -66,11 +66,6 @@ public class TypeUtil
         return typeReference;
     }
 
-    public boolean isClass()
-    {
-        return type instanceof Class;
-    }
-
     public Class<?> getAsClass()
     {
         if(type instanceof ParameterizedType)
@@ -190,9 +185,7 @@ public class TypeUtil
 
     public boolean isArrayType()
     {
-        if(isClass())
-            return getAsClass().isArray();
-        return getAsType() instanceof GenericArrayType;
+        return getAsClass().isArray() || getAsType() instanceof GenericArrayType;
     }
 
     public Class<?> getPrimitiveClass()
@@ -246,6 +239,12 @@ public class TypeUtil
         Type type = getAsType();
         if (type instanceof ParameterizedType)
             return extendType(((ParameterizedType) type).getActualTypeArguments()[1]);
+        else if(type instanceof TypeVariable)
+        {
+            LinkedHashMap<String, TypeReference<?>> map = typeReference.typeMap.get(((TypeVariable<?>) type).getName()).typeMap;
+            if(map.size() > 1)
+                return extendType(((TypeReference<?>) map.entrySet().toArray(new Map.Entry[0])[1].getValue()).type);
+        }
         return extendType(Object.class);
     }
 
@@ -254,17 +253,22 @@ public class TypeUtil
         Type type = getAsType();
         if(type instanceof ParameterizedType)
             return extendType(((ParameterizedType) type).getActualTypeArguments()[0]);
+        else if(type instanceof TypeVariable)
+        {
+            LinkedHashMap<String, TypeReference<?>> map = typeReference.typeMap.get(((TypeVariable<?>) type).getName()).typeMap;
+            if(map.size() > 0)
+                return extendType(map.entrySet().iterator().next().getValue().type);
+        }
         return extendType(Object.class);
     }
 
     public TypeUtil getArrayElementType()
     {
         Type type = getAsType();
-        if(isClass())
-            return extendType(getAsClass().getComponentType());
-        else if(type instanceof GenericArrayType)
+        if(type instanceof GenericArrayType)
             return extendType(((GenericArrayType) type).getGenericComponentType());
-        return extendType(Object.class);
+        else
+            return extendType(getAsClass().getComponentType());
     }
 
     public TypeUtil getArrayElementRealType()
