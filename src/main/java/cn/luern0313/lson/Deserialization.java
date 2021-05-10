@@ -246,14 +246,6 @@ public class Deserialization
 
             if(fieldType.isNull() || fieldType.isPrimitivePlus() || fieldType.getName().equals(Object.class.getName()))
                 return getJsonPrimitiveData(json);
-            else if(fieldType.isBuiltInClass())
-            {
-                Object data = getJsonPrimitiveData(json);
-                if(data == null)
-                    return new DeserializationValueUtil(handleBuiltInClass(json, fieldType), fieldType.getAsClass());
-                else
-                    return data;
-            }
             else if(!json.isLsonNull())
                 return getClassData(fieldType, json, rootJson, t, jsonPaths, null, null);
         }
@@ -555,6 +547,14 @@ public class Deserialization
             }
             else if(fieldType.getName().equals(Object.class.getName()))
                 return getJsonPrimitiveData(json);
+            else if(fieldType.isBuiltInClass())
+            {
+                Object data = getJsonPrimitiveData(json);
+                if(data == null)
+                    return new DeserializationValueUtil(handleBuiltInClass(json, fieldType), fieldType.getAsClass());
+                else
+                    return data;
+            }
             handleMethod(fieldType, t, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
             return deserialization(rootJson, fieldType, paths, t, parameterTypes, parameters);
         }
