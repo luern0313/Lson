@@ -118,6 +118,13 @@ public class LsonArray extends LsonElement
         return object;
     }
 
+    public void addAll(LsonArray lsonArray)
+    {
+        if(lsonArray != null)
+            for (int i = 0; i < lsonArray.size(); i++)
+                add(lsonArray.get(i));
+    }
+
     public LsonElement set(int index, LsonElement object)
     {
         if(object == null)
