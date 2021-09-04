@@ -52,7 +52,7 @@ public class PathParser
         TokenReader reader = new TokenReader(new CharReaderUtil(r));
         Stack stack = new Stack();
         stack.push(StackValue.newBasePath());
-        int status = STATUS_EXPECT_JSON_ROOT.index | STATUS_EXPECT_EXPRESSION_START.index | STATUS_EXPECT_PATH_POINT.index;
+        int status = STATUS_EXPECT_JSON_ROOT.index | STATUS_EXPECT_JSON_CURRENT.index | STATUS_EXPECT_EXPRESSION_START.index | STATUS_EXPECT_PATH_POINT.index;
         while (true)
         {
             TokenType currentToken = reader.readNextToken();
