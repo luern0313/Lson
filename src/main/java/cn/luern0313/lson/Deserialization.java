@@ -174,12 +174,12 @@ public class Deserialization
             ArrayList<Object> jsonPaths = (ArrayList<Object>) paths.clone();
             jsonPaths.addAll(0, rootPath);
 
-            LsonElement json = rootJson.deepCopy();
+            LsonElement json = rootJson;
             for (int i = 0; i < jsonPaths.size(); i++)
             {
                 Object pathType = jsonPaths.get(i);
                 if(pathType instanceof PathType.PathJsonRoot)
-                    json = rootJson.deepCopy();
+                    json = rootJson;
                 else if(pathType instanceof PathType.PathPath)
                 {
                     if(json.isLsonObject())
