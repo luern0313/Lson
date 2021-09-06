@@ -154,7 +154,7 @@ class TokenReader
         while (reader.hasMore())
         {
             ch = reader.peek();
-            if((ch >= '0' && ch <= '9') || ch == '-' || ch == '.' || ch == 'e' || ch == 'E')
+            if((ch >= '0' && ch <= '9') || ch == '-' || ch == '.' || ch == 'e' || ch == 'E' || ch == '+')
             {
                 reader.next();
                 sb.append(ch);
