@@ -1,6 +1,5 @@
 package cn.luern0313.lson.annotation.field;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -17,7 +16,9 @@ import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
  * @author luern0313
  */
 
-@LsonDefinedAnnotation(config = LsonAddSuffix.LsonAddSuffixConfig.class, acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.STRING, acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.STRING)
+@LsonDefinedAnnotation(config = LsonAddSuffix.LsonAddSuffixConfig.class,
+        acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.STRING,
+        acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.STRING)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LsonAddSuffix
@@ -29,16 +30,16 @@ public @interface LsonAddSuffix
      */
     String value();
 
-    class LsonAddSuffixConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
+    class LsonAddSuffixConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonAddPrefix>
     {
         @Override
-        public Object deserialization(Object value, Annotation annotation, Object object)
+        public Object deserialization(Object value, LsonAddPrefix annotation, Object object)
         {
             return ((StringBuilder) value).append(((LsonAddSuffix) annotation).value());
         }
 
         @Override
-        public Object serialization(Object value, Annotation annotation, Object object)
+        public Object serialization(Object value, LsonAddPrefix annotation, Object object)
         {
             if(((StringBuilder) value).lastIndexOf(((LsonAddSuffix) annotation).value()) == ((StringBuilder) value).length() - ((LsonAddSuffix) annotation).value().length())
                 return ((StringBuilder) value).delete(((StringBuilder) value).length() - ((LsonAddSuffix) annotation).value().length(), ((StringBuilder) value).length());

@@ -1,6 +1,5 @@
 package cn.luern0313.lson.annotation;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -27,7 +26,7 @@ public @interface LsonDefinedAnnotation
      *
      * @return 处理注解类的Class。
      */
-    Class<? extends LsonDefinedAnnotationConfig> config();
+    Class<? extends LsonDefinedAnnotationConfig<?>> config();
 
     /**
      * 反序列化过程中，该注解<b>接受</b>的数据类型。
@@ -91,7 +90,10 @@ public @interface LsonDefinedAnnotation
         BOOLEAN
     }
 
-    interface LsonDefinedAnnotationConfig
+    /**
+     * @param <Annotation> 该注解的类型
+     */
+    interface LsonDefinedAnnotationConfig<Annotation>
     {
         /**
          * 在反序列化过程中处理注解。

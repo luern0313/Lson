@@ -1,6 +1,5 @@
 package cn.luern0313.lson.annotation.field;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -22,7 +21,10 @@ import cn.luern0313.lson.util.TypeUtil;
  * @author luern0313
  */
 
-@LsonDefinedAnnotation(config = LsonSplitString.LsonSplitStringConfig.class, acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.STRING, acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.NOT_HANDLE, isIgnoreArray = true, isIgnoreList = true, isIgnoreMap = true)
+@LsonDefinedAnnotation(config = LsonSplitString.LsonSplitStringConfig.class,
+        acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.STRING,
+        acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.NOT_HANDLE,
+        isIgnoreArray = true, isIgnoreList = true, isIgnoreMap = true)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LsonSplitString
@@ -44,11 +46,11 @@ public @interface LsonSplitString
      */
     Class<?> arrayType() default String[].class;
 
-    class LsonSplitStringConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
+    class LsonSplitStringConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonSplitString>
     {
         @SuppressWarnings("unchecked")
         @Override
-        public Object deserialization(Object value, Annotation annotation, Object object)
+        public Object deserialization(Object value, LsonSplitString annotation, Object object)
         {
             try
             {
@@ -70,7 +72,7 @@ public @interface LsonSplitString
         }
 
         @Override
-        public Object serialization(Object value, Annotation annotation, Object object)
+        public Object serialization(Object value, LsonSplitString annotation, Object object)
         {
             TypeUtil typeUtil = new TypeUtil(value);
             if(typeUtil.isListType())

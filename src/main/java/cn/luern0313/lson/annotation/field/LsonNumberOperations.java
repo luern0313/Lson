@@ -1,6 +1,5 @@
 package cn.luern0313.lson.annotation.field;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -19,7 +18,9 @@ import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
  * @author luern0313
  */
 
-@LsonDefinedAnnotation(config = LsonNumberOperations.LsonNumberOperationsConfig.class, acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.NUMBER, acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.NUMBER)
+@LsonDefinedAnnotation(config = LsonNumberOperations.LsonNumberOperationsConfig.class,
+        acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.NUMBER,
+        acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.NUMBER)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LsonNumberOperations
@@ -61,16 +62,16 @@ public @interface LsonNumberOperations
         DIVISION
     }
 
-    class LsonNumberOperationsConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
+    class LsonNumberOperationsConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonNumberOperations>
     {
         @Override
-        public Object deserialization(Object value, Annotation annotation, Object object)
+        public Object deserialization(Object value, LsonNumberOperations annotation, Object object)
         {
             return operationsHandler((Double) value, ((LsonNumberOperations) annotation).operator(), ((LsonNumberOperations) annotation).number());
         }
 
         @Override
-        public Object serialization(Object value, Annotation annotation, Object object)
+        public Object serialization(Object value, LsonNumberOperations annotation, Object object)
         {
             Operator operator = Operator.values()[((LsonNumberOperations) annotation).operator().ordinal() - (((LsonNumberOperations) annotation).operator().ordinal() % 2 * 2 - 1)];
             return operationsHandler(((LsonNumberOperations) annotation).number(), operator, (Double) value);

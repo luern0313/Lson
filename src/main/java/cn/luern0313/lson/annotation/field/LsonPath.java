@@ -23,7 +23,7 @@ public @interface LsonPath
      * <p>你可以填写多个路径作为备份，若首个路径未查找到对应值，会使用备份路径查找，直到查找
      * 成功或所有路径查找完毕。
      *
-     * @return path数组+
+     * @return path数组
      */
     String[] value() default "";
 

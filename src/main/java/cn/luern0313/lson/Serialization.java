@@ -331,7 +331,7 @@ public class Serialization
     {
         try
         {
-            Method method = lsonDefinedAnnotation.config().getDeclaredMethod("serialization", Object.class, Annotation.class, Object.class);
+            Method method = lsonDefinedAnnotation.config().getDeclaredMethod("serialization", Object.class, Object.class, Object.class);
             return method.invoke(lsonDefinedAnnotation.config().newInstance(), value, annotation, object);
         }
         catch (NoSuchMethodException | InvocationTargetException | java.lang.InstantiationException | IllegalAccessException ignored)

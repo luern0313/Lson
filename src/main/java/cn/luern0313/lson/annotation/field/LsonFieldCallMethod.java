@@ -1,6 +1,5 @@
 package cn.luern0313.lson.annotation.field;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -19,7 +18,10 @@ import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
  * @author luern0313
  */
 
-@LsonDefinedAnnotation(config = LsonFieldCallMethod.LsonCallMethodConfig.class, acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.NOT_HANDLE, acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.NOT_HANDLE, isIgnoreArray = true, isIgnoreList = true, isIgnoreMap = true)
+@LsonDefinedAnnotation(config = LsonFieldCallMethod.LsonCallMethodConfig.class,
+        acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.NOT_HANDLE,
+        acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.NOT_HANDLE,
+        isIgnoreArray = true, isIgnoreList = true, isIgnoreMap = true)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LsonFieldCallMethod
@@ -38,10 +40,10 @@ public @interface LsonFieldCallMethod
      */
     String serialization() default "";
 
-    class LsonCallMethodConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
+    class LsonCallMethodConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonFieldCallMethod>
     {
         @Override
-        public Object deserialization(Object value, Annotation annotation, Object object)
+        public Object deserialization(Object value, LsonFieldCallMethod annotation, Object object)
         {
             try
             {
@@ -60,7 +62,7 @@ public @interface LsonFieldCallMethod
         }
 
         @Override
-        public Object serialization(Object value, Annotation annotation, Object object)
+        public Object serialization(Object value, LsonFieldCallMethod annotation, Object object)
         {
             try
             {

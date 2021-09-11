@@ -1,6 +1,5 @@
 package cn.luern0313.lson.annotation.field;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -18,7 +17,9 @@ import cn.luern0313.lson.util.DataProcessUtil;
  * @author luern0313
  */
 
-@LsonDefinedAnnotation(config = LsonBooleanFormatAsNumber.LsonBooleanFormatAsNumberConfig.class, acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.NUMBER, acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.BOOLEAN)
+@LsonDefinedAnnotation(config = LsonBooleanFormatAsNumber.LsonBooleanFormatAsNumberConfig.class,
+        acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.NUMBER,
+        acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.BOOLEAN)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LsonBooleanFormatAsNumber
@@ -37,10 +38,10 @@ public @interface LsonBooleanFormatAsNumber
      */
     double[] notEqual() default {};
 
-    class LsonBooleanFormatAsNumberConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
+    class LsonBooleanFormatAsNumberConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonBooleanFormatAsNumber>
     {
         @Override
-        public Object deserialization(Object value, Annotation annotation, Object object)
+        public Object deserialization(Object value, LsonBooleanFormatAsNumber annotation, Object object)
         {
             int result = -1;
             if(((LsonBooleanFormatAsNumber) annotation).equal().length > 0)
@@ -51,7 +52,7 @@ public @interface LsonBooleanFormatAsNumber
         }
 
         @Override
-        public Object serialization(Object value, Annotation annotation, Object object)
+        public Object serialization(Object value, LsonBooleanFormatAsNumber annotation, Object object)
         {
             return null;
         }

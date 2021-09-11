@@ -1,6 +1,5 @@
 package cn.luern0313.lson.annotation.field;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -21,7 +20,9 @@ import cn.luern0313.lson.util.DataProcessUtil;
  * @author luern0313
  */
 
-@LsonDefinedAnnotation(config = LsonNumberFormat.LsonNumberFormatConfig.class, acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.NUMBER, acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.NUMBER)
+@LsonDefinedAnnotation(config = LsonNumberFormat.LsonNumberFormatConfig.class,
+        acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.NUMBER,
+        acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.NUMBER)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LsonNumberFormat
@@ -98,16 +99,16 @@ public @interface LsonNumberFormat
         }};
     }
 
-    class LsonNumberFormatConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
+    class LsonNumberFormatConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonNumberFormat>
     {
         @Override
-        public Object deserialization(Object value, Annotation annotation, Object object)
+        public Object deserialization(Object value, LsonNumberFormat annotation, Object object)
         {
             return DataProcessUtil.getNumberFormat(value, ((LsonNumberFormat) annotation).digit(), ((LsonNumberFormat) annotation).mode());
         }
 
         @Override
-        public Object serialization(Object value, Annotation annotation, Object object)
+        public Object serialization(Object value, LsonNumberFormat annotation, Object object)
         {
             return value;
         }

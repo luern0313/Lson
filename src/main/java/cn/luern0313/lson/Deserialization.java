@@ -468,7 +468,7 @@ public class Deserialization
             if(o instanceof DeserializationValueUtil)
                 o = handleAnnotationType((DeserializationValueUtil) value, lsonDefinedAnnotation.acceptableDeserializationType());
 
-            Method method = lsonDefinedAnnotation.config().getDeclaredMethod("deserialization", Object.class, Annotation.class, Object.class);
+            Method method = lsonDefinedAnnotation.config().getDeclaredMethod("deserialization", Object.class, Object.class, Object.class);
             Object object = method.invoke(lsonDefinedAnnotation.config().newInstance(), o, annotation, t);
 
             TypeUtil typeUtil = new TypeUtil(object);

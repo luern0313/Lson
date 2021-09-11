@@ -1,6 +1,5 @@
 package cn.luern0313.lson.annotation.field;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -21,7 +20,9 @@ import cn.luern0313.lson.util.DataProcessUtil;
  * @author luern0313
  */
 
-@LsonDefinedAnnotation(config = LsonReplaceAll.LsonReplaceAllConfig.class, acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.STRING, acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.STRING)
+@LsonDefinedAnnotation(config = LsonReplaceAll.LsonReplaceAllConfig.class,
+        acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.STRING,
+        acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.STRING)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LsonReplaceAll
@@ -40,10 +41,10 @@ public @interface LsonReplaceAll
      */
     String[] replacement();
 
-    class LsonReplaceAllConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
+    class LsonReplaceAllConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonReplaceAll>
     {
         @Override
-        public Object deserialization(Object value, Annotation annotation, Object object)
+        public Object deserialization(Object value, LsonReplaceAll annotation, Object object)
         {
             String[] regexArray = ((LsonReplaceAll) annotation).regex();
             String[] replacementArray = ((LsonReplaceAll) annotation).replacement();
@@ -53,7 +54,7 @@ public @interface LsonReplaceAll
         }
 
         @Override
-        public Object serialization(Object value, Annotation annotation, Object object)
+        public Object serialization(Object value, LsonReplaceAll annotation, Object object)
         {
             String[] regexArray = ((LsonReplaceAll) annotation).regex();
             String[] replacementArray = ((LsonReplaceAll) annotation).replacement();

@@ -1,6 +1,5 @@
 package cn.luern0313.lson.annotation.field;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -20,7 +19,10 @@ import cn.luern0313.lson.util.TypeUtil;
  * @author luern0313
  */
 
-@LsonDefinedAnnotation(config = LsonJoinArray.LsonJoinArrayConfig.class, acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.NOT_HANDLE, acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.STRING, isIgnoreArray = true, isIgnoreList = true, isIgnoreMap = true)
+@LsonDefinedAnnotation(config = LsonJoinArray.LsonJoinArrayConfig.class,
+        acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.NOT_HANDLE,
+        acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.STRING,
+        isIgnoreArray = true, isIgnoreList = true, isIgnoreMap = true)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LsonJoinArray
@@ -32,21 +34,21 @@ public @interface LsonJoinArray
      */
     String value() default "";
 
-    class LsonJoinArrayConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
+    class LsonJoinArrayConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonJoinArray>
     {
         @Override
-        public Object deserialization(Object value, Annotation annotation, Object object)
+        public Object deserialization(Object value, LsonJoinArray annotation, Object object)
         {
             TypeUtil typeUtil = new TypeUtil(value);
             if(typeUtil.isListType())
-                return DataProcessUtil.join((List<?>) value, ((LsonJoinArray) annotation).value());
+                return DataProcessUtil.join((List<?>) value, annotation.value());
             else if(typeUtil.isArrayType())
-                return DataProcessUtil.join((Object[]) value, ((LsonJoinArray) annotation).value());
+                return DataProcessUtil.join((Object[]) value, annotation.value());
             return null;
         }
 
         @Override
-        public Object serialization(Object value, Annotation annotation, Object object)
+        public Object serialization(Object value, LsonJoinArray annotation, Object object)
         {
             return ((StringBuilder) value).toString().split(((LsonJoinArray) annotation).value());
         }

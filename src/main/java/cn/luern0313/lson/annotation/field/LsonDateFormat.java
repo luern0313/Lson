@@ -1,6 +1,5 @@
 package cn.luern0313.lson.annotation.field;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -18,7 +17,9 @@ import cn.luern0313.lson.util.DataProcessUtil;
  * @author luern0313
  */
 
-@LsonDefinedAnnotation(config = LsonDateFormat.LsonDateFormatConfig.class, acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.NUMBER, acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.STRING)
+@LsonDefinedAnnotation(config = LsonDateFormat.LsonDateFormatConfig.class,
+        acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.NUMBER,
+        acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.STRING)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LsonDateFormat
@@ -50,16 +51,16 @@ public @interface LsonDateFormat
         MILLI_SECOND
     }
 
-    class LsonDateFormatConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
+    class LsonDateFormatConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonDateFormat>
     {
         @Override
-        public Object deserialization(Object value, Annotation annotation, Object object)
+        public Object deserialization(Object value, LsonDateFormat annotation, Object object)
         {
             return DataProcessUtil.getTime(((Number) value).longValue() * (((LsonDateFormat) annotation).mode() == LsonDateFormat.LsonDateFormatMode.SECOND ? 1000 : 0), ((LsonDateFormat) annotation).value());
         }
 
         @Override
-        public Object serialization(Object value, Annotation annotation, Object object)
+        public Object serialization(Object value, LsonDateFormat annotation, Object object)
         {
             return DataProcessUtil.getTimeStamp(value.toString(), ((LsonDateFormat) annotation).value(), ((LsonDateFormat) annotation).mode());
         }

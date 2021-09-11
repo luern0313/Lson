@@ -1,6 +1,5 @@
 package cn.luern0313.lson.annotation.field;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -17,7 +16,9 @@ import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
  * @author luern0313
  */
 
-@LsonDefinedAnnotation(config = LsonAddPrefix.LsonAddPrefixConfig.class, acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.STRING, acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.STRING)
+@LsonDefinedAnnotation(config = LsonAddPrefix.LsonAddPrefixConfig.class,
+        acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.STRING,
+        acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.STRING)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LsonAddPrefix
@@ -29,16 +30,16 @@ public @interface LsonAddPrefix
      */
     String value();
 
-    class LsonAddPrefixConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig
+    class LsonAddPrefixConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonAddPrefix>
     {
         @Override
-        public Object deserialization(Object value, Annotation annotation, Object object)
+        public Object deserialization(Object value, LsonAddPrefix annotation, Object object)
         {
             return ((StringBuilder) value).insert(0, ((LsonAddPrefix) annotation).value());
         }
 
         @Override
-        public Object serialization(Object value, Annotation annotation, Object object)
+        public Object serialization(Object value, LsonAddPrefix annotation, Object object)
         {
             if(((StringBuilder) value).indexOf(((LsonAddPrefix) annotation).value()) == 0)
                 return ((StringBuilder) value).delete(0, ((LsonAddPrefix) annotation).value().length());
