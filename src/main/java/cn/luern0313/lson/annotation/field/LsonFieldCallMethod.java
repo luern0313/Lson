@@ -43,14 +43,14 @@ public @interface LsonFieldCallMethod
     class LsonCallMethodConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonFieldCallMethod>
     {
         @Override
-        public Object deserialization(Object value, LsonFieldCallMethod annotation, Object object)
+        public Object deserialization(Object value, LsonFieldCallMethod lsonFieldCallMethod, Object object)
         {
             try
             {
-                if(!((LsonFieldCallMethod) annotation).deserialization().equals(""))
+                if(!lsonFieldCallMethod.deserialization().equals(""))
                 {
                     Class<?> clz = object.getClass();
-                    Method method = clz.getDeclaredMethod(((LsonFieldCallMethod) annotation).deserialization(), value.getClass());
+                    Method method = clz.getDeclaredMethod(lsonFieldCallMethod.deserialization(), value.getClass());
                     method.setAccessible(true);
                     return method.invoke(object, value);
                 }
@@ -62,14 +62,14 @@ public @interface LsonFieldCallMethod
         }
 
         @Override
-        public Object serialization(Object value, LsonFieldCallMethod annotation, Object object)
+        public Object serialization(Object value, LsonFieldCallMethod lsonFieldCallMethod, Object object)
         {
             try
             {
-                if(!((LsonFieldCallMethod) annotation).serialization().equals(""))
+                if(!lsonFieldCallMethod.serialization().equals(""))
                 {
                     Class<?> clz = object.getClass();
-                    Method method = clz.getDeclaredMethod(((LsonFieldCallMethod) annotation).serialization(), value.getClass());
+                    Method method = clz.getDeclaredMethod(lsonFieldCallMethod.serialization(), value.getClass());
                     method.setAccessible(true);
                     return method.invoke(object, value);
                 }

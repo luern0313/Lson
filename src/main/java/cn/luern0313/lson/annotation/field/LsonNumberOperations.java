@@ -65,16 +65,16 @@ public @interface LsonNumberOperations
     class LsonNumberOperationsConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonNumberOperations>
     {
         @Override
-        public Object deserialization(Object value, LsonNumberOperations annotation, Object object)
+        public Object deserialization(Object value, LsonNumberOperations lsonNumberOperations, Object object)
         {
-            return operationsHandler((Double) value, ((LsonNumberOperations) annotation).operator(), ((LsonNumberOperations) annotation).number());
+            return operationsHandler((Double) value, lsonNumberOperations.operator(), lsonNumberOperations.number());
         }
 
         @Override
-        public Object serialization(Object value, LsonNumberOperations annotation, Object object)
+        public Object serialization(Object value, LsonNumberOperations lsonNumberOperations, Object object)
         {
-            Operator operator = Operator.values()[((LsonNumberOperations) annotation).operator().ordinal() - (((LsonNumberOperations) annotation).operator().ordinal() % 2 * 2 - 1)];
-            return operationsHandler(((LsonNumberOperations) annotation).number(), operator, (Double) value);
+            Operator operator = Operator.values()[lsonNumberOperations.operator().ordinal() - (lsonNumberOperations.operator().ordinal() % 2 * 2 - 1)];
+            return operationsHandler(lsonNumberOperations.number(), operator, (Double) value);
         }
 
         private double operationsHandler(double left, Operator operator, double right)

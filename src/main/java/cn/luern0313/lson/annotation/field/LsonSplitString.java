@@ -50,12 +50,12 @@ public @interface LsonSplitString
     {
         @SuppressWarnings("unchecked")
         @Override
-        public Object deserialization(Object value, LsonSplitString annotation, Object object)
+        public Object deserialization(Object value, LsonSplitString lsonSplitString, Object object)
         {
             try
             {
-                TypeUtil typeUtil = new TypeUtil(((LsonSplitString) annotation).arrayType());
-                String[] array = ((StringBuilder) value).toString().split(((LsonSplitString) annotation).value());
+                TypeUtil typeUtil = new TypeUtil(lsonSplitString.arrayType());
+                String[] array = ((StringBuilder) value).toString().split(lsonSplitString.value());
                 if(typeUtil.isArrayType() && typeUtil.getArrayElementType().getAsClass() == String.class)
                     return array;
                 else if(typeUtil.isListType())
@@ -72,13 +72,13 @@ public @interface LsonSplitString
         }
 
         @Override
-        public Object serialization(Object value, LsonSplitString annotation, Object object)
+        public Object serialization(Object value, LsonSplitString lsonSplitString, Object object)
         {
             TypeUtil typeUtil = new TypeUtil(value);
             if(typeUtil.isListType())
-                return DataProcessUtil.join((ArrayList<?>) value, ((LsonSplitString) annotation).value());
+                return DataProcessUtil.join((ArrayList<?>) value, lsonSplitString.value());
             else if(typeUtil.isArrayType())
-                return DataProcessUtil.join((Object[]) value, ((LsonSplitString) annotation).value());
+                return DataProcessUtil.join((Object[]) value, lsonSplitString.value());
             return null;
         }
     }

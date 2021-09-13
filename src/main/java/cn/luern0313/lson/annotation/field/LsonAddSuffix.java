@@ -33,16 +33,16 @@ public @interface LsonAddSuffix
     class LsonAddSuffixConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonAddPrefix>
     {
         @Override
-        public Object deserialization(Object value, LsonAddPrefix annotation, Object object)
+        public Object deserialization(Object value, LsonAddPrefix lsonAddPrefix, Object object)
         {
-            return ((StringBuilder) value).append(((LsonAddSuffix) annotation).value());
+            return ((StringBuilder) value).append(lsonAddPrefix.value());
         }
 
         @Override
-        public Object serialization(Object value, LsonAddPrefix annotation, Object object)
+        public Object serialization(Object value, LsonAddPrefix lsonAddPrefix, Object object)
         {
-            if(((StringBuilder) value).lastIndexOf(((LsonAddSuffix) annotation).value()) == ((StringBuilder) value).length() - ((LsonAddSuffix) annotation).value().length())
-                return ((StringBuilder) value).delete(((StringBuilder) value).length() - ((LsonAddSuffix) annotation).value().length(), ((StringBuilder) value).length());
+            if(((StringBuilder) value).lastIndexOf(lsonAddPrefix.value()) == ((StringBuilder) value).length() - lsonAddPrefix.value().length())
+                return ((StringBuilder) value).delete(((StringBuilder) value).length() - lsonAddPrefix.value().length(), ((StringBuilder) value).length());
             return value;
         }
     }

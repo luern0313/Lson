@@ -41,18 +41,18 @@ public @interface LsonBooleanFormatAsNumber
     class LsonBooleanFormatAsNumberConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonBooleanFormatAsNumber>
     {
         @Override
-        public Object deserialization(Object value, LsonBooleanFormatAsNumber annotation, Object object)
+        public Object deserialization(Object value, LsonBooleanFormatAsNumber lsonBooleanFormatAsNumber, Object object)
         {
             int result = -1;
-            if(((LsonBooleanFormatAsNumber) annotation).equal().length > 0)
-                result = DataProcessUtil.getIndex(((Number) value).doubleValue(), ((LsonBooleanFormatAsNumber) annotation).equal()) > -1 ? 1 : 0;
-            if(((LsonBooleanFormatAsNumber) annotation).notEqual().length > 0)
-                result = (DataProcessUtil.getIndex(((Number) value).doubleValue(), ((LsonBooleanFormatAsNumber) annotation).notEqual()) == -1 && result != 0) ? 1 : 0;
+            if(lsonBooleanFormatAsNumber.equal().length > 0)
+                result = DataProcessUtil.getIndex(((Number) value).doubleValue(), lsonBooleanFormatAsNumber.equal()) > -1 ? 1 : 0;
+            if(lsonBooleanFormatAsNumber.notEqual().length > 0)
+                result = (DataProcessUtil.getIndex(((Number) value).doubleValue(), lsonBooleanFormatAsNumber.notEqual()) == -1 && result != 0) ? 1 : 0;
             return result != -1 ? result == 1 : ((double) value) != 0;
         }
 
         @Override
-        public Object serialization(Object value, LsonBooleanFormatAsNumber annotation, Object object)
+        public Object serialization(Object value, LsonBooleanFormatAsNumber lsonBooleanFormatAsNumber, Object object)
         {
             return null;
         }

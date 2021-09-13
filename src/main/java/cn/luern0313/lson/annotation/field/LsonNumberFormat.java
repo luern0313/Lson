@@ -102,13 +102,13 @@ public @interface LsonNumberFormat
     class LsonNumberFormatConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonNumberFormat>
     {
         @Override
-        public Object deserialization(Object value, LsonNumberFormat annotation, Object object)
+        public Object deserialization(Object value, LsonNumberFormat lsonNumberFormat, Object object)
         {
-            return DataProcessUtil.getNumberFormat(value, ((LsonNumberFormat) annotation).digit(), ((LsonNumberFormat) annotation).mode());
+            return DataProcessUtil.getNumberFormat(value, lsonNumberFormat.digit(), lsonNumberFormat.mode());
         }
 
         @Override
-        public Object serialization(Object value, LsonNumberFormat annotation, Object object)
+        public Object serialization(Object value, LsonNumberFormat lsonNumberFormat, Object object)
         {
             return value;
         }

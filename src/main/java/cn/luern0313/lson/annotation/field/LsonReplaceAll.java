@@ -44,20 +44,20 @@ public @interface LsonReplaceAll
     class LsonReplaceAllConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonReplaceAll>
     {
         @Override
-        public Object deserialization(Object value, LsonReplaceAll annotation, Object object)
+        public Object deserialization(Object value, LsonReplaceAll lsonReplaceAll, Object object)
         {
-            String[] regexArray = ((LsonReplaceAll) annotation).regex();
-            String[] replacementArray = ((LsonReplaceAll) annotation).replacement();
+            String[] regexArray = lsonReplaceAll.regex();
+            String[] replacementArray = lsonReplaceAll.replacement();
             for (int i = 0; i < regexArray.length; i++)
                 DataProcessUtil.replaceAll((StringBuilder) value, regexArray[i], replacementArray[i]);
             return value;
         }
 
         @Override
-        public Object serialization(Object value, LsonReplaceAll annotation, Object object)
+        public Object serialization(Object value, LsonReplaceAll lsonReplaceAll, Object object)
         {
-            String[] regexArray = ((LsonReplaceAll) annotation).regex();
-            String[] replacementArray = ((LsonReplaceAll) annotation).replacement();
+            String[] regexArray = lsonReplaceAll.regex();
+            String[] replacementArray = lsonReplaceAll.replacement();
             for (int i = 0; i < regexArray.length; i++)
                 DataProcessUtil.replaceAll((StringBuilder) value, replacementArray[i], regexArray[i]);
             return value;

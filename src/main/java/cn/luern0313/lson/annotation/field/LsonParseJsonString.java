@@ -33,13 +33,13 @@ public @interface LsonParseJsonString
     class LsonParseJsonStringConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonParseJsonString>
     {
         @Override
-        public Object deserialization(Object value, LsonParseJsonString annotation, Object object)
+        public Object deserialization(Object value, LsonParseJsonString lsonParseJsonString, Object object)
         {
-            return LsonUtil.fromJson(LsonUtil.parse(((StringBuilder) value).toString()), ((LsonParseJsonString) annotation).value());
+            return LsonUtil.fromJson(LsonUtil.parse(((StringBuilder) value).toString()), lsonParseJsonString.value());
         }
 
         @Override
-        public Object serialization(Object value, LsonParseJsonString annotation, Object object)
+        public Object serialization(Object value, LsonParseJsonString lsonParseJsonString, Object object)
         {
             return LsonUtil.toJson(value);
         }

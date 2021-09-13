@@ -37,20 +37,20 @@ public @interface LsonJoinArray
     class LsonJoinArrayConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonJoinArray>
     {
         @Override
-        public Object deserialization(Object value, LsonJoinArray annotation, Object object)
+        public Object deserialization(Object value, LsonJoinArray lsonJoinArray, Object object)
         {
             TypeUtil typeUtil = new TypeUtil(value);
             if(typeUtil.isListType())
-                return DataProcessUtil.join((List<?>) value, annotation.value());
+                return DataProcessUtil.join((List<?>) value, lsonJoinArray.value());
             else if(typeUtil.isArrayType())
-                return DataProcessUtil.join((Object[]) value, annotation.value());
+                return DataProcessUtil.join((Object[]) value, lsonJoinArray.value());
             return null;
         }
 
         @Override
-        public Object serialization(Object value, LsonJoinArray annotation, Object object)
+        public Object serialization(Object value, LsonJoinArray lsonJoinArray, Object object)
         {
-            return ((StringBuilder) value).toString().split(((LsonJoinArray) annotation).value());
+            return ((StringBuilder) value).toString().split(lsonJoinArray.value());
         }
     }
 }
