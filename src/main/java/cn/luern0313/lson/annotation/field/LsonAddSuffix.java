@@ -30,19 +30,19 @@ public @interface LsonAddSuffix
      */
     String value();
 
-    class LsonAddSuffixConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonAddPrefix>
+    class LsonAddSuffixConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonAddSuffix>
     {
         @Override
-        public Object deserialization(Object value, LsonAddPrefix lsonAddPrefix, Object object)
+        public Object deserialization(Object value, LsonAddSuffix lsonAddSuffix, Object object)
         {
-            return ((StringBuilder) value).append(lsonAddPrefix.value());
+            return ((StringBuilder) value).append(lsonAddSuffix.value());
         }
 
         @Override
-        public Object serialization(Object value, LsonAddPrefix lsonAddPrefix, Object object)
+        public Object serialization(Object value, LsonAddSuffix lsonAddSuffix, Object object)
         {
-            if(((StringBuilder) value).lastIndexOf(lsonAddPrefix.value()) == ((StringBuilder) value).length() - lsonAddPrefix.value().length())
-                return ((StringBuilder) value).delete(((StringBuilder) value).length() - lsonAddPrefix.value().length(), ((StringBuilder) value).length());
+            if(((StringBuilder) value).lastIndexOf(lsonAddSuffix.value()) == ((StringBuilder) value).length() - lsonAddSuffix.value().length())
+                return ((StringBuilder) value).delete(((StringBuilder) value).length() - lsonAddSuffix.value().length(), ((StringBuilder) value).length());
             return value;
         }
     }
