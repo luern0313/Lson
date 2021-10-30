@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
 import cn.luern0313.lson.annotation.field.LsonPath;
@@ -344,6 +345,34 @@ public class Deserialization
         return list;
     }
 
+    @SuppressWarnings("unchecked")
+    private static Object getSetData(LsonElement json, LsonElement rootJson, TypeUtil fieldType, ArrayList<Object> jsonPaths, Object t) throws IllegalAccessException, java.lang.InstantiationException
+    {
+        TypeUtil actualTypeArgument = fieldType.getSetElementType();
+        Set<Object> set = (Set<Object>) fieldType.getSetType().newInstance();
+
+        if(json.isLsonArray())
+        {
+            for (int i = 0; i < json.getAsLsonArray().size(); i++)
+            {
+                LsonElement lsonElement = json.getAsLsonArray().get(i);
+                if(actualTypeArgument.isPrimitivePlus())
+                    set.add(getJsonPrimitiveData(lsonElement));
+                else
+                {
+                    ArrayList<Object> tempPaths = (ArrayList<Object>) jsonPaths.clone();
+                    tempPaths.add(new PathType.PathIndexArray(new ArrayList<>(Collections.singletonList(i))));
+                    set.add(getClassData(actualTypeArgument, lsonElement, rootJson, t, tempPaths, null, null));
+                }
+            }
+        }
+        else if(json.isLsonPrimitive())
+            set.add(getJsonPrimitiveData(json));
+        else
+            set.add(getClassData(actualTypeArgument, json, rootJson, t, jsonPaths, null, null));
+        return set;
+    }
+
     private static Object getFilterData(PathType.PathFilter.PathFilterPart part, int index, LsonElement rootJson, ArrayList<Object> rootPath, Object t)
     {
         Object result = null;
@@ -525,26 +554,13 @@ public class Deserialization
             if(fieldType == null) return null;
 
             if(fieldType.isMapType())
-            {
-                Map<String, ?> map = (Map<String, ?>) getMapData(json, rootJson, fieldType, paths, t);
-                for (Object object : map.values().toArray())
-                    if(object != null)
-                        return map;
-            }
+                return (Map<String, ?>) getMapData(json, rootJson, fieldType, paths, t);
             else if(fieldType.isArrayType())
-            {
-                Object array = getArrayData(json, rootJson, fieldType, paths, t);
-                for (int i = 0; i < Array.getLength(array); i++)
-                    if(Array.get(array, i) != null)
-                        return array;
-            }
+                return getArrayData(json, rootJson, fieldType, paths, t);
             else if(fieldType.isListType())
-            {
-                List<?> list = (List<?>) getListData(json, rootJson, fieldType, paths, t);
-                for (int i = 0; i < list.size(); i++)
-                    if(list.get(i) != null)
-                        return list;
-            }
+                return (List<?>) getListData(json, rootJson, fieldType, paths, t);
+            else if(fieldType.isSetType())
+                return (Set<?>) getSetData(json, rootJson, fieldType, paths, t);
             else if(fieldType.getName().equals(Object.class.getName()))
                 return getJsonPrimitiveData(json);
             else if(fieldType.isBuiltInClass())

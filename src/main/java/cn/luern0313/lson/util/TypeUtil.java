@@ -8,8 +8,10 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import cn.luern0313.lson.TypeReference;
 import cn.luern0313.lson.element.LsonArray;
@@ -188,6 +190,11 @@ public class TypeUtil
         return getAsClass().isArray() || getAsType() instanceof GenericArrayType;
     }
 
+    public boolean isSetType()
+    {
+        return Set.class.isAssignableFrom(getAsClass());
+    }
+
     public Class<?> getPrimitiveClass()
     {
         try
@@ -200,7 +207,7 @@ public class TypeUtil
         return null;
     }
 
-    public Class<?> getMapType()
+    public boolean instantiateAble()
     {
         try
         {
@@ -208,30 +215,28 @@ public class TypeUtil
             if(!clz.isInterface() && !Modifier.isAbstract(clz.getModifiers()))
             {
                 clz.getConstructor();
-                return clz;
+                return true;
             }
         }
         catch (NoSuchMethodException ignored)
         {
         }
-        return LinkedHashMap.class;
+        return false;
+    }
+
+    public Class<?> getMapType()
+    {
+        return instantiateAble() ? getAsClass() : LinkedHashMap.class;
     }
 
     public Class<?> getListType()
     {
-        try
-        {
-            Class<?> clz = getAsClass();
-            if(!clz.isInterface() && !Modifier.isAbstract(clz.getModifiers()))
-            {
-                clz.getConstructor();
-                return clz;
-            }
-        }
-        catch (NoSuchMethodException ignored)
-        {
-        }
-        return ArrayList.class;
+        return instantiateAble() ? getAsClass() : ArrayList.class;
+    }
+
+    public Class<?> getSetType()
+    {
+        return instantiateAble() ? getAsClass() : LinkedHashSet.class;
     }
 
     public TypeUtil getMapElementType()
@@ -269,6 +274,20 @@ public class TypeUtil
             return extendType(((GenericArrayType) type).getGenericComponentType());
         else
             return extendType(getAsClass().getComponentType());
+    }
+
+    public TypeUtil getSetElementType()
+    {
+        Type type = getAsType();
+        if(type instanceof ParameterizedType)
+            return extendType(((ParameterizedType) type).getActualTypeArguments()[0]);
+        else if(type instanceof TypeVariable)
+        {
+            LinkedHashMap<String, TypeReference<?>> map = typeReference.typeMap.get(((TypeVariable<?>) type).getName()).typeMap;
+            if(map.size() > 0)
+                return extendType(map.entrySet().iterator().next().getValue().type);
+        }
+        return extendType(Object.class);
     }
 
     public TypeUtil getArrayElementRealType()
