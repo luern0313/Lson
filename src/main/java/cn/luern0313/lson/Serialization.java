@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
 import cn.luern0313.lson.annotation.field.LsonPath;
@@ -36,20 +37,29 @@ public class Serialization
     @SuppressWarnings("unchecked")
     public static LsonElement toJson(Object object)
     {
-        if(object == null) return null;
+        try
+        {
+            if(object == null) return null;
 
-        TypeUtil typeUtil = new TypeUtil(object.getClass());
-        if(typeUtil.isPrimitivePlus())
-            return new LsonPrimitive(object);
-        else if(typeUtil.isArrayType())
-            return arrayToJson(object);
-        else if(typeUtil.isListType())
-            return listToJson((List<?>) object);
-        else if(typeUtil.isMapType())
-            return mapToJson((Map<String, ?>) object);
-        else if(typeUtil.isBuiltInClass())
-            return builtInClassToJson(object, typeUtil);
-        return classToJson(object, typeUtil);
+            TypeUtil typeUtil = new TypeUtil(object.getClass());
+            if(typeUtil.isPrimitivePlus())
+                return new LsonPrimitive(object);
+            else if(typeUtil.isArrayType())
+                return arrayToJson(object);
+            else if(typeUtil.isListType())
+                return listToJson((List<?>) object);
+            else if(typeUtil.isMapType())
+                return mapToJson((Map<String, ?>) object);
+            else if(typeUtil.isSetType())
+                return setToJson((Set<?>) object);
+            else if(typeUtil.isBuiltInClass())
+                return builtInClassToJson(object, typeUtil);
+            return classToJson(object, typeUtil);
+        }
+        catch (RuntimeException ignored)
+        {
+        }
+        return null;
     }
 
     private static LsonElement arrayToJson(Object array)
@@ -75,6 +85,14 @@ public class Serialization
         for (String key : keys)
             lsonObject.put(key, toJson(map.get(key)));
         return lsonObject;
+    }
+
+    private static LsonElement setToJson(Set<?> set)
+    {
+        LsonArray lsonArray = new LsonArray();
+        for (Object o : set)
+            lsonArray.add(toJson(o));
+        return lsonArray;
     }
 
     private static LsonElement builtInClassToJson(Object object, TypeUtil typeUtil)
