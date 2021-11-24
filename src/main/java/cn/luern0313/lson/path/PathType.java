@@ -148,7 +148,7 @@ public class PathType
             @Override
             public String toString()
             {
-                return "PathFilterPart{" + "mode=" + mode + ", part=" + part.size() + '}';
+                return "PathFilterPart{" + "mode=" + mode + ", part=" + part + '}';
             }
         }
 
