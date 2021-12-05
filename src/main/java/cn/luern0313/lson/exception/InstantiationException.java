@@ -8,6 +8,6 @@ public class InstantiationException extends RuntimeException
 {
     public InstantiationException(String className, String reason)
     {
-        super(String.format("Instantiation %s class error. %s", className, reason));
+        super(String.format("Instantiation %s class error.%nReason: %s", className, reason));
     }
 }
