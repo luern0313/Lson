@@ -6,6 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
+import cn.luern0313.lson.annotation.other.AnnotationOrder;
 
 /**
  * 对数字进行数学运算。
@@ -38,6 +39,12 @@ public @interface LsonNumberOperations
      * @return 算式中右侧的数字。
      */
     double number();
+
+    /**
+     * 用于排序注解的执行顺序，见{@link AnnotationOrder}。
+     * @return 注解执行顺序
+     */
+    @AnnotationOrder int order() default Integer.MAX_VALUE;
 
     enum Operator
     {

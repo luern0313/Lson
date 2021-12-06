@@ -6,6 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
+import cn.luern0313.lson.annotation.other.AnnotationOrder;
 import cn.luern0313.lson.util.DataProcessUtil;
 
 /**
@@ -40,6 +41,12 @@ public @interface LsonReplaceAll
      * @return 替换后的文本数组。
      */
     String[] replacement();
+
+    /**
+     * 用于排序注解的执行顺序，见{@link AnnotationOrder}。
+     * @return 注解执行顺序
+     */
+    @AnnotationOrder int order() default Integer.MAX_VALUE;
 
     class LsonReplaceAllConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonReplaceAll>
     {

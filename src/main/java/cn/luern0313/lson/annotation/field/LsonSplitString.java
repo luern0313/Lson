@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
+import cn.luern0313.lson.annotation.other.AnnotationOrder;
 import cn.luern0313.lson.util.DataProcessUtil;
 import cn.luern0313.lson.util.TypeUtil;
 
@@ -45,6 +46,12 @@ public @interface LsonSplitString
      * @return 输出的数组类型。
      */
     Class<?> arrayType() default String[].class;
+
+    /**
+     * 用于排序注解的执行顺序，见{@link AnnotationOrder}。
+     * @return 注解执行顺序
+     */
+    @AnnotationOrder int order() default Integer.MAX_VALUE;
 
     class LsonSplitStringConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonSplitString>
     {

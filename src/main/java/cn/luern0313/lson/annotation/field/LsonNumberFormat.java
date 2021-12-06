@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
+import cn.luern0313.lson.annotation.other.AnnotationOrder;
 import cn.luern0313.lson.util.DataProcessUtil;
 
 /**
@@ -46,6 +47,12 @@ public @interface LsonNumberFormat
      * @return 数字保留模式。
      */
     NumberFormatMode mode() default NumberFormatMode.HALF_UP;
+
+    /**
+     * 用于排序注解的执行顺序，见{@link AnnotationOrder}。
+     * @return 注解执行顺序
+     */
+    @AnnotationOrder int order() default Integer.MAX_VALUE;
 
     enum NumberFormatMode
     {

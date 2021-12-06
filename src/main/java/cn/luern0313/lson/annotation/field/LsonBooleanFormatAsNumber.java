@@ -6,6 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
+import cn.luern0313.lson.annotation.other.AnnotationOrder;
 import cn.luern0313.lson.util.DataProcessUtil;
 
 /**
@@ -37,6 +38,12 @@ public @interface LsonBooleanFormatAsNumber
      * @return 数字数组。
      */
     double[] notEqual() default {};
+
+    /**
+     * 用于排序注解的执行顺序，见{@link AnnotationOrder}。
+     * @return 注解执行顺序
+     */
+    @AnnotationOrder int order() default Integer.MAX_VALUE;
 
     class LsonBooleanFormatAsNumberConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonBooleanFormatAsNumber>
     {

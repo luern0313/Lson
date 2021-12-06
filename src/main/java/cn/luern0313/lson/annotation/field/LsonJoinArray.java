@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 import java.util.List;
 
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
+import cn.luern0313.lson.annotation.other.AnnotationOrder;
 import cn.luern0313.lson.util.DataProcessUtil;
 import cn.luern0313.lson.util.TypeUtil;
 
@@ -33,6 +34,12 @@ public @interface LsonJoinArray
      * @return 连接符。
      */
     String value() default "";
+
+    /**
+     * 用于排序注解的执行顺序，见{@link AnnotationOrder}。
+     * @return 注解执行顺序
+     */
+    @AnnotationOrder int order() default Integer.MAX_VALUE;
 
     class LsonJoinArrayConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonJoinArray>
     {

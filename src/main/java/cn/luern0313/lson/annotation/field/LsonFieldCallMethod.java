@@ -8,6 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
+import cn.luern0313.lson.annotation.other.AnnotationOrder;
 
 /**
  * 以变量为参数，调用类内的方法。
@@ -39,6 +40,12 @@ public @interface LsonFieldCallMethod
      * @return 方法名称。
      */
     String serialization() default "";
+
+    /**
+     * 用于排序注解的执行顺序，见{@link AnnotationOrder}。
+     * @return 注解执行顺序
+     */
+    @AnnotationOrder int order() default Integer.MAX_VALUE;
 
     class LsonCallMethodConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonFieldCallMethod>
     {

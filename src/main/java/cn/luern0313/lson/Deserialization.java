@@ -107,7 +107,7 @@ public class Deserialization
                     Object value = getValue(json, pathArray, rootJsonPath, targetType.getAsClass() == Object.class ? fieldType : targetType, t);
                     if(value != null && !(value instanceof LsonNull))
                     {
-                        Annotation[] annotations = sortAnnotation(field.getAnnotations(), path.annotationsOrder());
+                        List<Annotation> annotations = sortAnnotation(field.getAnnotations());
                         for (Annotation annotation : annotations)
                         {
                             LsonDefinedAnnotation lsonDefinedAnnotation = annotation.annotationType().getAnnotation(LsonDefinedAnnotation.class);
@@ -132,27 +132,33 @@ public class Deserialization
         return t;
     }
 
-    private static Annotation[] sortAnnotation(Annotation[] annotations, Class<?>[] annotationsOrder)
+    private static List<Annotation> sortAnnotation(Annotation[] annotations)
     {
-        for (int i = 0; i < annotationsOrder.length; i++)
+        List<Annotation> annotationList = new ArrayList<>(Arrays.asList(annotations));
+        Collections.sort(annotationList, (o1, o2) -> getAnnotationOrder(o1) - getAnnotationOrder(o2));
+        return annotationList;
+    }
+
+    private static int getAnnotationOrder(Annotation annotation)
+    {
+        try
         {
-            for (int j = 0; j < annotations.length; j++)
+            Method[] methods = annotation.annotationType().getDeclaredMethods();
+            for (Method method : methods)
             {
-                if(i != j && annotations[j].annotationType() != annotationsOrder[i])
+                if(method.getAnnotation(AnnotationOrder.class) != null)
                 {
-                    try
-                    {
-                        Annotation temp = annotations[i];
-                        annotations[i] = annotations[j];
-                        annotations[j] = temp;
-                    }
-                    catch (IndexOutOfBoundsException ignored)
-                    {
-                    }
+                    Type type = method.getAnnotatedReturnType().getType();
+                    if(type instanceof Class && ((Class<?>) type).getName().equals("int"))
+                        return (int) method.invoke(annotation);
                 }
             }
         }
-        return annotations;
+        catch (IllegalAccessException | InvocationTargetException e)
+        {
+            e.printStackTrace();
+        }
+        return Integer.MAX_VALUE;
     }
 
     public static Object getValue(LsonElement rootJson, String[] pathArray, ArrayList<Object> rootPath, TypeUtil fieldType, Object t)

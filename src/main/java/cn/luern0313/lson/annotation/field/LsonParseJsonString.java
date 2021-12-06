@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 
 import cn.luern0313.lson.LsonUtil;
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
+import cn.luern0313.lson.annotation.other.AnnotationOrder;
 
 /**
  * 处理json中的json字符串。
@@ -29,6 +30,12 @@ import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
 public @interface LsonParseJsonString
 {
     Class<?> value();
+
+    /**
+     * 用于排序注解的执行顺序，见{@link AnnotationOrder}。
+     * @return 注解执行顺序
+     */
+    @AnnotationOrder int order() default Integer.MAX_VALUE;
 
     class LsonParseJsonStringConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonParseJsonString>
     {
