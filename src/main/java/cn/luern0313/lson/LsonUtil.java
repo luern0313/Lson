@@ -1,5 +1,6 @@
 package cn.luern0313.lson;
 
+import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -29,7 +30,20 @@ public class LsonUtil
      */
     public static LsonElement parse(String json)
     {
-        return LsonParser.parse(new StringReader(json));
+        return parse(new StringReader(json));
+    }
+
+    /**
+     * 将一个JSON字符串解析为LsonElement对象。
+     *
+     * @param reader 要解析的JSON字符串流。
+     * @return LsonElement对象。
+     *
+     * @author luern0313
+     */
+    public static LsonElement parse(Reader reader)
+    {
+        return LsonParser.parse(reader);
     }
 
     /**
