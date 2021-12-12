@@ -5,7 +5,6 @@ import java.io.StringReader;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -24,31 +23,18 @@ public class DataProcessUtil
 {
     public static String getSize(long size)
     {
+        if(size < 0)
+            size = 0;
+
         String[] unit = new String[]{"B", "KB", "MB", "GB"};
         long s = size * 10;
         int u = 0;
-        while (s > 10240 && u < unit.length - 1)
+        while (s >= 10240 && u < unit.length - 1)
         {
             s /= 1024;
             u++;
         }
         return s / 10.0 + unit[u];
-    }
-
-    public static String getSurplusTime(long surplusByte, int speed)
-    {
-        if(speed <= 0) return "未知";
-        long time = surplusByte / speed;
-
-        String sec = String.valueOf(time % 60);
-        if(sec.length() == 1) sec = "0" + sec;
-        String min = String.valueOf(time / 60 % 60);
-        if(min.length() == 1) min = "0" + min;
-        String hour = String.valueOf(time / 3600 % 60);
-        if(hour.length() == 1) hour = "0" + hour;
-
-        if(hour.equals("00")) return min + ":" + sec;
-        else return hour + ":" + min + ":" + sec;
     }
 
     public static <T> int getIndex(T object, T[] array)
@@ -67,7 +53,7 @@ public class DataProcessUtil
         return -1;
     }
 
-    public static int getIndex(Object object, ArrayList<?> list)
+    public static int getIndex(Object object, List<?> list)
     {
         for (int i = 0; i < list.size(); i++)
             if(object == list.get(i) || object.equals(list.get(i)))
@@ -114,7 +100,7 @@ public class DataProcessUtil
         try
         {
             SimpleDateFormat format = new SimpleDateFormat(pattern, Locale.getDefault());
-            return format.parse(time).getTime() / (lsonDateFormatMode == LsonDateFormat.LsonDateFormatMode.SECOND ? 1000 : 0);
+            return format.parse(time).getTime() / (lsonDateFormatMode == LsonDateFormat.LsonDateFormatMode.SECOND ? 1000 : 1);
         }
         catch (RuntimeException | ParseException e)
         {
@@ -125,6 +111,7 @@ public class DataProcessUtil
 
     public static Object getNumberFormat(Object value, int digit, LsonNumberFormat.NumberFormatMode mode)
     {
+        //TODO 注解支持不显示小数
         try
         {
             BigDecimal bigDecimal = new BigDecimal(String.valueOf(value.toString()));
@@ -140,6 +127,9 @@ public class DataProcessUtil
 
     public static void replaceAll(StringBuilder builder, String from, String to)
     {
+        if(builder == null || from == null || to == null || from.length() == 0)
+            return;
+
         int index = builder.indexOf(from);
         while (index != -1)
         {
@@ -156,7 +146,7 @@ public class DataProcessUtil
             Double.parseDouble(string);
             return true;
         }
-        catch (NumberFormatException e)
+        catch (RuntimeException e)
         {
             return false;
         }
@@ -194,7 +184,7 @@ public class DataProcessUtil
             }
             return stringBuilder.toString();
         }
-        catch (IOException e)
+        catch (RuntimeException | IOException e)
         {
             e.printStackTrace();
         }
@@ -237,7 +227,7 @@ public class DataProcessUtil
             }
             return stringBuilder.toString();
         }
-        catch (IOException e)
+        catch (RuntimeException | IOException e)
         {
             e.printStackTrace();
         }
@@ -246,17 +236,23 @@ public class DataProcessUtil
 
     public static String join(List<?> arrayList, String separator)
     {
+        if(arrayList == null)
+            return null;
+
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < arrayList.size(); i++)
-            stringBuilder.append(i == 0 ? "" : separator).append(arrayList.get(i));
+            stringBuilder.append(i == 0 || separator == null ? "" : separator).append(arrayList.get(i));
         return stringBuilder.toString();
     }
 
     public static String join(Object[] array, String separator)
     {
+        if(array == null)
+            return null;
+
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < array.length; i++)
-            stringBuilder.append(i == 0 ? "" : separator).append(array[i]);
+            stringBuilder.append(i == 0 || separator == null ? "" : separator).append(array[i]);
         return stringBuilder.toString();
     }
 }
