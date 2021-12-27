@@ -102,22 +102,23 @@ public class DataProcessUtil
             SimpleDateFormat format = new SimpleDateFormat(pattern, Locale.getDefault());
             return format.parse(time).getTime() / (lsonDateFormatMode == LsonDateFormat.LsonDateFormatMode.SECOND ? 1000 : 1);
         }
-        catch (RuntimeException | ParseException e)
+        catch (RuntimeException | ParseException ignored)
         {
-            e.printStackTrace();
         }
         return 0;
     }
 
-    public static Object getNumberFormat(Object value, int digit, LsonNumberFormat.NumberFormatMode mode)
+    public static Object getNumberFormat(Object value, int digit, LsonNumberFormat.NumberFormatMode mode, boolean isCastInteger)
     {
-        //TODO 注解支持不显示小数
         try
         {
-            BigDecimal bigDecimal = new BigDecimal(String.valueOf(value.toString()));
+            BigDecimal bigDecimal = new BigDecimal(value.toString());
             bigDecimal = bigDecimal.setScale(digit, LsonNumberFormat.NumberFormatMode.modeIntegerMap.get(mode));
-
-            return bigDecimal.doubleValue();
+            double result = bigDecimal.doubleValue();
+            if(isCastInteger)
+                return (int) result;
+            else
+                return result;
         }
         catch (NumberFormatException e)
         {
@@ -184,9 +185,8 @@ public class DataProcessUtil
             }
             return stringBuilder.toString();
         }
-        catch (RuntimeException | IOException e)
+        catch (RuntimeException | IOException ignored)
         {
-            e.printStackTrace();
         }
         return null;
     }
@@ -227,9 +227,8 @@ public class DataProcessUtil
             }
             return stringBuilder.toString();
         }
-        catch (RuntimeException | IOException e)
+        catch (RuntimeException | IOException ignored)
         {
-            e.printStackTrace();
         }
         return null;
     }
