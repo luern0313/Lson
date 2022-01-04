@@ -2,7 +2,11 @@ package cn.luern0313.lson.util;
 
 import org.junit.Test;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 import cn.luern0313.lson.annotation.field.LsonDateFormat;
 
@@ -65,18 +69,19 @@ public class DataProcessUtilTest
     {
         assertEquals(DataProcessUtil.getTime(-1, ""), "");
         assertEquals(DataProcessUtil.getTime(0, ""), "");
-        assertEquals(DataProcessUtil.getTime(0, "yyyy-MM-dd HH:mm:ss"), "1970-01-01 08:00:00");
-        assertEquals(DataProcessUtil.getTime(1638802803555L, "yyyy年MM月dd日 HH:mm:ss"), "2021年12月06日 23:00:03");
+        ;
+        assertEquals(DataProcessUtil.getTime(0, "yyyy-MM-dd HH:mm:ss"), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date(0)));
+        assertEquals(DataProcessUtil.getTime(1638802803555L, "yyyy年MM月dd日 HH:mm:ss"), new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss", Locale.getDefault()).format(new Date(1638802803555L)));
     }
 
     @Test
-    public void getTimeStamp()
+    public void getTimeStamp() throws ParseException
     {
         assertEquals(DataProcessUtil.getTimeStamp(null, null, null), 0);
         assertEquals(DataProcessUtil.getTimeStamp("", "", LsonDateFormat.LsonDateFormatMode.MILLI_SECOND), 0);
         assertEquals(DataProcessUtil.getTimeStamp("1970-01-01 08:00:00", "yyyy-MM-dd HH:mm:ss", LsonDateFormat.LsonDateFormatMode.MILLI_SECOND), 0);
-        assertEquals(DataProcessUtil.getTimeStamp("2021年12月06日 23:00:03", "yyyy年MM月dd日 HH:mm:ss", LsonDateFormat.LsonDateFormatMode.SECOND), 1638802803);
-        assertEquals(DataProcessUtil.getTimeStamp("2021年12月06日 23:00:03", "yyyy年MM月dd日 HH:mm:ss", LsonDateFormat.LsonDateFormatMode.MILLI_SECOND), 1638802803000L);
+        assertEquals(DataProcessUtil.getTimeStamp("2021年12月06日 23:00:03", "yyyy年MM月dd日 HH:mm:ss", LsonDateFormat.LsonDateFormatMode.SECOND), new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss", Locale.getDefault()).parse("2021年12月06日 23:00:03").getTime() / 1000);
+        assertEquals(DataProcessUtil.getTimeStamp("2021年12月06日 23:00:03", "yyyy年MM月dd日 HH:mm:ss", LsonDateFormat.LsonDateFormatMode.MILLI_SECOND), new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss", Locale.getDefault()).parse("2021年12月06日 23:00:03").getTime());
     }
 
     @Test
