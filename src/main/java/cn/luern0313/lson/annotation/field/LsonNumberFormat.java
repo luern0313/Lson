@@ -49,6 +49,15 @@ public @interface LsonNumberFormat
     NumberFormatMode mode() default NumberFormatMode.HALF_UP;
 
     /**
+     * 是否将最终数字转为int，可去除小数点和小数点后的数字。
+     *
+     * <p>通常在计算数字后结果为整数时使用，否则将向下取整。
+     *
+     * @return 是否转为Integer
+     */
+    boolean isCastInteger() default false;
+
+    /**
      * 用于排序注解的执行顺序，见{@link AnnotationOrder}。
      * @return 注解执行顺序
      */
@@ -111,7 +120,7 @@ public @interface LsonNumberFormat
         @Override
         public Object deserialization(Object value, LsonNumberFormat lsonNumberFormat, Object object)
         {
-            return DataProcessUtil.getNumberFormat(value, lsonNumberFormat.digit(), lsonNumberFormat.mode());
+            return DataProcessUtil.getNumberFormat(value, lsonNumberFormat.digit(), lsonNumberFormat.mode(), lsonNumberFormat.isCastInteger());
         }
 
         @Override
