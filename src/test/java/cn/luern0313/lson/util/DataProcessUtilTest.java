@@ -79,7 +79,7 @@ public class DataProcessUtilTest
     {
         assertEquals(DataProcessUtil.getTimeStamp(null, null, null), 0);
         assertEquals(DataProcessUtil.getTimeStamp("", "", LsonDateFormat.LsonDateFormatMode.MILLI_SECOND), 0);
-        assertEquals(DataProcessUtil.getTimeStamp("1970-01-01 08:00:00", "yyyy-MM-dd HH:mm:ss", LsonDateFormat.LsonDateFormatMode.MILLI_SECOND), 0);
+        assertEquals(DataProcessUtil.getTimeStamp("1970-01-01 08:00:00", "yyyy-MM-dd HH:mm:ss", LsonDateFormat.LsonDateFormatMode.MILLI_SECOND), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse("1970-01-01 08:00:00").getTime());
         assertEquals(DataProcessUtil.getTimeStamp("2021年12月06日 23:00:03", "yyyy年MM月dd日 HH:mm:ss", LsonDateFormat.LsonDateFormatMode.SECOND), new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss", Locale.getDefault()).parse("2021年12月06日 23:00:03").getTime() / 1000);
         assertEquals(DataProcessUtil.getTimeStamp("2021年12月06日 23:00:03", "yyyy年MM月dd日 HH:mm:ss", LsonDateFormat.LsonDateFormatMode.MILLI_SECOND), new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss", Locale.getDefault()).parse("2021年12月06日 23:00:03").getTime());
     }
