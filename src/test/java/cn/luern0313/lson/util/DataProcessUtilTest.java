@@ -69,7 +69,6 @@ public class DataProcessUtilTest
     {
         assertEquals(DataProcessUtil.getTime(-1, ""), "");
         assertEquals(DataProcessUtil.getTime(0, ""), "");
-        ;
         assertEquals(DataProcessUtil.getTime(0, "yyyy-MM-dd HH:mm:ss"), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date(0)));
         assertEquals(DataProcessUtil.getTime(1638802803555L, "yyyy年MM月dd日 HH:mm:ss"), new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss", Locale.getDefault()).format(new Date(1638802803555L)));
     }
