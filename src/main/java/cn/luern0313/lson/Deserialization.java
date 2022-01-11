@@ -55,13 +55,13 @@ public class Deserialization
     @SuppressWarnings("unchecked")
     private static <T> T deserialization(LsonElement json, TypeUtil typeUtil, ArrayList<Object> rootJsonPath, Object genericSuperclass, Class<?>[] parameterTypes, Object[] parameters)
     {
-        T t;
+        T t = null;
         try
         {
             Constructor<?> constructor1 = typeUtil.getConstructor(parameterTypes);
             if(constructor1 != null)
                 t = (T) constructor1.newInstance(parameters);
-            else
+            else if(genericSuperclass != null)
             {
                 Constructor<?> constructor2 = typeUtil.getConstructor(genericSuperclass.getClass());
                 t = (T) constructor2.newInstance(genericSuperclass);
@@ -72,6 +72,9 @@ public class Deserialization
             e.printStackTrace();
             throw new InstantiationException(typeUtil.getName(), e.toString());
         }
+
+        if(t == null)
+            throw new InstantiationException(typeUtil.getName(), "There is no construction method specified.");
 
         return deserialization(json, typeUtil, t, rootJsonPath);
     }
@@ -134,6 +137,7 @@ public class Deserialization
         return t;
     }
 
+    @SuppressWarnings("Java8ListSort")
     private static List<Annotation> sortAnnotation(Annotation[] annotations)
     {
         List<Annotation> annotationList = new ArrayList<>(Arrays.asList(annotations));
