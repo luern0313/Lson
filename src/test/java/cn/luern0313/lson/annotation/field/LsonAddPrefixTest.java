@@ -31,6 +31,7 @@ public class LsonAddPrefixTest
         assertEquals(config.deserialization(stringBuilder, lsonAddPrefix, null).toString(), "");
 
         stringBuilder.append("aaa");
+        Mockito.when(lsonAddPrefix.value()).thenReturn("");
         assertEquals(config.deserialization(stringBuilder, lsonAddPrefix, null).toString(), "aaa");
 
         stringBuilder.delete(0, stringBuilder.length());
@@ -38,6 +39,7 @@ public class LsonAddPrefixTest
         assertEquals(config.deserialization(stringBuilder, lsonAddPrefix, null).toString(), "bbb");
 
         stringBuilder.append("aaa");
+        Mockito.when(lsonAddPrefix.value()).thenReturn("bbb");
         assertEquals(config.deserialization(stringBuilder, lsonAddPrefix, null).toString(), "bbbbbbaaa");
     }
 
@@ -50,6 +52,7 @@ public class LsonAddPrefixTest
         assertEquals(config.serialization(stringBuilder, lsonAddPrefix, null).toString(), "");
 
         stringBuilder.append("aaa");
+        Mockito.when(lsonAddPrefix.value()).thenReturn("");
         assertEquals(config.serialization(stringBuilder, lsonAddPrefix, null).toString(), "aaa");
 
         stringBuilder.delete(0, stringBuilder.length());
@@ -62,5 +65,8 @@ public class LsonAddPrefixTest
         stringBuilder.append("bbb");
         Mockito.when(lsonAddPrefix.value()).thenReturn("aaa");
         assertEquals(config.serialization(stringBuilder, lsonAddPrefix, null).toString(), "bbb");
+
+        Mockito.when(lsonAddPrefix.value()).thenReturn("bbb");
+        assertEquals(config.serialization(stringBuilder, lsonAddPrefix, null).toString(), "aaabbb");
     }
 }
