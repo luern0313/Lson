@@ -181,12 +181,12 @@ public class LsonParser
                     {
                         if (hasStatus(status, STATUS_EXPECT_OBJECT_END.index))
                         {
-                            status = STATUS_EXPECT_OBJECT_KEY.index;
+                            status = STATUS_EXPECT_OBJECT_KEY.index | STATUS_EXPECT_OBJECT_END.index;
                             continue;
                         }
                         if (hasStatus(status, STATUS_EXPECT_ARRAY_END.index))
                         {
-                            status = STATUS_EXPECT_ARRAY_ELEMENT.index | STATUS_EXPECT_ARRAY_BEGIN.index | STATUS_EXPECT_OBJECT_BEGIN.index;
+                            status = STATUS_EXPECT_ARRAY_ELEMENT.index | STATUS_EXPECT_ARRAY_BEGIN.index | STATUS_EXPECT_OBJECT_BEGIN.index | STATUS_EXPECT_ARRAY_END.index;
                             continue;
                         }
                     }
