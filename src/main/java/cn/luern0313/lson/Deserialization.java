@@ -154,7 +154,7 @@ public class Deserialization
             {
                 if(method.getAnnotation(AnnotationOrder.class) != null)
                 {
-                    Type type = method.getAnnotatedReturnType().getType();
+                    Type type = method.getGenericReturnType();
                     if(type instanceof Class && ((Class<?>) type).getName().equals("int"))
                         return (int) method.invoke(annotation);
                 }
@@ -558,7 +558,6 @@ public class Deserialization
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     public static Object getClassData(TypeUtil fieldType, LsonElement json, LsonElement rootJson, Object t, ArrayList<Object> paths, Class<?>[] parameterTypes, Object[] parameters)
     {
         try
@@ -566,13 +565,13 @@ public class Deserialization
             if(fieldType == null) return null;
 
             if(fieldType.isMapType())
-                return (Map<String, ?>) getMapData(json, rootJson, fieldType, paths, t);
+                return getMapData(json, rootJson, fieldType, paths, t);
             else if(fieldType.isArrayType())
                 return getArrayData(json, rootJson, fieldType, paths, t);
             else if(fieldType.isListType())
-                return (List<?>) getListData(json, rootJson, fieldType, paths, t);
+                return getListData(json, rootJson, fieldType, paths, t);
             else if(fieldType.isSetType())
-                return (Set<?>) getSetData(json, rootJson, fieldType, paths, t);
+                return getSetData(json, rootJson, fieldType, paths, t);
             else if(fieldType.getName().equals(Object.class.getName()))
                 return getJsonPrimitiveData(json);
             else if(fieldType.isBuiltInClass())
