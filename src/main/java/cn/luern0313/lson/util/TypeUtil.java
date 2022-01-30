@@ -6,6 +6,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -70,10 +71,32 @@ public class TypeUtil
 
     public Class<?> getAsClass()
     {
+        try
+        {
+            return getAsClass(type);
+        }
+        catch (ClassNotFoundException | ClassCastException ignored)
+        {
+        }
+        return null;
+    }
+
+    // 临时方案
+    public Class<?> getAsClass(Type type) throws ClassNotFoundException
+    {
         if(type instanceof ParameterizedType)
             return (Class<?>) ((ParameterizedType) type).getRawType();
         else if(type instanceof TypeVariable)
             return typeReference.typeMap.get(((TypeVariable<?>) type).getName()).rawType;
+        else if(type instanceof GenericArrayType)
+        {
+            Class<?> subClass = getAsClass(((GenericArrayType) type).getGenericComponentType());
+            if (!subClass.isArray())
+                return Class.forName("[L" + subClass.getName() + ";");
+            return Class.forName("[" + subClass.getName());
+        }
+        else if (type instanceof WildcardType) //TODO 上下界待完善
+            return getAsClass(((WildcardType) type).getLowerBounds()[0]);
         return (Class<?>) getAsType();
     }
 
@@ -193,6 +216,11 @@ public class TypeUtil
     public boolean isSetType()
     {
         return Set.class.isAssignableFrom(getAsClass());
+    }
+
+    public boolean isEnumType()
+    {
+        return getAsClass().isEnum();
     }
 
     public Class<?> getPrimitiveClass()
