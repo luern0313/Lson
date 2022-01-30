@@ -34,39 +34,15 @@ class TokenReader
                 break;
         }
 
-        switch (ch)
-        {
-            case '{':
-                reader.next();
-                return TokenType.OBJECT_BEGIN;
-            case '}':
-                reader.next();
-                return TokenType.OBJECT_END;
-            case '[':
-                reader.next();
-                return TokenType.ARRAY_BEGIN;
-            case ']':
-                reader.next();
-                return TokenType.ARRAY_END;
-            case ':':
-                reader.next();
-                return TokenType.SPLIT_COLON;
-            case ',':
-                reader.next();
-                return TokenType.SPLIT_COMMA;
-            case '-':
-                return TokenType.NUMBER;
-            case 'n':
-                return TokenType.NULL;
-            case 't':
-            case 'f':
-                return TokenType.BOOLEAN;
+        for (TokenType value : TokenType.values()) {
+            if (parserSymbol(value.getSymbol(), ch)) {
+                return value;
+            }
         }
+
         if(ch >= '0' && ch <= '9')
             return TokenType.NUMBER;
-        else if(ch == '"')
-            return TokenType.STRING;
-        throw new JsonParseException("Unexpected char " + ch, reader.getErrorMessage());
+        return TokenType.STRING;
     }
 
     String readString()
@@ -176,19 +152,44 @@ class TokenReader
         }
     }
 
-    boolean readBoolean()
-    {
-        char ch = reader.next();
-        if(ch == 't' && reader.next() == 'r' && reader.next() == 'u' && reader.next() == 'e')
-            return true;
-        else if(ch == 'f' && reader.next() == 'a' && reader.next() == 'l' && reader.next() == 's' && reader.next() == 'e')
+    private boolean parserSymbol(String symbol) {
+        if (symbol == null)
             return false;
-        throw new JsonParseException("Unexpected boolean");
+        return parserSymbol(symbol.toCharArray(), 0);
     }
 
-    void readNull()
-    {
-        if(!(reader.next() == 'n' && reader.next() == 'u' && reader.next() == 'l' && reader.next() == 'l'))
-            throw new JsonParseException("Unexpected null");
+    private boolean parserSymbol(String symbol, char currentChar) {
+        if (symbol == null)
+            return false;
+        reader.next();
+        boolean result = parserSymbol(symbol.toCharArray(), 0, currentChar);
+        if (!result) {
+            reader.pos--;
+            return false;
+        }
+        return true;
+    }
+
+    private boolean parserSymbol(char[] symbolChars, int index) {
+        boolean result = parserSymbol(symbolChars, index, reader.next());
+        if (!result) {
+            reader.pos--;
+            return false;
+        }
+        return true;
+    }
+
+    private boolean parserSymbol(char[] symbolChars, int index, char currentChar) {
+        if (currentChar == symbolChars[index]) {
+            if (symbolChars.length > index + 1) {
+                boolean result = parserSymbol(symbolChars, index + 1);
+                if (!result) {
+                    reader.pos--;
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 }

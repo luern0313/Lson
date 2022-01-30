@@ -22,15 +22,17 @@ public class JSON5Test
         assertEquals(arrayExtraCommaArray.getInt(1), 2);
         assertEquals(arrayExtraCommaArray.getInt(2), 3);
         assertEquals(arrayExtraCommaArray.getInt(3), 4);
+        assertEquals(arrayExtraCommaArray.size(), 4);
     }
 
     @Test
     public void objectExtraCommaTest()
     {
         String objectExtraComma = "{\"a\": \"a\", \"b\": \"b\", \"c\": \"c\",}";
-        LsonObject arrayExtraCommaArray = LsonUtil.parseAsObject(objectExtraComma);
-        assertEquals(arrayExtraCommaArray.getString("a"), "a");
-        assertEquals(arrayExtraCommaArray.getString("b"), "b");
-        assertEquals(arrayExtraCommaArray.getString("c"), "c");
+        LsonObject arrayExtraCommaObject = LsonUtil.parseAsObject(objectExtraComma);
+        assertEquals(arrayExtraCommaObject.getString("a"), "a");
+        assertEquals(arrayExtraCommaObject.getString("b"), "b");
+        assertEquals(arrayExtraCommaObject.getString("c"), "c");
+        assertEquals(arrayExtraCommaObject.getKeys().length, 3);
     }
 }
