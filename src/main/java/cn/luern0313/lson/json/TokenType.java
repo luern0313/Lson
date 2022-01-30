@@ -9,22 +9,22 @@ enum TokenType
     /**
      * object开始: {
      */
-    OBJECT_BEGIN,
+    OBJECT_BEGIN("{"),
 
     /**
      * object结束: }
      */
-    OBJECT_END,
+    OBJECT_END("}"),
 
     /**
      * array开始: [
      */
-    ARRAY_BEGIN,
+    ARRAY_BEGIN("["),
 
     /**
      * array结束: ]
      */
-    ARRAY_END,
+    ARRAY_END("]"),
 
     /**
      * 字符串: "xxx"
@@ -37,27 +37,45 @@ enum TokenType
     NUMBER,
 
     /**
-     * 布尔值: true/false
+     * 布尔值: true
      */
-    BOOLEAN,
+    BOOLEAN_TRUE("true"),
+
+    /**
+     * 布尔值: false
+     */
+    BOOLEAN_FALSE("false"),
 
     /**
      * null
      */
-    NULL,
+    NULL("null"),
 
     /**
      * :
      */
-    SPLIT_COLON,
+    SPLIT_COLON(":"),
 
     /**
      * ,
      */
-    SPLIT_COMMA,
+    SPLIT_COMMA(","),
 
     /**
      * EOF
      */
-    END_DOCUMENT
+    END_DOCUMENT;
+
+    private String symbol;
+
+    TokenType() {
+    }
+
+    TokenType(String symbol) {
+        this.symbol = symbol;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
 }
