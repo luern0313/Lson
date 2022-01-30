@@ -152,35 +152,19 @@ class TokenReader
         }
     }
 
-    private boolean parserSymbol(String symbol) {
-        if (symbol == null)
-            return false;
-        return parserSymbol(symbol.toCharArray(), 0);
-    }
-
     private boolean parserSymbol(String symbol, char currentChar) {
         if (symbol == null)
             return false;
-        reader.next();
-        boolean result = parserSymbol(symbol.toCharArray(), 0, currentChar);
-        if (!result) {
-            reader.pos--;
-            return false;
-        }
-        return true;
+        return parserSymbol(symbol.toCharArray(), 0, currentChar);
     }
 
     private boolean parserSymbol(char[] symbolChars, int index) {
-        boolean result = parserSymbol(symbolChars, index, reader.next());
-        if (!result) {
-            reader.pos--;
-            return false;
-        }
-        return true;
+        return parserSymbol(symbolChars, index, reader.peek());
     }
 
     private boolean parserSymbol(char[] symbolChars, int index, char currentChar) {
         if (currentChar == symbolChars[index]) {
+            reader.next();
             if (symbolChars.length > index + 1) {
                 boolean result = parserSymbol(symbolChars, index + 1);
                 if (!result) {
