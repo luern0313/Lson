@@ -42,13 +42,20 @@ class TokenReader
 
         if(ch >= '0' && ch <= '9')
             return TokenType.NUMBER;
-        return TokenType.STRING;
+        else if (ch == '"' || ch == '\'')
+            return TokenType.STRING;
+        return TokenType.STRING_WITHOUT_QUOTATION;
     }
 
     String readString()
     {
         StringBuilder sb = new StringBuilder();
-        reader.next();
+        char startChar = reader.next();
+        if (startChar != '"' && startChar != '\'') {
+            reader.pos--;
+            startChar = 0;
+        }
+
         while (true)
         {
             char ch = reader.next();
@@ -102,12 +109,17 @@ class TokenReader
                         throw new JsonParseException("Unexpected char: " + ch, reader.getErrorMessage());
                 }
             }
-            else if(ch == '"')
+            else if ((startChar == '"' && ch == '"') || (startChar == '\'' && ch == '\''))
+                return sb.toString();
+            else if (ch == ':')
                 return sb.toString();
             else if(ch == '\r' || ch == '\n')
                 throw new JsonParseException("Invalid character");
             else
                 sb.append(ch);
+
+            if (!reader.hasMore())
+                return sb.toString();
         }
     }
 

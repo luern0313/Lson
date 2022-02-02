@@ -27,9 +27,16 @@ enum TokenType
     ARRAY_END("]"),
 
     /**
-     * 字符串: "xxx"
+     * 字符串: "xxx" / 'xxx'
      */
     STRING,
+
+    /**
+     * 字符串: xxx
+     *
+     * 注：只允许在object的key中出现
+     */
+    STRING_WITHOUT_QUOTATION,
 
     /**
      * 数字: 1

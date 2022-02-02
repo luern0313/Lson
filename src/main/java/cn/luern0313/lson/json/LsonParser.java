@@ -101,6 +101,17 @@ public class LsonParser
                     }
                     throw new JsonParseException("Unexpected string", reader.reader.getErrorMessage());
                 }
+                case STRING_WITHOUT_QUOTATION:
+                {
+                    String string = reader.readString();
+                    if(hasStatus(status, STATUS_EXPECT_OBJECT_KEY.index))
+                    {
+                        stack.push(StackValue.newJsonObjectKey(string));
+                        status = STATUS_EXPECT_COLON.index;
+                        continue;
+                    }
+                    throw new JsonParseException("Unexpected string-without-quotation", reader.reader.getErrorMessage());
+                }
                 case NUMBER:
                 {
                     Number number = reader.readNumber();
