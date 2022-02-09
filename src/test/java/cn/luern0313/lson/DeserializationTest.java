@@ -19,8 +19,6 @@ import cn.luern0313.lson.annotation.field.LsonSplitString;
 import cn.luern0313.lson.annotation.method.LsonCallMethod;
 import cn.luern0313.lson.element.LsonObject;
 
-import static org.junit.Assert.*;
-
 /**
  * 被 luern 创建于 2021/12/14.
  */
@@ -49,8 +47,8 @@ public class DeserializationTest
     @Test
     public void test()
     {
-        aBaseModel<UserModel<UserModel.UserVideoModel>> aBaseModel = LsonUtil.fromJson(LsonUtil.parse(json2), new TypeReference<aBaseModel<UserModel<UserModel.UserVideoModel>>>(){}, 1, "");
-        System.out.println();
+        //aBaseModel<UserModel<UserModel.UserVideoModel>> aBaseModel = LsonUtil.fromJson(LsonUtil.parse(json2), new TypeReference<aBaseModel<UserModel<UserModel.UserVideoModel>>>(){}, 1, "");
+        //System.out.println();
     }
 
     private static class aBaseModel<T>
