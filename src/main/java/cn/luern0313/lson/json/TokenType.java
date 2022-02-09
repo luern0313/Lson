@@ -69,6 +69,16 @@ enum TokenType
     SPLIT_COMMA(","),
 
     /**
+     * 单行注释：//
+     */
+    COMMENT_SINGLE("//"),
+
+    /**
+     * 多行注释开始符：/*
+     */
+    COMMENT_MULTIPLE_START("/*"),
+
+    /**
      * EOF
      */
     END_DOCUMENT;

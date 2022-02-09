@@ -19,24 +19,21 @@ public class JSONPrimitiveTest
     @Test
     public void nullTest()
     {
-        String nullJSONString = "null";
-        LsonElement lsonElement = LsonUtil.parse(nullJSONString);
+        LsonElement lsonElement = LsonUtil.parse("null");
         assertNull(lsonElement);
     }
 
     @Test
     public void trueTest()
     {
-        String trueJSONString = "true";
-        LsonElement lsonElement = LsonUtil.parse(trueJSONString);
+        LsonElement lsonElement = LsonUtil.parse("true");
         assertTrue(lsonElement.getAsLsonPrimitive().getAsBoolean());
     }
 
     @Test
     public void falseTest()
     {
-        String trueJSONString = "false";
-        LsonElement lsonElement = LsonUtil.parse(trueJSONString);
+        LsonElement lsonElement = LsonUtil.parse("false");
         assertFalse(lsonElement.getAsLsonPrimitive().getAsBoolean());
     }
 
@@ -48,5 +45,12 @@ public class JSONPrimitiveTest
 
         LsonElement intLsonElement2 = LsonUtil.parse(String.valueOf(Integer.MAX_VALUE + 1L));
         assertEquals(intLsonElement2.getAsLsonPrimitive().getAsLong(), 2147483648L);
+    }
+
+    @Test
+    public void stringTest()
+    {
+        LsonElement intLsonElement = LsonUtil.parse("\"aaa\"");
+        assertEquals(intLsonElement.getAsLsonPrimitive().getAsString(), "aaa");
     }
 }

@@ -284,6 +284,12 @@ public class LsonParser
                         }
                     }
                     throw new JsonParseException("Unexpected }", reader.reader.getErrorMessage());
+                case COMMENT_SINGLE:
+                    reader.readComment("\n");
+                    break;
+                case COMMENT_MULTIPLE_START:
+                    reader.readComment("*/");
+                    break;
                 case END_DOCUMENT:
                     if(hasStatus(status, STATUS_EXPECT_END_DOCUMENT.index))
                     {

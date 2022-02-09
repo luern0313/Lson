@@ -13,8 +13,13 @@ repositories {
     mavenCentral()
 }
 
+sourceSets {
+    test.java.srcDirs += 'src/test/kotlin'
+}
+
 dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
     testImplementation "org.mockito:mockito-core:4.1.0"
-    //implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.4.10"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:1.4.10"
 }

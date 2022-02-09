@@ -171,15 +171,20 @@ class TokenReader
     }
 
     private boolean parserSymbol(char[] symbolChars, int index) {
-        return parserSymbol(symbolChars, index, reader.peek());
+        if (reader.hasMore())
+            return parserSymbol(symbolChars, index, reader.peek());
+        return false;
     }
 
     private boolean parserSymbol(char[] symbolChars, int index, char currentChar) {
-        if (currentChar == symbolChars[index]) {
+        if (currentChar == symbolChars[index])
+        {
             reader.next();
-            if (symbolChars.length > index + 1) {
+            if (symbolChars.length > index + 1)
+            {
                 boolean result = parserSymbol(symbolChars, index + 1);
-                if (!result) {
+                if (!result)
+                {
                     reader.pos--;
                     return false;
                 }
@@ -187,5 +192,26 @@ class TokenReader
             return true;
         }
         return false;
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
+    public String readComment(String end) {
+        StringBuilder stringBuilder = new StringBuilder();
+        char[] chars = end.toCharArray();
+        int current = 0;
+        while (reader.hasMore())
+        {
+            char ch = reader.next();
+            stringBuilder.append(ch);
+            if (ch == chars[current]) {
+                current++;
+                if (chars.length <= current)
+                    break;
+            } else if (current > 0) {
+                current = 0;
+            }
+        }
+        stringBuilder.delete(stringBuilder.length() - chars.length, stringBuilder.length());
+        return stringBuilder.toString();
     }
 }
