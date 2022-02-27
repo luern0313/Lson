@@ -35,12 +35,16 @@ class TokenReader
         }
 
         for (TokenType value : TokenType.values()) {
-            if (parserSymbol(value.getSymbol(), ch)) {
-                return value;
+            if (value.getSymbols() != null) {
+                for (String symbol : value.getSymbols()) {
+                    if (parserSymbol(symbol, ch)) {
+                        return value;
+                    }
+                }
             }
         }
 
-        if(ch >= '0' && ch <= '9')
+        if((ch >= '0' && ch <= '9') || ch == '-' || ch == '+' || ch == '.')
             return TokenType.NUMBER;
         else if (ch == '"' || ch == '\'')
             return TokenType.STRING;
@@ -89,6 +93,8 @@ class TokenReader
                     case 't':
                         sb.append('\t');
                         break;
+                    case '\n':
+                        break;
                     case 'u':
                         int u = 0;
                         for (int i = 0; i < 4; i++)
@@ -111,10 +117,13 @@ class TokenReader
             }
             else if ((startChar == '"' && ch == '"') || (startChar == '\'' && ch == '\''))
                 return sb.toString();
-            else if (ch == ':')
+            else if (ch == ':' && startChar == 0)
+            {
+                reader.pos--;
                 return sb.toString();
+            }
             else if(ch == '\r' || ch == '\n')
-                throw new JsonParseException("Invalid character");
+                throw new JsonParseException("Invalid character", reader.getErrorMessage());
             else
                 sb.append(ch);
 

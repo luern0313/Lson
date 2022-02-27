@@ -43,7 +43,14 @@ public class LsonUtil
      */
     public static LsonElement parse(Reader reader)
     {
-        return LsonParser.parse(reader);
+        try
+        {
+            return LsonParser.parse(reader);
+        }
+        catch (RuntimeException e)
+        {
+            return null;
+        }
     }
 
     /**

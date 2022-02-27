@@ -113,8 +113,16 @@ public class LsonParser
                     throw new JsonParseException("Unexpected string-without-quotation", reader.reader.getErrorMessage());
                 }
                 case NUMBER:
+                case NUMBER_NAN:
+                case NUMBER_INFINITY:
+                case NUMBER_INFINITY_NEGATIVE:
                 {
-                    Number number = reader.readNumber();
+                    Number number;
+                    if (currentToken == TokenType.NUMBER) number = reader.readNumber();
+                    else if (currentToken == TokenType.NUMBER_NAN) number = Double.NaN;
+                    else if (currentToken == TokenType.NUMBER_INFINITY) number = Double.POSITIVE_INFINITY;
+                    else number = Double.NEGATIVE_INFINITY;
+
                     LsonPrimitive lsonPrimitive = new LsonPrimitive(number);
                     if(hasStatus(status, STATUS_EXPECT_OBJECT_VALUE.index))
                     {
@@ -137,7 +145,8 @@ public class LsonParser
                     }
                     throw new JsonParseException("Unexpected number", reader.reader.getErrorMessage());
                 }
-                case BOOLEAN_TRUE: {
+                case BOOLEAN_TRUE:
+                {
                     LsonPrimitive lsonPrimitive = new LsonPrimitive(true);
                     if(hasStatus(status, STATUS_EXPECT_OBJECT_VALUE.index))
                     {
@@ -160,7 +169,8 @@ public class LsonParser
                     }
                     throw new JsonParseException("Unexpected true", reader.reader.getErrorMessage());
                 }
-                case BOOLEAN_FALSE: {
+                case BOOLEAN_FALSE:
+                {
                     LsonPrimitive lsonPrimitive = new LsonPrimitive(false);
                     if(hasStatus(status, STATUS_EXPECT_OBJECT_VALUE.index))
                     {

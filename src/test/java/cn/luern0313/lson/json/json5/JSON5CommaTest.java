@@ -1,4 +1,4 @@
-package cn.luern0313.lson.json;
+package cn.luern0313.lson.json.json5;
 
 import org.junit.Test;
 
@@ -11,7 +11,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * 被 luern 创建于 2022/1/29.
  */
-public class JSON5Test
+public class JSON5CommaTest
 {
     @Test
     public void arrayExtraCommaTest()
@@ -34,5 +34,12 @@ public class JSON5Test
         assertEquals(arrayExtraCommaObject.getString("b"), "b");
         assertEquals(arrayExtraCommaObject.getString("c"), "c");
         assertEquals(arrayExtraCommaObject.getKeys().length, 3);
+    }
+
+    @Test
+    public void name()
+    {
+        //String json = "{\n  foo: 'bar',\n  while: true,\n\n  this: 'is a \\nmulti-line string',\n\n  // this is an inline comment\n  here: 'is another', // inline comment\n\n  /* this is a block comment\n     that continues on another line */\n\n  hex: 0xDEADbeef,\n  half: +.5,\n  delta: +10,\n  to: Infinity,   // and beyond!\n\n  finally: 'a trailing comma',\n  oh: [\n    \"we shouldn't forget\",\n    'arrays can have',\n    'trailing commas too',\n  ],\n}\n";
+        //LsonObject arrayExtraCommaObject = LsonUtil.parseAsObject(json);
     }
 }

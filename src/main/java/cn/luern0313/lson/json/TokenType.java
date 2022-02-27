@@ -44,6 +44,21 @@ enum TokenType
     NUMBER,
 
     /**
+     * 数字：正无穷
+     */
+    NUMBER_INFINITY("Infinity", "+Infinity"),
+
+    /**
+     * 数字：负无穷
+     */
+    NUMBER_INFINITY_NEGATIVE("-Infinity"),
+
+    /**
+     * 数字：NaN
+     */
+    NUMBER_NAN("NaN", "-NaN", "+NaN"),
+
+    /**
      * 布尔值: true
      */
     BOOLEAN_TRUE("true"),
@@ -83,16 +98,16 @@ enum TokenType
      */
     END_DOCUMENT;
 
-    private String symbol;
+    private String[] symbols;
 
     TokenType() {
     }
 
-    TokenType(String symbol) {
-        this.symbol = symbol;
+    TokenType(String... symbols) {
+        this.symbols = symbols;
     }
 
-    public String getSymbol() {
-        return symbol;
+    public String[] getSymbols() {
+        return symbols;
     }
 }
