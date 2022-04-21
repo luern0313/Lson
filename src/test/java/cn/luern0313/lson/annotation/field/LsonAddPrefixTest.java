@@ -67,6 +67,6 @@ public class LsonAddPrefixTest
         assertEquals(config.serialization(stringBuilder, lsonAddPrefix, null).toString(), "bbb");
 
         Mockito.when(lsonAddPrefix.value()).thenReturn("bbb");
-        assertEquals(config.serialization(stringBuilder, lsonAddPrefix, null).toString(), "aaabbb");
+        assertEquals(config.serialization(stringBuilder, lsonAddPrefix, null).toString(), "");
     }
 }
