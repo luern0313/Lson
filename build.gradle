@@ -1,3 +1,16 @@
+import org.jetbrains.kotlin.gradle.tasks.*
+
+buildscript {
+    ext.kotlin_version = '1.4.32'
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
 plugins {
     id 'java'
 }
@@ -20,12 +33,12 @@ sourceSets {
 dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
     testImplementation "org.mockito:mockito-core:4.1.0"
-    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:1.4.10"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.4.32"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
     }
