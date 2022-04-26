@@ -1,21 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.*
 
-buildscript {
-    ext.kotlin_version = '1.4.32'
-    repositories {
-        google()
-        jcenter()
-    }
-
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
-}
-
-plugins {
-    id 'java'
-}
+apply plugin: 'java'
 apply plugin: 'kotlin'
+
+ext.kotlin_version = '1.4.32'
 
 group 'cn.luern0313.lson'
 version '0.90'
