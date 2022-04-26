@@ -149,7 +149,7 @@ public class TypeUtil
             for (Constructor<?> value : constructors)
             {
                 Class<?>[] constructorTypes = value.getParameterTypes();
-                if(constructorTypes.length == 0 && parameterTypes == null)
+                if(constructorTypes.length == 0 && (parameterTypes == null || parameterTypes.length == 0))
                 {
                     value.setAccessible(true);
                     return value;

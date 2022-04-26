@@ -7,7 +7,7 @@ import kotlin.reflect.typeOf
 /**
  * 被 luern 创建于 2022/4/21.
  */
-object LsonUtilKt {
+object LsonUtilKT {
     /**
      * 将json反序列化为指定的实体类。
      *
@@ -23,7 +23,7 @@ object LsonUtilKt {
     @OptIn(ExperimentalStdlibApi::class)
     @JvmStatic
     inline fun <reified T> fromJson(json: LsonElement?, vararg parameters: Any?): T {
-        return LsonUtil.fromJson(json, TypeReference(typeOf<T>().javaType), parameters)
+        return LsonUtil.fromJson(json, TypeReference(typeOf<T>().javaType), *parameters)
     }
 
     /**
