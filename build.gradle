@@ -14,8 +14,8 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'kotlin'
 }
+apply plugin: 'kotlin'
 
 group 'cn.luern0313.lson'
 version '0.90'
