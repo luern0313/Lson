@@ -1,11 +1,13 @@
 package cn.luern0313.lson.deserialization
 
 import cn.luern0313.lson.annotation.field.LsonPath
+import kotlin.test.assertEquals
 
 /**
- * 被 luern 创建于 2022/4/25.
+ * 测试参数化类型
+ * 2022/4/25
  */
-class Json2: DeserializationJsonChecker<BaseModel<Json2.FeedModel>> {
+object Json2: DeserializationJsonChecker<BaseModel<Json2.FeedModel>> {
     private val json = """
         {
           "code": 0,
@@ -56,7 +58,17 @@ class Json2: DeserializationJsonChecker<BaseModel<Json2.FeedModel>> {
     }
 
     override fun check(model: BaseModel<FeedModel>) {
-        
+        assertEquals(model.code, 0)
+        assertEquals(model.message, "")
+        assertEquals(model.data?.feed?.size, 2)
+        assertEquals(model.data?.feed?.get(0)?.content, "《唐顿庄园2》定档5月20日，华美精致的英伦风尚即将与你大银幕邂逅！当古老庄园里拍起了电影，当老伯爵夫人的过往秘密被揭开，一个全新的时代即将到来。")
+        assertEquals(model.data?.feed?.get(0)?.topic, "春始万物生")
+        assertEquals(model.data?.feed?.get(0)?.user?.userName, "陪你聊电影")
+        assertEquals(model.data?.feed?.get(0)?.user?.userId, "100002")
+        assertEquals(model.data?.feed?.get(1)?.content, "雨生百谷，万物更新\n今天是春季的最后一个节气谷雨，因此时节降水增多，利于谷物生长而得名。\n在古代，人们在谷雨这天喝谷雨茶、赏牡丹。")
+        assertEquals(model.data?.feed?.get(1)?.topic, "为高考加油")
+        assertEquals(model.data?.feed?.get(1)?.user?.userName, "国风阁小书童")
+        assertEquals(model.data?.feed?.get(1)?.user?.userId, "100001")
     }
 
     class FeedModel {
@@ -74,17 +86,12 @@ class Json2: DeserializationJsonChecker<BaseModel<Json2.FeedModel>> {
         @LsonPath
         var topic: String? = null
 
-
-        @LsonPath
-        var userLike: Boolean? = null
-
         class FeedUserModel {
             @LsonPath
             var userId: String? = null
 
             @LsonPath
             var userName: String? = null
-
         }
     }
 }

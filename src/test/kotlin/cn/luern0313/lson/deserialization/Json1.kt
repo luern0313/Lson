@@ -4,6 +4,7 @@ import cn.luern0313.lson.annotation.field.LsonPath
 import kotlin.test.assertEquals
 
 /**
+ * 测试单一类
  * 2022/4/25.
  */
 

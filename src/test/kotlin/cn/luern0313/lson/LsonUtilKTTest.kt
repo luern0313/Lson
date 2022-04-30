@@ -1,7 +1,7 @@
 package cn.luern0313.lson
 
-import cn.luern0313.lson.annotation.field.LsonPath
 import cn.luern0313.lson.deserialization.Json1
+import cn.luern0313.lson.deserialization.Json2
 import org.junit.Test
 
 /**
@@ -11,5 +11,6 @@ class LsonUtilKTTest {
     @Test
     fun fromJsonTest() {
         Json1.check(LsonUtilKT.fromJson(LsonUtil.parse(Json1.json())))
+        Json2.check(LsonUtilKT.fromJson(LsonUtil.parse(Json2.json())))
     }
 }
