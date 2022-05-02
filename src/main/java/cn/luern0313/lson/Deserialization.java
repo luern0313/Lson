@@ -39,21 +39,26 @@ import cn.luern0313.lson.util.TypeUtil;
 
 public class Deserialization
 {
+    private Lson lson;
+    
+    public Deserialization(Lson lson) {
+        this.lson = lson;
+    }
+
     @SuppressWarnings("unchecked")
-    protected static <T> T fromJson(LsonElement json, TypeUtil typeUtil, T t, ArrayList<Object> rootJsonPath)
+    protected <T> T fromJson(LsonElement json, TypeUtil typeUtil, T t, ArrayList<Object> rootJsonPath)
     {
-        handleMethod(typeUtil, t, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
         return (T) finalValueHandle(deserialization(json, typeUtil, t, rootJsonPath), typeUtil);
     }
 
     @SuppressWarnings("unchecked")
-    protected static <T> T fromJson(LsonElement json, TypeUtil typeUtil, ArrayList<Object> rootJsonPath, Object genericSuperclass, Class<?>[] parameterTypes, Object[] parameters)
+    protected <T> T fromJson(LsonElement json, TypeUtil typeUtil, ArrayList<Object> rootJsonPath, Object genericSuperclass, Class<?>[] parameterTypes, Object[] parameters)
     {
         return (T) finalValueHandle(getClassData(typeUtil, json, json, genericSuperclass, rootJsonPath, parameterTypes, parameters), typeUtil);
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> T deserialization(LsonElement json, TypeUtil typeUtil, ArrayList<Object> rootJsonPath, Object genericSuperclass, Class<?>[] parameterTypes, Object[] parameters)
+    private <T> T deserialization(LsonElement json, TypeUtil typeUtil, ArrayList<Object> rootJsonPath, Object genericSuperclass, Class<?>[] parameterTypes, Object[] parameters)
     {
         T t = null;
         try
@@ -79,8 +84,9 @@ public class Deserialization
         return deserialization(json, typeUtil, t, rootJsonPath);
     }
 
-    private static <T> T deserialization(LsonElement json, TypeUtil clz, T t, ArrayList<Object> rootJsonPath)
+    private <T> T deserialization(LsonElement json, TypeUtil clz, T t, ArrayList<Object> rootJsonPath)
     {
+        handleMethod(clz, t, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
         TypeUtil superClass = new TypeUtil(clz.getAsClass().getSuperclass());
         if(superClass.getAsClass() != Object.class)
             fromJson(json, superClass, t, rootJsonPath);
@@ -138,14 +144,14 @@ public class Deserialization
     }
 
     @SuppressWarnings("Java8ListSort")
-    private static List<Annotation> sortAnnotation(Annotation[] annotations)
+    private List<Annotation> sortAnnotation(Annotation[] annotations)
     {
         List<Annotation> annotationList = new ArrayList<>(Arrays.asList(annotations));
         Collections.sort(annotationList, (o1, o2) -> getAnnotationOrder(o1) - getAnnotationOrder(o2));
         return annotationList;
     }
 
-    private static int getAnnotationOrder(Annotation annotation)
+    private int getAnnotationOrder(Annotation annotation)
     {
         try
         {
@@ -167,7 +173,7 @@ public class Deserialization
         return Integer.MAX_VALUE;
     }
 
-    public static Object getValue(LsonElement rootJson, String[] pathArray, ArrayList<Object> rootPath, TypeUtil fieldType, Object t)
+    public Object getValue(LsonElement rootJson, String[] pathArray, ArrayList<Object> rootPath, TypeUtil fieldType, Object t)
     {
         for (String pathString : pathArray)
         {
@@ -180,7 +186,7 @@ public class Deserialization
     }
 
     @SuppressWarnings("unchecked")
-    private static Object getValue(LsonElement rootJson, ArrayList<Object> paths, ArrayList<Object> rootPath, TypeUtil fieldType, Object t)
+    private Object getValue(LsonElement rootJson, ArrayList<Object> paths, ArrayList<Object> rootPath, TypeUtil fieldType, Object t)
     {
         try
         {
@@ -269,7 +275,7 @@ public class Deserialization
     }
 
     @SuppressWarnings("unchecked")
-    private static Object getMapData(LsonElement json, LsonElement rootJson, TypeUtil fieldType, ArrayList<Object> jsonPaths, Object t) throws IllegalAccessException, java.lang.InstantiationException
+    private Object getMapData(LsonElement json, LsonElement rootJson, TypeUtil fieldType, ArrayList<Object> jsonPaths, Object t) throws IllegalAccessException, java.lang.InstantiationException
     {
         while (json.isLsonArray() && ((LsonArray) json).size() > 0)
             json = ((LsonArray) json).get(0);
@@ -295,7 +301,7 @@ public class Deserialization
     }
 
     @SuppressWarnings("unchecked")
-    private static Object getArrayData(LsonElement json, LsonElement rootJson, TypeUtil fieldType, ArrayList<Object> jsonPaths, Object t)
+    private Object getArrayData(LsonElement json, LsonElement rootJson, TypeUtil fieldType, ArrayList<Object> jsonPaths, Object t)
     {
         TypeUtil actualTypeArgument = fieldType.getArrayElementType();
         Object array;
@@ -330,7 +336,7 @@ public class Deserialization
     }
 
     @SuppressWarnings("unchecked")
-    private static Object getListData(LsonElement json, LsonElement rootJson, TypeUtil fieldType, ArrayList<Object> jsonPaths, Object t) throws IllegalAccessException, java.lang.InstantiationException
+    private Object getListData(LsonElement json, LsonElement rootJson, TypeUtil fieldType, ArrayList<Object> jsonPaths, Object t) throws IllegalAccessException, java.lang.InstantiationException
     {
         TypeUtil actualTypeArgument = fieldType.getListElementType();
         List<Object> list = (List<Object>) fieldType.getListType().newInstance();
@@ -358,7 +364,7 @@ public class Deserialization
     }
 
     @SuppressWarnings("unchecked")
-    private static Object getSetData(LsonElement json, LsonElement rootJson, TypeUtil fieldType, ArrayList<Object> jsonPaths, Object t) throws IllegalAccessException, java.lang.InstantiationException
+    private Object getSetData(LsonElement json, LsonElement rootJson, TypeUtil fieldType, ArrayList<Object> jsonPaths, Object t) throws IllegalAccessException, java.lang.InstantiationException
     {
         TypeUtil actualTypeArgument = fieldType.getSetElementType();
         Set<Object> set = (Set<Object>) fieldType.getSetType().newInstance();
@@ -385,7 +391,7 @@ public class Deserialization
         return set;
     }
 
-    private static Object getFilterData(PathType.PathFilter.PathFilterPart part, int index, LsonElement rootJson, ArrayList<Object> rootPath, Object t)
+    private Object getFilterData(PathType.PathFilter.PathFilterPart part, int index, LsonElement rootJson, ArrayList<Object> rootPath, Object t)
     {
         Object result = null;
         if(part.mode == PathType.PathFilter.PathFilterPart.FilterPartMode.PATH)
@@ -404,7 +410,7 @@ public class Deserialization
         return result;
     }
 
-    private static boolean compare(Object left, PathType.PathFilter.FilterComparator comparator, Object right)
+    private boolean compare(Object left, PathType.PathFilter.FilterComparator comparator, Object right)
     {
         if(comparator == PathType.PathFilter.FilterComparator.EXISTENCE)
         {
@@ -450,7 +456,7 @@ public class Deserialization
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> Object handleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, T t)
+    private <T> Object handleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, T t)
     {
         if(value == null) return null;
 
@@ -487,7 +493,7 @@ public class Deserialization
         return value;
     }
 
-    private static Object handleAnnotationType(DeserializationValueUtil deserializationValueUtil, LsonDefinedAnnotation.AcceptableType acceptableType)
+    private Object handleAnnotationType(DeserializationValueUtil deserializationValueUtil, LsonDefinedAnnotation.AcceptableType acceptableType)
     {
         switch (acceptableType)
         {
@@ -501,7 +507,7 @@ public class Deserialization
         return deserializationValueUtil.get();
     }
 
-    private static <T> Object handleSingleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, T t)
+    private <T> Object handleSingleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, T t)
     {
         try
         {
@@ -525,7 +531,7 @@ public class Deserialization
         return null;
     }
 
-    private static void handleMethod(TypeUtil typeUtil, Object t, LsonCallMethod.CallMethodTiming callMethodTiming)
+    private void handleMethod(TypeUtil typeUtil, Object t, LsonCallMethod.CallMethodTiming callMethodTiming)
     {
         if(t != null)
         {
@@ -549,7 +555,7 @@ public class Deserialization
         }
     }
 
-    private static DeserializationValueUtil getJsonPrimitiveData(LsonElement json)
+    private DeserializationValueUtil getJsonPrimitiveData(LsonElement json)
     {
         while (json.isLsonArray())
             json = json.getAsLsonArray().get(0);
@@ -558,7 +564,7 @@ public class Deserialization
         return null;
     }
 
-    public static Object getClassData(TypeUtil fieldType, LsonElement json, LsonElement rootJson, Object t, ArrayList<Object> paths, Class<?>[] parameterTypes, Object[] parameters)
+    private Object getClassData(TypeUtil fieldType, LsonElement json, LsonElement rootJson, Object t, ArrayList<Object> paths, Class<?>[] parameterTypes, Object[] parameters)
     {
         try
         {
@@ -582,7 +588,6 @@ public class Deserialization
                 else
                     return data;
             }
-            handleMethod(fieldType, t, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
             return deserialization(rootJson, fieldType, paths, t, parameterTypes, parameters);
         }
         catch (java.lang.InstantiationException | IllegalAccessException ignored)
@@ -591,7 +596,7 @@ public class Deserialization
         return null;
     }
 
-    private static Object handleBuiltInClass(Object value, TypeUtil fieldType)
+    private Object handleBuiltInClass(Object value, TypeUtil fieldType)
     {
         TypeUtil valueType = new TypeUtil(value.getClass());
         if(fieldType.getName().equals(StringBuilder.class.getName()))
@@ -624,7 +629,7 @@ public class Deserialization
     }
 
     @SuppressWarnings("unchecked")
-    public static Object finalValueHandle(Object value, TypeUtil fieldType)
+    public Object finalValueHandle(Object value, TypeUtil fieldType)
     {
         try
         {
@@ -681,7 +686,7 @@ public class Deserialization
         return null;
     }
 
-    private static Object finalValueHandle(DeserializationValueUtil value, TypeUtil fieldType)
+    private Object finalValueHandle(DeserializationValueUtil value, TypeUtil fieldType)
     {
         if(!fieldType.isNull())
         {

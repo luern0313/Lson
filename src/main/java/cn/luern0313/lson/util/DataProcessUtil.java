@@ -254,4 +254,18 @@ public class DataProcessUtil
             stringBuilder.append(i == 0 || separator == null ? "" : separator).append(array[i]);
         return stringBuilder.toString();
     }
+
+    public static Class<?>[] getParameterTypes(Object[] parameters)
+    {
+        Class<?>[] parameterTypes = new Class<?>[parameters.length];
+        for (int i = 0; i < parameters.length; i++)
+        {
+            TypeUtil typeUtils = new TypeUtil(parameters[i] != null ? parameters[i].getClass() : null);
+            if(typeUtils.isWrapClass())
+                parameterTypes[i] = typeUtils.getPrimitiveClass();
+            else
+                parameterTypes[i] = typeUtils.getAsClass();
+        }
+        return parameterTypes;
+    }
 }
