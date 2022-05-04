@@ -5,7 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.luern0313.lson.LsonUtil;
+import cn.luern0313.lson.Lson;
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
 import cn.luern0313.lson.annotation.other.AnnotationOrder;
 
@@ -42,13 +42,13 @@ public @interface LsonParseJsonString
         @Override
         public Object deserialization(Object value, LsonParseJsonString lsonParseJsonString, Object object)
         {
-            return LsonUtil.fromJson(LsonUtil.parse(((StringBuilder) value).toString()), lsonParseJsonString.value());
+            return Lson.def().fromJson(Lson.def().parse(((StringBuilder) value).toString()), lsonParseJsonString.value());
         }
 
         @Override
         public Object serialization(Object value, LsonParseJsonString lsonParseJsonString, Object object)
         {
-            return LsonUtil.toJson(value);
+            return Lson.def().toJson(value);
         }
     }
 }

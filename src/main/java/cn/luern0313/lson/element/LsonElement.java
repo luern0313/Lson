@@ -1,6 +1,6 @@
 package cn.luern0313.lson.element;
 
-import cn.luern0313.lson.LsonUtil;
+import cn.luern0313.lson.Lson;
 import cn.luern0313.lson.TypeReference;
 
 /**
@@ -54,7 +54,7 @@ public abstract class LsonElement
      */
     public Object getFromPath(String path)
     {
-        return LsonUtil.getValue(this, path);
+        return Lson.def().getValue(this, path);
     }
 
     /**
@@ -67,7 +67,7 @@ public abstract class LsonElement
      */
     public <T> T getFromPath(String path, Class<T> clz)
     {
-        return LsonUtil.getValue(this, path, clz);
+        return Lson.def().getValue(this, path, clz);
     }
 
     /**
@@ -80,7 +80,7 @@ public abstract class LsonElement
      */
     public <T> T getFromPath(String path, TypeReference<T> typeReference)
     {
-        return LsonUtil.getValue(this, path, typeReference.type);
+        return Lson.def().getValue(this, path, typeReference.type);
     }
 
     /**
@@ -92,7 +92,7 @@ public abstract class LsonElement
      */
     public LsonElement putFromPath(String path, Object value)
     {
-        return LsonUtil.putValue(this, path, value);
+        return Lson.def().putValue(this, path, value);
     }
 
     public abstract LsonElement deepCopy();

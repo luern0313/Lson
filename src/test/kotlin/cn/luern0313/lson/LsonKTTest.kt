@@ -7,10 +7,10 @@ import org.junit.Test
 /**
  * 被 luern 创建于 2022/4/24.
  */
-class LsonUtilKTTest {
+class LsonKTTest {
     @Test
     fun fromJsonTest() {
-        Json1.check(LsonUtilKT.fromJson(LsonUtil.parse(Json1.json())))
-        Json2.check(LsonUtilKT.fromJson(LsonUtil.parse(Json2.json())))
+        Json1.check(Lson.def().fromJson(Lson.def().parse(Json1.json())))
+        Json2.check(Lson.def().fromJson(Lson.def().parse(Json2.json())))
     }
 }
