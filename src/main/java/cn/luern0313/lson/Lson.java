@@ -10,6 +10,9 @@ import java.util.HashMap;
 import cn.luern0313.lson.adapter.BuiltInTypeAdapters;
 import cn.luern0313.lson.adapter.TypeAdapter;
 import cn.luern0313.lson.adapter.TypeAdapterList;
+import cn.luern0313.lson.constructor.ClassConstructor;
+import cn.luern0313.lson.constructor.CustomConstructor;
+import cn.luern0313.lson.constructor.CustomConstructorList;
 import cn.luern0313.lson.element.LsonArray;
 import cn.luern0313.lson.element.LsonElement;
 import cn.luern0313.lson.element.LsonObject;
@@ -24,13 +27,16 @@ import cn.luern0313.lson.util.TypeUtil;
 public class Lson {
     public static Lson instance = new Lson();
 
-    private TypeAdapterList typeAdapterList;
+    private final TypeAdapterList typeAdapterList;
+    private final ClassConstructor classConstructor;
+
+    private Deserialization deserialization;
 
     private Lson() {
-        this(null);
+        this(null, null);
     }
 
-    private Lson(TypeAdapterList typeAdapterList) {
+    private Lson(TypeAdapterList typeAdapterList, CustomConstructorList customConstructorList) {
         this.typeAdapterList = new TypeAdapterList();
 
         for (Field field : BuiltInTypeAdapters.class.getDeclaredFields()) {
@@ -44,6 +50,7 @@ public class Lson {
         }
 
         this.typeAdapterList.addAll(typeAdapterList);
+        this.classConstructor = new ClassConstructor(customConstructorList);
     }
 
     /**
@@ -102,57 +109,14 @@ public class Lson {
     /**
      * 将json反序列化为指定的实体类。
      *
-     * @param json       Lson解析过的json对象。
-     * @param clz        要反序列化实体类的Class对象。
-     * @param parameters 实例化类时，构造函数需要的参数。
-     * @param <T>        反序列化为的实体类。
-     * @return 返回反序列化后的实体类。
-     * @author luern0313
-     */
-    public <T> T fromJson(LsonElement json, Class<T> clz, Object... parameters) {
-        return fromJson(json, clz, DataProcessUtil.getParameterTypes(parameters), parameters);
-    }
-
-    /**
-     * 将json反序列化为指定的实体类。
-     *
      * @param json           Lson解析过的json对象。
      * @param clz            要反序列化实体类的Class对象。
-     * @param parameterTypes 实例化类时，构造函数需要参数的类型。
-     * @param parameters     实例化类时，构造函数需要的参数。
      * @param <T>            反序列化为的实体类。
      * @return 返回反序列化后的实体类。
      * @author luern0313
      */
-    public <T> T fromJson(LsonElement json, Class<T> clz, Class<?>[] parameterTypes, Object[] parameters) {
-        return fromJson(json, new TypeUtil(clz), parameterTypes, parameters);
-    }
-
-    /**
-     * 将json反序列化到指定的对象。
-     *
-     * @param json Lson解析过的json对象。
-     * @param t    要反序列化的对象。
-     * @param <T>  反序列化为的实体类。
-     * @return 返回反序列化后的实体类。
-     * @author luern0313
-     */
-    public <T> T packFromJson(LsonElement json, T t) {
-        return Deserialization.fromJson(json, new TypeUtil(t.getClass()), t, new ArrayList<>());
-    }
-
-    /**
-     * 将json反序列化为指定的实体类。
-     *
-     * @param json          Lson解析过的json对象。
-     * @param typeReference 用于描述一个泛型类。
-     * @param parameters    实例化类时，构造函数需要的参数。
-     * @param <T>           反序列化为的实体类。
-     * @return 返回反序列化后的实体类。
-     * @author luern0313
-     */
-    public <T> T fromJson(LsonElement json, TypeReference<T> typeReference, Object... parameters) {
-        return fromJson(json, typeReference, DataProcessUtil.getParameterTypes(parameters), parameters);
+    public <T> T fromJson(LsonElement json, Class<T> clz) {
+        return fromJson(json, new TypeUtil(clz));
     }
 
     /**
@@ -160,18 +124,18 @@ public class Lson {
      *
      * @param json           Lson解析过的json对象。
      * @param typeReference  {@link TypeReference}类，用于泛型类的反序列化。
-     * @param parameterTypes 实例化类时，构造函数需要参数的类型。
-     * @param parameters     实例化类时，构造函数需要的参数。
      * @param <T>            反序列化为的实体类。
      * @return 返回反序列化后的实体类。
      * @author luern0313
      */
-    public <T> T fromJson(LsonElement json, TypeReference<T> typeReference, Class<?>[] parameterTypes, Object[] parameters) {
-        return fromJson(json, new TypeUtil(typeReference.rawType, typeReference), parameterTypes, parameters);
+    public <T> T fromJson(LsonElement json, TypeReference<T> typeReference) {
+        return fromJson(json, new TypeUtil(typeReference.rawType, typeReference));
     }
 
-    private <T> T fromJson(LsonElement json, TypeUtil typeUtil, Class<?>[] parameterTypes, Object[] parameters) {
-        return Deserialization.fromJson(json, typeUtil, new ArrayList<>(), null, parameterTypes, parameters);
+    private <T> T fromJson(LsonElement json, TypeUtil typeUtil) {
+        if (deserialization == null)
+            deserialization = new Deserialization(this);
+        return deserialization.fromJson(json, typeUtil, null, new ArrayList<>());
     }
 
     /**
@@ -198,8 +162,10 @@ public class Lson {
      */
     @SuppressWarnings("unchecked")
     public <T> T getValue(LsonElement json, String path, Type clz) {
+        if (deserialization == null)
+            deserialization = new Deserialization(this);
         TypeUtil typeUtil = new TypeUtil(clz);
-        T t = (T) Deserialization.finalValueHandle(Deserialization.getValue(json, new String[]{path}, new ArrayList<>(), typeUtil, null), typeUtil);
+        T t = (T) deserialization.finalValueHandle(deserialization.getValue(json, new String[]{path}, new ArrayList<>(), typeUtil, null), typeUtil);
         if (t == null && typeUtil.isPrimitive())
             return (T) PRIMITIVE_DEFAULT_VALUE.get(typeUtil.getName());
         return t;
@@ -240,6 +206,14 @@ public class Lson {
         return lsonElement;
     }
 
+    public TypeAdapterList getTypeAdapterList() {
+        return typeAdapterList;
+    }
+
+    public ClassConstructor getClassConstructor() {
+        return classConstructor;
+    }
+
     protected static HashMap<String, Object> PRIMITIVE_DEFAULT_VALUE = new HashMap<String, Object>() {{
         put(int.class.getName(), 0);
         put(byte.class.getName(), (byte) 0);
@@ -253,14 +227,24 @@ public class Lson {
 
     public static class LsonBuilder {
         private TypeAdapterList typeAdapterList;
+        private CustomConstructorList customConstructorList;
 
-        public LsonBuilder setTypeAdapterList(TypeAdapterList typeAdapterList) {
-            this.typeAdapterList = typeAdapterList;
+        public LsonBuilder setTypeAdapter(TypeAdapter<?> typeAdapter) {
+            if (this.typeAdapterList == null)
+                this.typeAdapterList = new TypeAdapterList();
+            this.typeAdapterList.add(typeAdapter);
+            return this;
+        }
+
+        public LsonBuilder setCustomConstructor(CustomConstructor<?> customConstructor) {
+            if (this.customConstructorList == null)
+                this.customConstructorList = new CustomConstructorList();
+            this.customConstructorList.add(customConstructor);
             return this;
         }
 
         public Lson build() {
-            return new Lson(typeAdapterList);
+            return new Lson(typeAdapterList, customConstructorList);
         }
     }
 }
