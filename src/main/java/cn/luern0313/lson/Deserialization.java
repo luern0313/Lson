@@ -470,46 +470,12 @@ public class Deserialization {
                 return getSetData(json, rootJson, fieldType, paths, t);
             else if(fieldType.getName().equals(Object.class.getName()))
                 return getJsonPrimitiveData(json);
-            else if(fieldType.isBuiltInClass()) {
-                Object data = getJsonPrimitiveData(json);
-                if(data == null)
-                    return new DeserializationValueUtil(handleBuiltInClass(json, fieldType), fieldType.getAsClass());
-                else
-                    return data;
-            }
+            else if (lson.getTypeAdapterList().has(fieldType))
+                return lson.getTypeAdapterList().get(fieldType).deserialization(json);
             return deserialization(rootJson, fieldType, t, paths);
         } catch (java.lang.InstantiationException | IllegalAccessException ignored) {
         }
         return null;
-    }
-
-    private Object handleBuiltInClass(Object value, TypeUtil fieldType) {
-        TypeUtil valueType = new TypeUtil(value.getClass());
-        if(fieldType.getName().equals(StringBuilder.class.getName()))
-            return new StringBuilder(value.toString());
-        else if(fieldType.getName().equals(StringBuffer.class.getName()))
-            return new StringBuffer(value.toString());
-        else if(fieldType.getName().equals(java.util.Date.class.getName())) {
-            if(valueType.isNumber())
-                return new java.util.Date(((Number) value).longValue());
-            else if(valueType.isString())
-                return new java.util.Date(Long.parseLong(value.toString()));
-        }
-        else if(fieldType.getName().equals(java.sql.Date.class.getName())) {
-            if(valueType.isNumber())
-                return new java.sql.Date(((Number) value).longValue());
-            else if(valueType.isString())
-                return new java.sql.Date(Long.parseLong(value.toString()));
-        }
-        else if(fieldType.getName().equals(LsonElement.class.getName()))
-            return value;
-        else if(fieldType.getName().equals(LsonObject.class.getName()))
-            return ((LsonElement) value).getAsLsonObject();
-        else if(fieldType.getName().equals(LsonArray.class.getName()))
-            return ((LsonElement) value).getAsLsonArray();
-        else if(fieldType.getName().equals(LsonPrimitive.class.getName()))
-            return ((LsonElement) value).getAsLsonPrimitive();
-        return value;
     }
 
     @SuppressWarnings("unchecked")
@@ -543,8 +509,6 @@ public class Deserialization {
                     finalValue.put((String) key, finalValueHandle(((Map<?, ?>) value).get(key), type));
                 return finalValue;
             }
-            else if(fieldType.isBuiltInClass() && value instanceof DeserializationValueUtil)
-                return handleBuiltInClass(((DeserializationValueUtil) value).get(), fieldType);
             else if(value instanceof DeserializationValueUtil) {
                 if(((DeserializationValueUtil) value).getCurrentType() == Double.class)
                     return finalValueHandle((DeserializationValueUtil) value, fieldType);

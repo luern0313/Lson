@@ -7,6 +7,6 @@ import cn.luern0313.lson.element.LsonElement;
  */
 
 public interface TypeAdapter<T> {
-    T deserialization(Object value);
+    T deserialization(LsonElement value);
     LsonElement serialization(T object);
 }

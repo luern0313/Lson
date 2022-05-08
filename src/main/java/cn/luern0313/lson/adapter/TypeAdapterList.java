@@ -24,6 +24,10 @@ public class TypeAdapterList {
             typeAdapterMap.put(clz, typeAdapter);
         }
     }
+    
+    public boolean has(TypeUtil typeUtil) {
+        return typeAdapterMap.containsKey(typeUtil.getAsClass());
+    }
 
     public void addAll(TypeAdapterList typeAdapterList) {
         if (typeAdapterList != null) {
