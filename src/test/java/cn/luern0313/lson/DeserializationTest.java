@@ -7,6 +7,8 @@ import cn.luern0313.lson.deserialization.Json1;
 import cn.luern0313.lson.deserialization.Json2;
 import cn.luern0313.lson.deserialization.Json3;
 import cn.luern0313.lson.deserialization.Json4;
+
+import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
 import java.lang.reflect.Type;
 
@@ -20,8 +22,17 @@ public class DeserializationTest {
         Json2.INSTANCE.check(Lson.def().fromJson(Lson.def().parse(Json2.INSTANCE.json()), new TypeReference<BaseModel<Json2.FeedModel>>(){}));
         Json3.INSTANCE.check(Lson.def().fromJson(Lson.def().parse(Json3.INSTANCE.json()), new TypeReference<BaseModel2<Json3.FeedModel>>(){}));
 
-        Lson lson4 = new Lson.LsonBuilder().setCustomConstructor(type -> new Json4.FeedItemModel(123)).build();
-
+        Lson lson4 = new Lson.LsonBuilder().setCustomConstructor(new CustomConstructor<Json4.FeedItemModel>() {
+            @Override
+            public Json4.FeedItemModel create(@Nullable Type type) {
+                return new Json4.FeedItemModel(123);
+            }
+        }).setCustomConstructor(new CustomConstructor<Json4.FeedItemModel.FeedUserModel>() {
+            @Override
+            public Json4.FeedItemModel.FeedUserModel create(@Nullable Type type) {
+                return new Json4.FeedItemModel.FeedUserModel(1234);
+            }
+        }).build();
         Json4.INSTANCE.check(lson4.fromJson(lson4.parse(Json4.INSTANCE.json()), Json4.FeedItemModel.class));
     }
 }

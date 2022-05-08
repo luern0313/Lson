@@ -24,7 +24,7 @@ class DeserializationTestKt {
             }
         }).setCustomConstructor(object : CustomConstructor<Json4.FeedItemModel.FeedUserModel> {
             override fun create(type: Type?): Json4.FeedItemModel.FeedUserModel {
-                return Json4.FeedItemModel.FeedUserModel(123)
+                return Json4.FeedItemModel.FeedUserModel(1234)
             }
         }).build()
 
