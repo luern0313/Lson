@@ -15,7 +15,9 @@ import cn.luern0313.lson.util.TypeUtil;
 public class BuiltInTypeAdapters {
     public static final TypeAdapter<StringBuilder> stringBuilder = new TypeAdapter<StringBuilder>() {
         @Override
-        public StringBuilder deserialization(Object value) {
+        public StringBuilder deserialization(LsonElement value) {
+            if (value.isLsonPrimitive() && value.getAsLsonPrimitive().isString())
+                return new StringBuilder(value.getAsLsonPrimitive().getAsString());
             return new StringBuilder(value.toString());
         }
 
@@ -27,7 +29,9 @@ public class BuiltInTypeAdapters {
 
     public static final TypeAdapter<StringBuffer> stringBuffer = new TypeAdapter<StringBuffer>() {
         @Override
-        public StringBuffer deserialization(Object value) {
+        public StringBuffer deserialization(LsonElement value) {
+            if (value.isLsonPrimitive() && value.getAsLsonPrimitive().isString())
+                return new StringBuffer(value.getAsLsonPrimitive().getAsString());
             return new StringBuffer(value.toString());
         }
 
@@ -39,12 +43,14 @@ public class BuiltInTypeAdapters {
 
     public static final TypeAdapter<java.util.Date> date = new TypeAdapter<Date>() {
         @Override
-        public Date deserialization(Object value) {
-            TypeUtil valueType = new TypeUtil(value.getClass());
-            if (valueType.isNumber())
-                return new java.util.Date(((Number) value).longValue());
-            else if (valueType.isString())
-                return new java.util.Date(Long.parseLong(value.toString()));
+        public Date deserialization(LsonElement value) {
+            if (value.isLsonPrimitive()) {
+                LsonPrimitive lsonPrimitive = value.getAsLsonPrimitive();
+                if (lsonPrimitive.isNumber())
+                    return new java.util.Date(lsonPrimitive.getAsLong());
+                else
+                    return new java.util.Date(Long.parseLong(lsonPrimitive.getAsString()));
+            }
             return null;
         }
 
@@ -56,12 +62,14 @@ public class BuiltInTypeAdapters {
 
     public static final TypeAdapter<java.sql.Date> sqlDate = new TypeAdapter<java.sql.Date>() {
         @Override
-        public java.sql.Date deserialization(Object value) {
-            TypeUtil valueType = new TypeUtil(value.getClass());
-            if (valueType.isNumber())
-                return new java.sql.Date(((Number) value).longValue());
-            else if (valueType.isString())
-                return new java.sql.Date(Long.parseLong(value.toString()));
+        public java.sql.Date deserialization(LsonElement value) {
+            if (value.isLsonPrimitive()) {
+                LsonPrimitive lsonPrimitive = value.getAsLsonPrimitive();
+                if (lsonPrimitive.isNumber())
+                    return new java.sql.Date(lsonPrimitive.getAsLong());
+                else
+                    return new java.sql.Date(Long.parseLong(lsonPrimitive.getAsString()));
+            }
             return null;
         }
 
@@ -73,10 +81,8 @@ public class BuiltInTypeAdapters {
 
     public static final TypeAdapter<LsonElement> lsonElement = new TypeAdapter<LsonElement>() {
         @Override
-        public LsonElement deserialization(Object value) {
-            if (value instanceof LsonElement)
-                return (LsonElement) value;
-            return null;
+        public LsonElement deserialization(LsonElement value) {
+            return value;
         }
 
         @Override
@@ -87,9 +93,9 @@ public class BuiltInTypeAdapters {
 
     public static final TypeAdapter<LsonObject> lsonObject = new TypeAdapter<LsonObject>() {
         @Override
-        public LsonObject deserialization(Object value) {
-            if (value instanceof LsonElement)
-                return ((LsonElement) value).getAsLsonObject();
+        public LsonObject deserialization(LsonElement value) {
+            if (value != null)
+                return value.getAsLsonObject();
             return null;
         }
 
@@ -101,9 +107,9 @@ public class BuiltInTypeAdapters {
 
     public static final TypeAdapter<LsonArray> lsonArray = new TypeAdapter<LsonArray>() {
         @Override
-        public LsonArray deserialization(Object value) {
-            if (value instanceof LsonElement)
-                return ((LsonElement) value).getAsLsonArray();
+        public LsonArray deserialization(LsonElement value) {
+            if (value != null)
+                return value.getAsLsonArray();
             return null;
         }
 
@@ -115,9 +121,9 @@ public class BuiltInTypeAdapters {
 
     public static final TypeAdapter<LsonPrimitive> lsonPrimitive = new TypeAdapter<LsonPrimitive>() {
         @Override
-        public LsonPrimitive deserialization(Object value) {
-            if (value instanceof LsonElement)
-                return ((LsonElement) value).getAsLsonPrimitive();
+        public LsonPrimitive deserialization(LsonElement value) {
+            if (value != null)
+                return value.getAsLsonPrimitive();
             return null;
         }
 

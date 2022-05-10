@@ -1,11 +1,14 @@
 package cn.luern0313.lson
 
+import cn.luern0313.lson.adapter.TypeAdapter
 import cn.luern0313.lson.constructor.CustomConstructor
-import cn.luern0313.lson.deserialization.Json1
-import cn.luern0313.lson.deserialization.Json2
-import cn.luern0313.lson.deserialization.Json3
-import cn.luern0313.lson.deserialization.Json4
+import cn.luern0313.lson.deserialization.*
+import cn.luern0313.lson.element.LsonArray
+import cn.luern0313.lson.element.LsonElement
+import cn.luern0313.lson.element.LsonObject
+import cn.luern0313.lson.element.LsonPrimitive
 import org.junit.Test
+import java.awt.Color
 import java.lang.reflect.Type
 
 /**
@@ -27,7 +30,32 @@ class DeserializationTestKt {
                 return Json4.FeedItemModel.FeedUserModel(1234)
             }
         }).build()
-
         Json4.check(lson4.fromJson(lson4.parse(Json4.json())))
+        
+        val lson5: Lson = Lson.LsonBuilder().setTypeAdapter(object : TypeAdapter<Color> {
+            override fun deserialization(value: LsonElement?): Color? {
+                return when (value) {
+                    is LsonPrimitive -> Color.decode(value.asString);
+                    is LsonObject -> des(value["r"], value["g"], value["b"])
+                    is LsonArray -> des(value[0], value[1], value[2])
+                    else -> null
+                }
+            }
+
+            private fun des(r: LsonElement?, g: LsonElement?, b: LsonElement?): Color? {
+                if (r is LsonPrimitive && g is LsonPrimitive && b is LsonPrimitive) {
+                    return if (r.isFloat || r.isDouble)
+                        Color(r.asFloat, g.asFloat, b.asFloat)
+                    else
+                        Color(r.asInt, g.asInt, b.asInt)
+                }
+                return null
+            }
+
+            override fun serialization(obj: Color?): LsonElement? {
+                return null
+            }
+        }).build()
+        Json5.check(lson5.fromJson(lson5.parse(Json5.json())))
     }
 }

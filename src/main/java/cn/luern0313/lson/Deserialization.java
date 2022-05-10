@@ -473,7 +473,7 @@ public class Deserialization {
             else if (lson.getTypeAdapterList().has(fieldType))
                 return lson.getTypeAdapterList().get(fieldType).deserialization(json);
             return deserialization(rootJson, fieldType, t, paths);
-        } catch (java.lang.InstantiationException | IllegalAccessException ignored) {
+        } catch (RuntimeException | java.lang.InstantiationException | IllegalAccessException ignored) {
         }
         return null;
     }
