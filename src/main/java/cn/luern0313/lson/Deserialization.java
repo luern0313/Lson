@@ -203,7 +203,7 @@ public class Deserialization {
 
             if(fieldType.isNull() || fieldType.isPrimitivePlus() || fieldType.getName().equals(Object.class.getName()))
                 return getJsonPrimitiveData(json);
-            else if(!json.isLsonNull())
+            else if(json != null)
                 return getClassData(fieldType, json, rootJson, t, jsonPaths);
         } catch (RuntimeException ignored) {
         }

@@ -35,18 +35,14 @@ public class LsonArray extends LsonElement
 
     public boolean isNull(int index)
     {
-        return get(index) == null;
+        return get(index).isLsonNull();
     }
 
     public LsonElement get(int index)
     {
         if(index >= 0 && index < list.size())
-        {
-            LsonElement lsonElement = list.get(index);
-            if(lsonElement != null)
-                return lsonElement;
-        }
-        return new LsonNull();
+            return list.get(index);
+        return null;
     }
 
     public boolean getBoolean(int key)

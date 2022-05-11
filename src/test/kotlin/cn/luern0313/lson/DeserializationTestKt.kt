@@ -7,6 +7,7 @@ import cn.luern0313.lson.element.LsonArray
 import cn.luern0313.lson.element.LsonElement
 import cn.luern0313.lson.element.LsonObject
 import cn.luern0313.lson.element.LsonPrimitive
+import org.jetbrains.annotations.NotNull
 import org.junit.Test
 import java.awt.Color
 import java.lang.reflect.Type
@@ -33,7 +34,7 @@ class DeserializationTestKt {
         Json4.check(lson4.fromJson(lson4.parse(Json4.json())))
         
         val lson5: Lson = Lson.LsonBuilder().setTypeAdapter(object : TypeAdapter<Color> {
-            override fun deserialization(value: LsonElement?): Color? {
+            override fun deserialization(value: LsonElement): Color? {
                 return when (value) {
                     is LsonPrimitive -> Color.decode(value.asString);
                     is LsonObject -> des(value["r"], value["g"], value["b"])

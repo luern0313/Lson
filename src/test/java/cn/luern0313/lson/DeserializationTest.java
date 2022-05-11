@@ -12,6 +12,7 @@ import cn.luern0313.lson.deserialization.Json5;
 import cn.luern0313.lson.element.LsonElement;
 import cn.luern0313.lson.element.LsonPrimitive;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
 
@@ -43,7 +44,7 @@ public class DeserializationTest {
 
         Lson lson5 = new Lson.LsonBuilder().setTypeAdapter(new TypeAdapter<Color>() {
             @Override
-            public Color deserialization(LsonElement value) {
+            public Color deserialization(@NotNull LsonElement value) {
                 if (value.isLsonPrimitive())
                     return Color.decode(((LsonPrimitive) value).getAsString());
                 else if (value.isLsonObject())

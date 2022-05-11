@@ -1,5 +1,7 @@
 package cn.luern0313.lson.adapter;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Date;
 
 import cn.luern0313.lson.element.LsonArray;
@@ -15,9 +17,11 @@ import cn.luern0313.lson.util.TypeUtil;
 public class BuiltInTypeAdapters {
     public static final TypeAdapter<StringBuilder> stringBuilder = new TypeAdapter<StringBuilder>() {
         @Override
-        public StringBuilder deserialization(LsonElement value) {
+        public StringBuilder deserialization(@NotNull LsonElement value) {
             if (value.isLsonPrimitive() && value.getAsLsonPrimitive().isString())
                 return new StringBuilder(value.getAsLsonPrimitive().getAsString());
+            else if (value.isLsonNull())
+                return null;
             return new StringBuilder(value.toString());
         }
 
@@ -29,9 +33,11 @@ public class BuiltInTypeAdapters {
 
     public static final TypeAdapter<StringBuffer> stringBuffer = new TypeAdapter<StringBuffer>() {
         @Override
-        public StringBuffer deserialization(LsonElement value) {
+        public StringBuffer deserialization(@NotNull LsonElement value) {
             if (value.isLsonPrimitive() && value.getAsLsonPrimitive().isString())
                 return new StringBuffer(value.getAsLsonPrimitive().getAsString());
+            else if (value.isLsonNull())
+                return null;
             return new StringBuffer(value.toString());
         }
 
@@ -43,7 +49,7 @@ public class BuiltInTypeAdapters {
 
     public static final TypeAdapter<java.util.Date> date = new TypeAdapter<Date>() {
         @Override
-        public Date deserialization(LsonElement value) {
+        public Date deserialization(@NotNull LsonElement value) {
             if (value.isLsonPrimitive()) {
                 LsonPrimitive lsonPrimitive = value.getAsLsonPrimitive();
                 if (lsonPrimitive.isNumber())
@@ -62,7 +68,7 @@ public class BuiltInTypeAdapters {
 
     public static final TypeAdapter<java.sql.Date> sqlDate = new TypeAdapter<java.sql.Date>() {
         @Override
-        public java.sql.Date deserialization(LsonElement value) {
+        public java.sql.Date deserialization(@NotNull LsonElement value) {
             if (value.isLsonPrimitive()) {
                 LsonPrimitive lsonPrimitive = value.getAsLsonPrimitive();
                 if (lsonPrimitive.isNumber())
@@ -81,7 +87,7 @@ public class BuiltInTypeAdapters {
 
     public static final TypeAdapter<LsonElement> lsonElement = new TypeAdapter<LsonElement>() {
         @Override
-        public LsonElement deserialization(LsonElement value) {
+        public LsonElement deserialization(@NotNull LsonElement value) {
             return value;
         }
 
@@ -93,7 +99,7 @@ public class BuiltInTypeAdapters {
 
     public static final TypeAdapter<LsonObject> lsonObject = new TypeAdapter<LsonObject>() {
         @Override
-        public LsonObject deserialization(LsonElement value) {
+        public LsonObject deserialization(@NotNull LsonElement value) {
             if (value != null)
                 return value.getAsLsonObject();
             return null;
@@ -107,7 +113,7 @@ public class BuiltInTypeAdapters {
 
     public static final TypeAdapter<LsonArray> lsonArray = new TypeAdapter<LsonArray>() {
         @Override
-        public LsonArray deserialization(LsonElement value) {
+        public LsonArray deserialization(@NotNull LsonElement value) {
             if (value != null)
                 return value.getAsLsonArray();
             return null;
@@ -121,7 +127,7 @@ public class BuiltInTypeAdapters {
 
     public static final TypeAdapter<LsonPrimitive> lsonPrimitive = new TypeAdapter<LsonPrimitive>() {
         @Override
-        public LsonPrimitive deserialization(LsonElement value) {
+        public LsonPrimitive deserialization(@NotNull LsonElement value) {
             if (value != null)
                 return value.getAsLsonPrimitive();
             return null;

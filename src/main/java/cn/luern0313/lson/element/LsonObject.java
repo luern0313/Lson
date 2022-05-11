@@ -80,10 +80,7 @@ public class LsonObject extends LsonElement
      */
     public LsonElement get(String key)
     {
-        LsonElement lsonElement = map.get(key);
-        if(lsonElement != null)
-            return lsonElement;
-        return LsonNull.getJsonNull();
+        return map.get(key);
     }
 
     /**
