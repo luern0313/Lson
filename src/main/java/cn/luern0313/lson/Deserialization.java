@@ -80,7 +80,7 @@ public class Deserialization {
                         fieldType = new TypeUtil(type, clz.getTypeReference());
                     targetType = new TypeUtil(path.preClass());
                     Object value = getValue(json, pathArray, rootJsonPath, targetType.getAsClass() == Object.class ? fieldType : targetType, t);
-                    if(value != null && !(value instanceof LsonNull)) {
+                    if(value != null) {
                         List<Annotation> annotations = sortAnnotation(field.getAnnotations());
                         for (Annotation annotation : annotations) {
                             LsonDefinedAnnotation lsonDefinedAnnotation = annotation.annotationType().getAnnotation(LsonDefinedAnnotation.class);

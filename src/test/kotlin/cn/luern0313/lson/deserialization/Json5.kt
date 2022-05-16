@@ -107,7 +107,7 @@ object Json5: DeserializationJsonChecker<Json5.ColorModel> {
         assertEquals(model.lsonElement2.asLsonPrimitive.asInt, 114514)
         assertEquals(model.lsonElement3.asLsonObject.toString(), "{\"k\": \"v\", \"q\": 113355}")
         assertEquals(model.lsonElement4.asLsonArray.toString(), "[1, 2, 3]")
-        assertNull(model.lsonElement5)
+        assertTrue(model.lsonElement5.isLsonNull)
 
         assertNull(model.lsonObject1)
         assertNull(model.lsonObject2)
