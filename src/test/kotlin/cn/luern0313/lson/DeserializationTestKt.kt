@@ -17,22 +17,36 @@ import java.lang.reflect.Type
  */
 class DeserializationTestKt {
     @Test
-    fun fromJsonTest() {
+    fun fromJsonTest1() {
         Json1.check(Lson.def().fromJson(Lson.def().parse(Json1.json())))
-        Json2.check(Lson.def().fromJson(Lson.def().parse(Json2.json())))
-        Json3.check(Lson.def().fromJson(Lson.def().parse(Json3.json())))
+    }
 
+    @Test
+    fun fromJsonTest2() {
+        Json2.check(Lson.def().fromJson(Lson.def().parse(Json2.json())))
+    }
+
+    @Test
+    fun fromJsonTest3() {
+        Json3.check(Lson.def().fromJson(Lson.def().parse(Json3.json())))
+    }
+
+    @Test
+    fun fromJsonTest4() {
         val lson4: Lson = Lson.LsonBuilder().setCustomConstructor(object : CustomConstructor<Json4.FeedItemModel> {
-            override fun create(type: Type?): Json4.FeedItemModel {
-                return Json4.FeedItemModel(123)
-            }
-        }).setCustomConstructor(object : CustomConstructor<Json4.FeedItemModel.FeedUserModel> {
-            override fun create(type: Type?): Json4.FeedItemModel.FeedUserModel {
-                return Json4.FeedItemModel.FeedUserModel(1234)
-            }
-        }).build()
+                override fun create(type: Type?): Json4.FeedItemModel {
+                    return Json4.FeedItemModel(123)
+                }
+            }).setCustomConstructor(object : CustomConstructor<Json4.FeedItemModel.FeedUserModel> {
+                override fun create(type: Type?): Json4.FeedItemModel.FeedUserModel {
+                    return Json4.FeedItemModel.FeedUserModel(1234)
+                }
+            }).build()
         Json4.check(lson4.fromJson(lson4.parse(Json4.json())))
-        
+    }
+
+    @Test
+    fun fromJsonTest5() {
         val lson5: Lson = Lson.LsonBuilder().setTypeAdapter(object : TypeAdapter<Color> {
             override fun deserialization(value: LsonElement): Color? {
                 return when (value) {

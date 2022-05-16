@@ -24,11 +24,22 @@ import java.lang.reflect.Type;
  */
 public class DeserializationTest {
     @Test
-    public void fromJsonTest() {
+    public void fromJsonTest1() {
         Json1.INSTANCE.check(Lson.def().fromJson(Lson.def().parse(Json1.INSTANCE.json()), Json1.FeedItemModel.class));
-        Json2.INSTANCE.check(Lson.def().fromJson(Lson.def().parse(Json2.INSTANCE.json()), new TypeReference<BaseModel<Json2.FeedModel>>(){}));
-        Json3.INSTANCE.check(Lson.def().fromJson(Lson.def().parse(Json3.INSTANCE.json()), new TypeReference<BaseModel2<Json3.FeedModel>>(){}));
+    }
 
+    @Test
+    public void fromJsonTest2() {
+        Json2.INSTANCE.check(Lson.def().fromJson(Lson.def().parse(Json2.INSTANCE.json()), new TypeReference<BaseModel<Json2.FeedModel>>(){}));
+    }
+
+    @Test
+    public void fromJsonTest3() {
+        Json3.INSTANCE.check(Lson.def().fromJson(Lson.def().parse(Json3.INSTANCE.json()), new TypeReference<BaseModel2<Json3.FeedModel>>(){}));
+    }
+
+    @Test
+    public void fromJsonTest4() {
         Lson lson4 = new Lson.LsonBuilder().setCustomConstructor(new CustomConstructor<Json4.FeedItemModel>() {
             @Override
             public Json4.FeedItemModel create(@Nullable Type type) {
@@ -41,7 +52,10 @@ public class DeserializationTest {
             }
         }).build();
         Json4.INSTANCE.check(lson4.fromJson(lson4.parse(Json4.INSTANCE.json()), Json4.FeedItemModel.class));
+    }
 
+    @Test
+    public void fromJsonTest5() {
         Lson lson5 = new Lson.LsonBuilder().setTypeAdapter(new TypeAdapter<Color>() {
             @Override
             public Color deserialization(@NotNull LsonElement value) {

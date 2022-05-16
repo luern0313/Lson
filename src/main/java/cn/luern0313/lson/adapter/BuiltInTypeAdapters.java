@@ -100,9 +100,7 @@ public class BuiltInTypeAdapters {
     public static final TypeAdapter<LsonObject> lsonObject = new TypeAdapter<LsonObject>() {
         @Override
         public LsonObject deserialization(@NotNull LsonElement value) {
-            if (value != null)
-                return value.getAsLsonObject();
-            return null;
+            return value.getAsLsonObject();
         }
 
         @Override
@@ -114,9 +112,7 @@ public class BuiltInTypeAdapters {
     public static final TypeAdapter<LsonArray> lsonArray = new TypeAdapter<LsonArray>() {
         @Override
         public LsonArray deserialization(@NotNull LsonElement value) {
-            if (value != null)
-                return value.getAsLsonArray();
-            return null;
+            return value.getAsLsonArray();
         }
 
         @Override
@@ -128,9 +124,7 @@ public class BuiltInTypeAdapters {
     public static final TypeAdapter<LsonPrimitive> lsonPrimitive = new TypeAdapter<LsonPrimitive>() {
         @Override
         public LsonPrimitive deserialization(@NotNull LsonElement value) {
-            if (value != null)
-                return value.getAsLsonPrimitive();
-            return null;
+            return value.getAsLsonPrimitive();
         }
 
         @Override
