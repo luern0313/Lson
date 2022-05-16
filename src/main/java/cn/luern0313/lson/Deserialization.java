@@ -80,19 +80,20 @@ public class Deserialization {
                         fieldType = new TypeUtil(type, clz.getTypeReference());
                     targetType = new TypeUtil(path.preClass());
                     Object value = getValue(json, pathArray, rootJsonPath, targetType.getAsClass() == Object.class ? fieldType : targetType, t);
-                    if(value != null) {
-                        List<Annotation> annotations = sortAnnotation(field.getAnnotations());
-                        for (Annotation annotation : annotations) {
-                            LsonDefinedAnnotation lsonDefinedAnnotation = annotation.annotationType().getAnnotation(LsonDefinedAnnotation.class);
-                            if(lsonDefinedAnnotation != null && !annotation.annotationType().getName().equals(LsonPath.class.getName()))
-                                value = handleAnnotation(value, annotation, lsonDefinedAnnotation, t);
-                        }
+                    if(value == null)
+                        continue;
+                    
+                    List<Annotation> annotations = sortAnnotation(field.getAnnotations());
+                    for (Annotation annotation : annotations) {
+                        LsonDefinedAnnotation lsonDefinedAnnotation = annotation.annotationType().getAnnotation(LsonDefinedAnnotation.class);
+                        if(lsonDefinedAnnotation != null && !annotation.annotationType().getName().equals(LsonPath.class.getName()))
+                            value = handleAnnotation(value, annotation, lsonDefinedAnnotation, t);
+                    }
 
-                        value = finalValueHandle(value, fieldType);
-                        if(value != null) {
-                            field.setAccessible(true);
-                            field.set(t, value);
-                        }
+                    value = finalValueHandle(value, fieldType);
+                    if(value != null) {
+                        field.setAccessible(true);
+                        field.set(t, value);
                     }
                 }
             } catch (Exception ignored) {
