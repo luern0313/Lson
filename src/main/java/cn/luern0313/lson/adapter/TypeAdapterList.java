@@ -7,7 +7,9 @@ import java.util.HashMap;
 import cn.luern0313.lson.util.TypeUtil;
 
 /**
- * 被 luern 创建于 2022/5/1.
+ * TypeAdapter管理list
+ *
+ * <p>创建于 2022/5/1.
  */
 
 public class TypeAdapterList {
@@ -24,7 +26,7 @@ public class TypeAdapterList {
             typeAdapterMap.put(clz, typeAdapter);
         }
     }
-    
+
     public boolean has(TypeUtil typeUtil) {
         return typeAdapterMap.containsKey(typeUtil.getAsClass());
     }

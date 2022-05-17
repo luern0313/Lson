@@ -7,7 +7,9 @@ import java.util.HashMap;
 import cn.luern0313.lson.util.TypeUtil;
 
 /**
- * 被 luern 创建于 2022/5/4.
+ * 自定义实例化管理list
+ *
+ * <p>创建于 2022/5/4.
  */
 
 public class CustomConstructorList {

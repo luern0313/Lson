@@ -7,7 +7,6 @@ import cn.luern0313.lson.element.LsonArray
 import cn.luern0313.lson.element.LsonElement
 import cn.luern0313.lson.element.LsonObject
 import cn.luern0313.lson.element.LsonPrimitive
-import org.jetbrains.annotations.NotNull
 import org.junit.Test
 import java.awt.Color
 import java.lang.reflect.Type
@@ -18,31 +17,31 @@ import java.lang.reflect.Type
 class DeserializationTestKt {
     @Test
     fun fromJsonTest1() {
-        Json1.check(Lson.def().fromJson(Lson.def().parse(Json1.json())))
+        JSON1.check(Lson.def().fromJson(Lson.def().parse(JSON1.json())))
     }
 
     @Test
     fun fromJsonTest2() {
-        Json2.check(Lson.def().fromJson(Lson.def().parse(Json2.json())))
+        JSON2.check(Lson.def().fromJson(Lson.def().parse(JSON2.json())))
     }
 
     @Test
     fun fromJsonTest3() {
-        Json3.check(Lson.def().fromJson(Lson.def().parse(Json3.json())))
+        JSON3.check(Lson.def().fromJson(Lson.def().parse(JSON3.json())))
     }
 
     @Test
     fun fromJsonTest4() {
-        val lson4: Lson = Lson.LsonBuilder().setCustomConstructor(object : CustomConstructor<Json4.FeedItemModel> {
-                override fun create(type: Type?): Json4.FeedItemModel {
-                    return Json4.FeedItemModel(123)
+        val lson4: Lson = Lson.LsonBuilder().setCustomConstructor(object : CustomConstructor<JSON4.FeedItemModel> {
+                override fun create(type: Type?): JSON4.FeedItemModel {
+                    return JSON4.FeedItemModel(123)
                 }
-            }).setCustomConstructor(object : CustomConstructor<Json4.FeedItemModel.FeedUserModel> {
-                override fun create(type: Type?): Json4.FeedItemModel.FeedUserModel {
-                    return Json4.FeedItemModel.FeedUserModel(1234)
+            }).setCustomConstructor(object : CustomConstructor<JSON4.FeedItemModel.FeedUserModel> {
+                override fun create(type: Type?): JSON4.FeedItemModel.FeedUserModel {
+                    return JSON4.FeedItemModel.FeedUserModel(1234)
                 }
             }).build()
-        Json4.check(lson4.fromJson(lson4.parse(Json4.json())))
+        JSON4.check(lson4.fromJson(lson4.parse(JSON4.json())))
     }
 
     @Test
@@ -71,6 +70,6 @@ class DeserializationTestKt {
                 return null
             }
         }).build()
-        Json5.check(lson5.fromJson(lson5.parse(Json5.json())))
+        JSON5.check(lson5.fromJson(lson5.parse(JSON5.json())))
     }
 }

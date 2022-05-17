@@ -4,11 +4,11 @@ import cn.luern0313.lson.adapter.TypeAdapter;
 import cn.luern0313.lson.constructor.CustomConstructor;
 import cn.luern0313.lson.deserialization.BaseModel;
 import cn.luern0313.lson.deserialization.BaseModel2;
-import cn.luern0313.lson.deserialization.Json1;
-import cn.luern0313.lson.deserialization.Json2;
-import cn.luern0313.lson.deserialization.Json3;
-import cn.luern0313.lson.deserialization.Json4;
-import cn.luern0313.lson.deserialization.Json5;
+import cn.luern0313.lson.deserialization.JSON1;
+import cn.luern0313.lson.deserialization.JSON2;
+import cn.luern0313.lson.deserialization.JSON3;
+import cn.luern0313.lson.deserialization.JSON4;
+import cn.luern0313.lson.deserialization.JSON5;
 import cn.luern0313.lson.element.LsonElement;
 import cn.luern0313.lson.element.LsonPrimitive;
 
@@ -25,33 +25,33 @@ import java.lang.reflect.Type;
 public class DeserializationTest {
     @Test
     public void fromJsonTest1() {
-        Json1.INSTANCE.check(Lson.def().fromJson(Lson.def().parse(Json1.INSTANCE.json()), Json1.FeedItemModel.class));
+        JSON1.INSTANCE.check(Lson.def().fromJson(Lson.def().parse(JSON1.INSTANCE.json()), JSON1.FeedItemModel.class));
     }
 
     @Test
     public void fromJsonTest2() {
-        Json2.INSTANCE.check(Lson.def().fromJson(Lson.def().parse(Json2.INSTANCE.json()), new TypeReference<BaseModel<Json2.FeedModel>>(){}));
+        JSON2.INSTANCE.check(Lson.def().fromJson(Lson.def().parse(JSON2.INSTANCE.json()), new TypeReference<BaseModel<JSON2.FeedModel>>(){}));
     }
 
     @Test
     public void fromJsonTest3() {
-        Json3.INSTANCE.check(Lson.def().fromJson(Lson.def().parse(Json3.INSTANCE.json()), new TypeReference<BaseModel2<Json3.FeedModel>>(){}));
+        JSON3.INSTANCE.check(Lson.def().fromJson(Lson.def().parse(JSON3.INSTANCE.json()), new TypeReference<BaseModel2<JSON3.FeedModel>>(){}));
     }
 
     @Test
     public void fromJsonTest4() {
-        Lson lson4 = new Lson.LsonBuilder().setCustomConstructor(new CustomConstructor<Json4.FeedItemModel>() {
+        Lson lson4 = new Lson.LsonBuilder().setCustomConstructor(new CustomConstructor<JSON4.FeedItemModel>() {
             @Override
-            public Json4.FeedItemModel create(@Nullable Type type) {
-                return new Json4.FeedItemModel(123);
+            public JSON4.FeedItemModel create(@Nullable Type type) {
+                return new JSON4.FeedItemModel(123);
             }
-        }).setCustomConstructor(new CustomConstructor<Json4.FeedItemModel.FeedUserModel>() {
+        }).setCustomConstructor(new CustomConstructor<JSON4.FeedItemModel.FeedUserModel>() {
             @Override
-            public Json4.FeedItemModel.FeedUserModel create(@Nullable Type type) {
-                return new Json4.FeedItemModel.FeedUserModel(1234);
+            public JSON4.FeedItemModel.FeedUserModel create(@Nullable Type type) {
+                return new JSON4.FeedItemModel.FeedUserModel(1234);
             }
         }).build();
-        Json4.INSTANCE.check(lson4.fromJson(lson4.parse(Json4.INSTANCE.json()), Json4.FeedItemModel.class));
+        JSON4.INSTANCE.check(lson4.fromJson(lson4.parse(JSON4.INSTANCE.json()), JSON4.FeedItemModel.class));
     }
 
     @Test
@@ -87,6 +87,6 @@ public class DeserializationTest {
                 return null;
             }
         }).build();
-        Json5.INSTANCE.check(lson5.fromJson(lson5.parse(Json5.INSTANCE.json()), new TypeReference<Json5.ColorModel>(){}));
+        JSON5.INSTANCE.check(lson5.fromJson(lson5.parse(JSON5.INSTANCE.json()), new TypeReference<JSON5.ColorModel>(){}));
     }
 }

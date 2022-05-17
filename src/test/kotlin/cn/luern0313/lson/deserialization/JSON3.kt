@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
  * 测试dataclass
  * 2022/4/25
  */
-object Json3: DeserializationJsonChecker<BaseModel2<Json3.FeedModel>> {
+object JSON3: DeserializationJSONChecker<BaseModel2<JSON3.FeedModel>> {
     private val json = """
         {
           "code": 0,

@@ -11,7 +11,9 @@ import cn.luern0313.lson.element.LsonPrimitive;
 import cn.luern0313.lson.util.TypeUtil;
 
 /**
- * 被 luern 创建于 2022/4/30.
+ * 内置TypeAdapters
+ *
+ * <p>创建于 2022/4/30.
  */
 
 public class BuiltInTypeAdapters {

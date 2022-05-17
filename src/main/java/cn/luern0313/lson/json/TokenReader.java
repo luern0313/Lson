@@ -1,6 +1,6 @@
 package cn.luern0313.lson.json;
 
-import cn.luern0313.lson.exception.JsonParseException;
+import cn.luern0313.lson.exception.JSONParseException;
 import cn.luern0313.lson.util.CharReaderUtil;
 
 /**
@@ -66,7 +66,7 @@ class TokenReader
             return TokenType.NUMBER;
         else if(ch == '"')
             return TokenType.STRING;
-        throw new JsonParseException("Unexpected char " + ch, reader.getErrorMessage());
+        throw new JSONParseException("Unexpected char " + ch, reader.getErrorMessage());
     }
 
     String readString()
@@ -118,18 +118,18 @@ class TokenReader
                             else if(uch >= 'A' && uch <= 'F')
                                 u = (u << 4) + (uch - 'A') + 10;
                             else
-                                throw new JsonParseException("Unexpected char: " + uch, reader.getErrorMessage());
+                                throw new JSONParseException("Unexpected char: " + uch, reader.getErrorMessage());
                         }
                         sb.append((char) u);
                         break;
                     default:
-                        throw new JsonParseException("Unexpected char: " + ch, reader.getErrorMessage());
+                        throw new JSONParseException("Unexpected char: " + ch, reader.getErrorMessage());
                 }
             }
             else if(ch == '"')
                 return sb.toString();
             else if(ch == '\r' || ch == '\n')
-                throw new JsonParseException("Invalid character");
+                throw new JSONParseException("Invalid character");
             else
                 sb.append(ch);
         }
@@ -183,12 +183,12 @@ class TokenReader
             return true;
         else if(ch == 'f' && reader.next() == 'a' && reader.next() == 'l' && reader.next() == 's' && reader.next() == 'e')
             return false;
-        throw new JsonParseException("Unexpected boolean");
+        throw new JSONParseException("Unexpected boolean");
     }
 
     void readNull()
     {
         if(!(reader.next() == 'n' && reader.next() == 'u' && reader.next() == 'l' && reader.next() == 'l'))
-            throw new JsonParseException("Unexpected null");
+            throw new JSONParseException("Unexpected null");
     }
 }

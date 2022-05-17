@@ -6,28 +6,23 @@ package cn.luern0313.lson.element;
  * @author luern0313
  */
 
-public class LsonNull extends LsonElement
-{
-    public static LsonNull getJsonNull()
-    {
+public class LsonNull extends LsonElement {
+    public static LsonNull getJsonNull() {
         return new LsonNull();
     }
 
     @Override
-    public boolean isLsonNull()
-    {
+    public boolean isLsonNull() {
         return true;
     }
 
     @Override
-    public LsonElement deepCopy()
-    {
+    public LsonElement deepCopy() {
         return this;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "null";
     }
 }

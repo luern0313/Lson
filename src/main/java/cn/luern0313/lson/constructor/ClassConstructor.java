@@ -9,7 +9,9 @@ import cn.luern0313.lson.util.TypeUtil;
 import sun.misc.Unsafe;
 
 /**
- * 被 luern 创建于 2022/5/3.
+ * 类的实例化实现类
+ *
+ * <p>创建于 2022/5/3.
  */
 
 public class ClassConstructor {

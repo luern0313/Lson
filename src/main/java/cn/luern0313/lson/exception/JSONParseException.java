@@ -3,44 +3,39 @@ package cn.luern0313.lson.exception;
 import cn.luern0313.lson.util.CharReaderUtil;
 
 /**
- * 被 luern0313 创建于 2020/8/23.
+ * JSON解析错误
+ *
+ * <p>创建于 2020/8/23.
  */
 
-public class JsonParseException extends RuntimeException
-{
+public class JSONParseException extends RuntimeException {
     String message;
     CharReaderUtil.ErrorMessage errorMessage;
 
-    public JsonParseException()
-    {
+    public JSONParseException() {
         this("Unknown Exception.");
     }
 
-    public JsonParseException(String message)
-    {
+    public JSONParseException(String message) {
         this(message, null);
     }
 
-    public JsonParseException(String message, CharReaderUtil.ErrorMessage errorMessage)
-    {
+    public JSONParseException(String message, CharReaderUtil.ErrorMessage errorMessage) {
         this.message = message;
         this.errorMessage = errorMessage;
     }
 
     @Override
-    public String getMessage()
-    {
+    public String getMessage() {
         StringBuilder error = new StringBuilder();
-        if(errorMessage != null)
-        {
+        if (errorMessage != null) {
             error.append(message).append(" in index ").append(errorMessage.index).append(": ");
             int length = error.length() + errorMessage.messageErrorIndex + 47;
             error.append(errorMessage.message).append("\n");
             for (int i = 0; i < length; i++)
                 error.append(" ");
             error.append("∧");
-        }
-        else
+        } else
             error.append(message);
         return error.toString();
     }

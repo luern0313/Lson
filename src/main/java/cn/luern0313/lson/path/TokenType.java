@@ -4,8 +4,7 @@ package cn.luern0313.lson.path;
  * 被 luern0313 创建于 2020/8/9.
  */
 
-enum TokenType
-{
+enum TokenType {
     /**
      * 根路径: $
      */

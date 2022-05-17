@@ -5,7 +5,6 @@ import cn.luern0313.lson.element.LsonArray
 import cn.luern0313.lson.element.LsonElement
 import cn.luern0313.lson.element.LsonObject
 import cn.luern0313.lson.element.LsonPrimitive
-import com.sun.org.apache.xml.internal.utils.FastStringBuffer
 import java.awt.Color
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -15,7 +14,7 @@ import kotlin.test.assertTrue
  * 测试TypeAdapter
  * 2022/5/9
  */
-object Json5: DeserializationJsonChecker<Json5.ColorModel> {
+object JSON5: DeserializationJSONChecker<JSON5.ColorModel> {
     private val json = """
         {
             "color1": "#123456",

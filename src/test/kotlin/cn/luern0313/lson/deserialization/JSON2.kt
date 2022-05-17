@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
  * 测试参数化类型
  * 2022/4/25
  */
-object Json2: DeserializationJsonChecker<BaseModel<Json2.FeedModel>> {
+object JSON2: DeserializationJSONChecker<BaseModel<JSON2.FeedModel>> {
     private val json = """
         {
           "code": 0,

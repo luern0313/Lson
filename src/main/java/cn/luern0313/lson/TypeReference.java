@@ -11,34 +11,28 @@ import java.util.LinkedHashMap;
  * @author luern0313
  */
 
-public class TypeReference<T>
-{
+public class TypeReference<T> {
     public Type type;
     public Class<?> rawType;
 
     public LinkedHashMap<String, TypeReference<?>> typeMap;
 
-    public TypeReference()
-    {
+    public TypeReference() {
         Type superClass = getClass().getGenericSuperclass();
 
-        if(superClass instanceof ParameterizedType)
-        {
+        if (superClass instanceof ParameterizedType) {
             type = ((ParameterizedType) superClass).getActualTypeArguments()[0];
             handleType();
         }
     }
 
-    public TypeReference(Type type)
-    {
+    public TypeReference(Type type) {
         this.type = type;
         handleType();
     }
 
-    private void handleType()
-    {
-        if(type instanceof ParameterizedType)
-        {
+    private void handleType() {
+        if (type instanceof ParameterizedType) {
             rawType = (Class<?>) ((ParameterizedType) type).getRawType();
 
             typeMap = new LinkedHashMap<>();
@@ -46,8 +40,7 @@ public class TypeReference<T>
             TypeVariable<? extends Class<?>>[] typeVariables = rawType.getTypeParameters();
             for (int i = 0; i < parameterizedTypes.length; i++)
                 typeMap.put(typeVariables[i].getName(), new TypeReference<>(parameterizedTypes[i]));
-        }
-        else if(type instanceof Class<?>)
+        } else if (type instanceof Class<?>)
             rawType = (Class<?>) type;
     }
 }

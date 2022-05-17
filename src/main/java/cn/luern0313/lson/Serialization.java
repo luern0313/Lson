@@ -28,7 +28,6 @@ import cn.luern0313.lson.util.TypeUtil;
 /**
  * Lson序列化相关类。
  *
- *
  * @author luern0313
  */
 
@@ -169,7 +168,7 @@ public class Serialization {
                 else if (pathType instanceof PathType.PathJsonCurrent)
                     jsonTempArrayList.add(j, rootJson);
                 else if (pathType instanceof PathType.PathPath) {
-                    if (i < jsonPaths.size() -1) {
+                    if (i < jsonPaths.size() - 1) {
                         if (json.isLsonObject()) {
                             Object nextPath = jsonPaths.get(i + 1);
                             if (nextPath instanceof PathType.PathIndex || nextPath instanceof PathType.PathIndexArray || nextPath instanceof PathType.PathFilter)
@@ -202,8 +201,7 @@ public class Serialization {
                                         lsonElement.getAsLsonArray().set((int) ((PathType.PathIndexArray) pathType).index.get(l), value);
                         }
                     }
-                }
-                else if (pathType instanceof PathType.PathIndex && json.isLsonArray()) {
+                } else if (pathType instanceof PathType.PathIndex && json.isLsonArray()) {
                     int start = ((PathType.PathIndex) pathType).start;
                     if (start < 0) start += json.getAsLsonArray().size();
                     int end = ((PathType.PathIndex) pathType).end;
@@ -221,8 +219,7 @@ public class Serialization {
                             }
                         }
                     }
-                }
-                else if (pathType instanceof PathType.PathFilter && json.isLsonArray()) {
+                } else if (pathType instanceof PathType.PathFilter && json.isLsonArray()) {
                     if (i < jsonPaths.size() - 1)
                         for (int k = 0; k < value.getAsLsonArray().size(); k++)
                             jsonTempArrayList.add(json.getAsLsonArray().add(new LsonObject()));

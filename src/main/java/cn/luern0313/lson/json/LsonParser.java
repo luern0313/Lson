@@ -5,7 +5,7 @@ import java.io.Reader;
 import cn.luern0313.lson.element.LsonElement;
 import cn.luern0313.lson.element.LsonNull;
 import cn.luern0313.lson.element.LsonPrimitive;
-import cn.luern0313.lson.exception.JsonParseException;
+import cn.luern0313.lson.exception.JSONParseException;
 import cn.luern0313.lson.util.CharReaderUtil;
 
 import static cn.luern0313.lson.json.Status.STATUS_EXPECT_ARRAY_BEGIN;
@@ -58,7 +58,7 @@ public class LsonParser
                         status = STATUS_EXPECT_OBJECT_KEY.index | STATUS_EXPECT_OBJECT_END.index;
                         continue;
                     }
-                    throw new JsonParseException("Unexpected {", reader.reader.getErrorMessage());
+                    throw new JSONParseException("Unexpected {", reader.reader.getErrorMessage());
                 }
                 case ARRAY_BEGIN:
                 {
@@ -68,7 +68,7 @@ public class LsonParser
                         status = STATUS_EXPECT_ARRAY_ELEMENT.index | STATUS_EXPECT_OBJECT_BEGIN.index | STATUS_EXPECT_ARRAY_BEGIN.index | STATUS_EXPECT_ARRAY_END.index;
                         continue;
                     }
-                    throw new JsonParseException("Unexpected [", reader.reader.getErrorMessage());
+                    throw new JSONParseException("Unexpected [", reader.reader.getErrorMessage());
                 }
                 case STRING:
                 {
@@ -99,7 +99,7 @@ public class LsonParser
                         status = STATUS_EXPECT_END_DOCUMENT.index;
                         continue;
                     }
-                    throw new JsonParseException("Unexpected string", reader.reader.getErrorMessage());
+                    throw new JSONParseException("Unexpected string", reader.reader.getErrorMessage());
                 }
                 case NUMBER:
                 {
@@ -124,7 +124,7 @@ public class LsonParser
                         status = STATUS_EXPECT_END_DOCUMENT.index;
                         continue;
                     }
-                    throw new JsonParseException("Unexpected number", reader.reader.getErrorMessage());
+                    throw new JSONParseException("Unexpected number", reader.reader.getErrorMessage());
                 }
                 case BOOLEAN:
                 {
@@ -149,7 +149,7 @@ public class LsonParser
                         status = STATUS_EXPECT_END_DOCUMENT.index;
                         continue;
                     }
-                    throw new JsonParseException("Unexpected boolean", reader.reader.getErrorMessage());
+                    throw new JSONParseException("Unexpected boolean", reader.reader.getErrorMessage());
                 }
                 case NULL:
                 {
@@ -173,7 +173,7 @@ public class LsonParser
                         status = STATUS_EXPECT_END_DOCUMENT.index;
                         continue;
                     }
-                    throw new JsonParseException("Unexpected null", reader.reader.getErrorMessage());
+                    throw new JSONParseException("Unexpected null", reader.reader.getErrorMessage());
                 }
                 case SPLIT_COMMA: // ,
                 {
@@ -190,7 +190,7 @@ public class LsonParser
                             continue;
                         }
                     }
-                    throw new JsonParseException("Unexpected ,", reader.reader.getErrorMessage());
+                    throw new JSONParseException("Unexpected ,", reader.reader.getErrorMessage());
                 }
                 case SPLIT_COLON: // :
                     if (hasStatus(status, STATUS_EXPECT_COLON.index))
@@ -198,7 +198,7 @@ public class LsonParser
                         status = STATUS_EXPECT_OBJECT_VALUE.index | STATUS_EXPECT_OBJECT_BEGIN.index | STATUS_EXPECT_ARRAY_BEGIN.index;
                         continue;
                     }
-                    throw new JsonParseException("Unexpected :", reader.reader.getErrorMessage());
+                    throw new JSONParseException("Unexpected :", reader.reader.getErrorMessage());
                 case ARRAY_END:
                     if(hasStatus(status, STATUS_EXPECT_ARRAY_END.index))
                     {
@@ -225,7 +225,7 @@ public class LsonParser
                             }
                         }
                     }
-                    throw new JsonParseException("Unexpected ]", reader.reader.getErrorMessage());
+                    throw new JSONParseException("Unexpected ]", reader.reader.getErrorMessage());
                 case OBJECT_END:
                     if (hasStatus(status, STATUS_EXPECT_OBJECT_END.index))
                     {
@@ -252,7 +252,7 @@ public class LsonParser
                             }
                         }
                     }
-                    throw new JsonParseException("Unexpected }", reader.reader.getErrorMessage());
+                    throw new JSONParseException("Unexpected }", reader.reader.getErrorMessage());
                 case END_DOCUMENT:
                     if(hasStatus(status, STATUS_EXPECT_END_DOCUMENT.index))
                     {
@@ -265,7 +265,7 @@ public class LsonParser
                         else
                             return LsonNull.getJsonNull();
                     }
-                    throw new JsonParseException("Unexpected EOF.", reader.reader.getErrorMessage());
+                    throw new JSONParseException("Unexpected EOF.", reader.reader.getErrorMessage());
             }
         }
     }

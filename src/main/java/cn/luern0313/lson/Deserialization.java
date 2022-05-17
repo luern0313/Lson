@@ -39,7 +39,7 @@ import cn.luern0313.lson.util.TypeUtil;
 
 public class Deserialization {
     private final Lson lson;
-    
+
     public Deserialization(Lson lson) {
         this.lson = lson;
     }

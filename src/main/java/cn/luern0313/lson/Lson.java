@@ -31,6 +31,7 @@ public class Lson {
     private final ClassConstructor classConstructor;
 
     private Deserialization deserialization;
+    private Serialization serialization;
 
     private Lson() {
         this(null, null);
@@ -190,7 +191,9 @@ public class Lson {
      * @author luern0313
      */
     public LsonElement toJsonElement(Object object) {
-        return Serialization.toJson(object);
+        if (serialization == null)
+            serialization = new Serialization(this);
+        return serialization.toJson(object);
     }
 
     /**
@@ -202,7 +205,9 @@ public class Lson {
      * @return 填充完成的LsonElement。
      */
     public LsonElement putValue(LsonElement lsonElement, String path, Object value) {
-        Serialization.setValue(Serialization.toJson(value), path, new ArrayList<>(), lsonElement);
+        if (serialization == null)
+            serialization = new Serialization(this);
+        serialization.setValue(serialization.toJson(value), path, new ArrayList<>(), lsonElement);
         return lsonElement;
     }
 

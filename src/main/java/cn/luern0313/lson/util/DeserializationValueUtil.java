@@ -4,119 +4,98 @@ package cn.luern0313.lson.util;
  * 被 luern0313 创建于 2020/9/11.
  */
 
-public class DeserializationValueUtil
-{
+public class DeserializationValueUtil {
     private Object value;
     private final TypeUtil type;
 
-    public DeserializationValueUtil()
-    {
+    public DeserializationValueUtil() {
         type = null;
     }
 
-    public DeserializationValueUtil(String string)
-    {
+    public DeserializationValueUtil(String string) {
         this(string, null);
     }
 
-    public DeserializationValueUtil(Object value)
-    {
+    public DeserializationValueUtil(Object value) {
         TypeUtil typeUtil = new TypeUtil(value.getClass());
-        if(typeUtil.getAsClass() == StringBuilder.class)
+        if (typeUtil.getAsClass() == StringBuilder.class)
             typeUtil.setType(String.class);
 
         this.value = value;
         this.type = typeUtil;
     }
 
-    public DeserializationValueUtil(Object value, Class<?> type)
-    {
+    public DeserializationValueUtil(Object value, Class<?> type) {
         TypeUtil typeUtil = new TypeUtil(value.getClass());
-        if(typeUtil.isString())
+        if (typeUtil.isString())
             this.value = new StringBuilder(value.toString());
-        else if(typeUtil.isNumber())
+        else if (typeUtil.isNumber())
             this.value = ((Number) value).doubleValue();
         else
             this.value = value;
         this.type = new TypeUtil(type);
     }
 
-    public Object get()
-    {
+    public Object get() {
         return value;
     }
 
-    public Object get(TypeUtil typeUtil)
-    {
+    public Object get(TypeUtil typeUtil) {
         return typeUtil.getAsClass().cast(value);
     }
 
-    public Class<?> getType()
-    {
+    public Class<?> getType() {
         return type.getAsClass();
     }
 
-    public Class<?> getCurrentType()
-    {
+    public Class<?> getCurrentType() {
         return value.getClass();
     }
 
-    public DeserializationValueUtil set(Object value)
-    {
-        if(this.value instanceof StringBuilder && value instanceof String)
-        {
+    public DeserializationValueUtil set(Object value) {
+        if (this.value instanceof StringBuilder && value instanceof String) {
             ((StringBuilder) this.value).setLength(0);
             ((StringBuilder) this.value).append(value);
-        }
-        else if(value instanceof Number)
-        {
+        } else if (value instanceof Number) {
             this.value = ((Number) value).doubleValue();
-            if(Math.floor(((Number) value).byteValue()) < ((Number) value).doubleValue())
+            if (Math.floor(((Number) value).byteValue()) < ((Number) value).doubleValue())
                 this.type.setType(double.class);
-        }
-        else
+        } else
             this.value = value;
         return this;
     }
 
-    public StringBuilder getAsStringBuilder()
-    {
-        if(value instanceof StringBuilder)
+    public StringBuilder getAsStringBuilder() {
+        if (value instanceof StringBuilder)
             return (StringBuilder) value;
         else
             return new StringBuilder(toString());
     }
 
-    public Number getAsNumber()
-    {
-        if(DataProcessUtil.isDouble(value.toString()))
+    public Number getAsNumber() {
+        if (DataProcessUtil.isDouble(value.toString()))
             return Double.parseDouble(value.toString());
         return null;
     }
 
-    public Boolean getAsBoolean()
-    {
-        if(value instanceof Boolean)
+    public Boolean getAsBoolean() {
+        if (value instanceof Boolean)
             return (Boolean) value;
         return null;
     }
 
-    public boolean isNull()
-    {
+    public boolean isNull() {
         return value == null;
     }
 
     @Override
-    public String toString()
-    {
-        if(value == null) return null;
+    public String toString() {
+        if (value == null) return null;
 
         String string = value.toString();
-        if(DataProcessUtil.isDouble(string))
-        {
+        if (DataProcessUtil.isDouble(string)) {
             double number = Double.parseDouble(string);
-            switch (type.getName())
-            {
+            switch (type.getName()) {
                 case "int":
                 case "java.lang.Integer":
                     return String.valueOf((int) number);
