@@ -35,7 +35,8 @@ public class TypeAdapterList {
         }
     }
 
-    public TypeAdapter<?> get(TypeUtil typeUtil) {
-        return typeAdapterMap.get(typeUtil.getAsClass());
+    @SuppressWarnings("unchecked")
+    public <T> TypeAdapter<T> get(Class<T> clz) {
+        return (TypeAdapter<T>) typeAdapterMap.get(clz);
     }
 }

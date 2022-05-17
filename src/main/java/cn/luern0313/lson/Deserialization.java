@@ -56,46 +56,47 @@ public class Deserialization {
         handleMethod(clz, t, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
 
         TypeUtil superClass = new TypeUtil(clz.getAsClass().getSuperclass());
-        if(superClass.getAsClass() != Object.class)
+        if (superClass.getAsClass() != Object.class)
             fromJson(json, superClass, t, rootJsonPath);
 
         Field[] fieldArray = clz.getAsClass().getDeclaredFields();
         for (Field field : fieldArray) {
             try {
                 LsonPath path = field.getAnnotation(LsonPath.class);
-                if(path != null) {
-                    String[] pathArray = path.value();
-                    if(pathArray.length == 1 && pathArray[0].equals("")) {
-                        pathArray[0] = field.getName();
-                        String underScoreCase = DataProcessUtil.getUnderScoreCase(field.getName());
-                        if(!field.getName().equals(underScoreCase))
-                            pathArray = new String[]{field.getName(), underScoreCase};
-                    }
-
-                    Type type = field.getGenericType();
-                    TypeUtil fieldType, targetType;
-                    if(clz.getAsType() instanceof TypeVariable)
-                        fieldType = new TypeUtil(type, clz.getTypeReference().typeMap.get(((TypeVariable<?>) clz.getAsType()).getName()));
-                    else
-                        fieldType = new TypeUtil(type, clz.getTypeReference());
-                    targetType = new TypeUtil(path.preClass());
-                    Object value = getValue(json, pathArray, rootJsonPath, targetType.getAsClass() == Object.class ? fieldType : targetType, t);
-                    if(value == null)
-                        continue;
-                    
-                    List<Annotation> annotations = sortAnnotation(field.getAnnotations());
-                    for (Annotation annotation : annotations) {
-                        LsonDefinedAnnotation lsonDefinedAnnotation = annotation.annotationType().getAnnotation(LsonDefinedAnnotation.class);
-                        if(lsonDefinedAnnotation != null && !annotation.annotationType().getName().equals(LsonPath.class.getName()))
-                            value = handleAnnotation(value, annotation, lsonDefinedAnnotation, t);
-                    }
-
-                    value = finalValueHandle(value, fieldType);
-                    if(value != null) {
-                        field.setAccessible(true);
-                        field.set(t, value);
-                    }
+                if (path == null)
+                    continue;
+                String[] pathArray = path.value();
+                if (pathArray.length == 1 && pathArray[0].equals("")) {
+                    pathArray[0] = field.getName();
+                    String underScoreCase = DataProcessUtil.getUnderScoreCase(field.getName());
+                    if (!field.getName().equals(underScoreCase))
+                        pathArray = new String[]{field.getName(), underScoreCase};
                 }
+
+                Type type = field.getGenericType();
+                TypeUtil fieldType, targetType;
+                if (clz.getAsType() instanceof TypeVariable)
+                    fieldType = new TypeUtil(type, clz.getTypeReference().typeMap.get(((TypeVariable<?>) clz.getAsType()).getName()));
+                else
+                    fieldType = new TypeUtil(type, clz.getTypeReference());
+                targetType = new TypeUtil(path.preClass());
+                Object value = getValue(json, pathArray, rootJsonPath, targetType.getAsClass() == Object.class ? fieldType : targetType, t);
+                if (value == null)
+                    continue;
+
+                List<Annotation> annotations = sortAnnotation(field.getAnnotations());
+                for (Annotation annotation : annotations) {
+                    LsonDefinedAnnotation lsonDefinedAnnotation = annotation.annotationType().getAnnotation(LsonDefinedAnnotation.class);
+                    if (lsonDefinedAnnotation != null && !annotation.annotationType().getName().equals(LsonPath.class.getName()))
+                        value = handleAnnotation(value, annotation, lsonDefinedAnnotation, t);
+                }
+
+                value = finalValueHandle(value, fieldType);
+                if (value != null) {
+                    field.setAccessible(true);
+                    field.set(t, value);
+                }
+
             } catch (Exception ignored) {
             }
         }
@@ -114,9 +115,9 @@ public class Deserialization {
         try {
             Method[] methods = annotation.annotationType().getDeclaredMethods();
             for (Method method : methods) {
-                if(method.getAnnotation(AnnotationOrder.class) != null) {
+                if (method.getAnnotation(AnnotationOrder.class) != null) {
                     Type type = method.getGenericReturnType();
-                    if(type instanceof Class && ((Class<?>) type).getName().equals("int"))
+                    if (type instanceof Class && ((Class<?>) type).getName().equals("int"))
                         return (int) method.invoke(annotation);
                 }
             }
@@ -130,7 +131,7 @@ public class Deserialization {
         for (String pathString : pathArray) {
             ArrayList<Object> paths = PathParser.parse(pathString);
             Object value = getValue(rootJson, paths, rootPath, fieldType, t);
-            if(value != null)
+            if (value != null)
                 return value;
         }
         return null;
@@ -145,56 +146,53 @@ public class Deserialization {
             LsonElement json = rootJson;
             for (int i = 0; i < jsonPaths.size(); i++) {
                 Object pathType = jsonPaths.get(i);
-                if(pathType instanceof PathType.PathJsonRoot)
+                if (pathType instanceof PathType.PathJsonRoot)
                     json = rootJson;
-                else if(pathType instanceof PathType.PathPath) {
-                    if(json.isLsonObject())
+                else if (pathType instanceof PathType.PathPath) {
+                    if (json.isLsonObject())
                         json = json.getAsLsonObject().get(((PathType.PathPath) pathType).path);
-                    else if(json.isLsonArray()) {
+                    else if (json.isLsonArray()) {
                         LsonArray temp = new LsonArray();
                         for (int j = 0; j < json.getAsLsonArray().size(); j++) {
                             LsonElement lsonElement = json.getAsLsonArray().get(j);
-                            if(lsonElement.isLsonObject())
+                            if (lsonElement.isLsonObject())
                                 temp.add(lsonElement.getAsLsonObject().get(((PathType.PathPath) pathType).path));
                         }
                         json = temp;
                     }
-                }
-                else if(pathType instanceof PathType.PathIndex && json.isLsonArray()) {
+                } else if (pathType instanceof PathType.PathIndex && json.isLsonArray()) {
                     LsonArray temp = new LsonArray();
                     int start = ((PathType.PathIndex) pathType).start;
-                    if(start < 0) start += json.getAsLsonArray().size();
+                    if (start < 0) start += json.getAsLsonArray().size();
                     int end = ((PathType.PathIndex) pathType).end;
-                    if(end < 0) end += json.getAsLsonArray().size();
-                    if(((PathType.PathIndex) pathType).step > 0 && end >= start)
+                    if (end < 0) end += json.getAsLsonArray().size();
+                    if (((PathType.PathIndex) pathType).step > 0 && end >= start)
                         for (int j = start; j < Math.min(end, json.getAsLsonArray().size()); j += ((PathType.PathIndex) pathType).step)
                             temp.add(json.getAsLsonArray().get(j));
-                    if(temp.size() == 1)
+                    if (temp.size() == 1)
                         json = temp.get(0);
                     else
                         json = temp;
-                }
-                else if(pathType instanceof PathType.PathIndexArray && json.isLsonArray()) {
+                } else if (pathType instanceof PathType.PathIndexArray && json.isLsonArray()) {
                     LsonArray temp = new LsonArray();
                     for (int j = 0; j < ((PathType.PathIndexArray) pathType).index.size(); j++) {
                         int index = (int) ((PathType.PathIndexArray) pathType).index.get(j);
-                        if(index < 0) index += json.getAsLsonArray().size();
+                        if (index < 0) index += json.getAsLsonArray().size();
                         temp.add(json.getAsLsonArray().get(index));
                     }
-                    if(temp.size() == 1)
+                    if (temp.size() == 1)
                         json = temp.get(0);
                     else
                         json = temp;
-                }
-                else if(pathType instanceof PathType.PathFilter) {
-                    if(json.isLsonArray()) {
+                } else if (pathType instanceof PathType.PathFilter) {
+                    if (json.isLsonArray()) {
                         PathType.PathFilter filter = (PathType.PathFilter) pathType;
                         LsonArray temp = new LsonArray();
                         ArrayList<Object> root = new ArrayList<>(jsonPaths.subList(0, i));
                         for (int j = 0; j < json.getAsLsonArray().size(); j++) {
                             Object left = getFilterData(filter.left, j, rootJson, root, t);
                             Object right = getFilterData(filter.right, j, rootJson, root, t);
-                            if(compare(left, filter.comparator, right))
+                            if (compare(left, filter.comparator, right))
                                 temp.add(json.getAsLsonArray().get(j));
                         }
                         json = temp;
@@ -202,9 +200,9 @@ public class Deserialization {
                 }
             }
 
-            if(fieldType.isNull() || fieldType.isPrimitivePlus() || fieldType.getName().equals(Object.class.getName()))
+            if (fieldType.isNull() || fieldType.isPrimitivePlus() || fieldType.getName().equals(Object.class.getName()))
                 return getJsonPrimitiveData(json);
-            else if(json != null)
+            else if (json != null)
                 return getClassData(fieldType, json, rootJson, t, jsonPaths);
         } catch (RuntimeException ignored) {
         }
@@ -218,10 +216,10 @@ public class Deserialization {
 
         TypeUtil valueTypeArgument = fieldType.getMapElementType();
         Map<String, Object> map = (Map<String, Object>) fieldType.getMapType().newInstance();
-        if(json.isLsonObject()) {
+        if (json.isLsonObject()) {
             String[] keys = json.getAsLsonObject().getKeys();
             for (String key : keys) {
-                if(valueTypeArgument.isPrimitivePlus())
+                if (valueTypeArgument.isPrimitivePlus())
                     map.put(key, getJsonPrimitiveData(json.getAsLsonObject().get(key)));
                 else {
                     ArrayList<Object> tempPaths = (ArrayList<Object>) jsonPaths.clone();
@@ -237,15 +235,15 @@ public class Deserialization {
     private Object getArrayData(LsonElement json, LsonElement rootJson, TypeUtil fieldType, ArrayList<Object> jsonPaths, Object t) {
         TypeUtil actualTypeArgument = fieldType.getArrayElementType();
         Object array;
-        if(actualTypeArgument.isPrimitivePlus())
+        if (actualTypeArgument.isPrimitivePlus())
             array = Array.newInstance(DeserializationValueUtil.class, json.isLsonArray() ? json.getAsLsonArray().size() : 1);
         else
             array = Array.newInstance(actualTypeArgument.getAsClass(), json.isLsonArray() ? json.getAsLsonArray().size() : 1);
 
-        if(json.isLsonArray()) {
+        if (json.isLsonArray()) {
             for (int i = 0; i < json.getAsLsonArray().size(); i++) {
                 LsonElement lsonElement = json.getAsLsonArray().get(i);
-                if(actualTypeArgument.isPrimitivePlus())
+                if (actualTypeArgument.isPrimitivePlus())
                     Array.set(array, i, getJsonPrimitiveData(lsonElement));
                 else {
                     ArrayList<Object> tempPaths = (ArrayList<Object>) jsonPaths.clone();
@@ -253,9 +251,8 @@ public class Deserialization {
                     Array.set(array, i, getClassData(actualTypeArgument, lsonElement, rootJson, t, tempPaths));
                 }
             }
-        }
-        else {
-            if(actualTypeArgument.isPrimitivePlus())
+        } else {
+            if (actualTypeArgument.isPrimitivePlus())
                 Array.set(array, 0, getJsonPrimitiveData(json));
             else
                 Array.set(array, 0, getClassData(actualTypeArgument, json, rootJson, t, jsonPaths));
@@ -268,10 +265,10 @@ public class Deserialization {
         TypeUtil actualTypeArgument = fieldType.getListElementType();
         List<Object> list = (List<Object>) fieldType.getListType().newInstance();
 
-        if(json.isLsonArray()) {
+        if (json.isLsonArray()) {
             for (int i = 0; i < json.getAsLsonArray().size(); i++) {
                 LsonElement lsonElement = json.getAsLsonArray().get(i);
-                if(actualTypeArgument.isPrimitivePlus())
+                if (actualTypeArgument.isPrimitivePlus())
                     list.add(getJsonPrimitiveData(lsonElement));
                 else {
                     ArrayList<Object> tempPaths = (ArrayList<Object>) jsonPaths.clone();
@@ -279,8 +276,7 @@ public class Deserialization {
                     list.add(getClassData(actualTypeArgument, lsonElement, rootJson, t, tempPaths));
                 }
             }
-        }
-        else if(json.isLsonPrimitive())
+        } else if (json.isLsonPrimitive())
             list.add(getJsonPrimitiveData(json));
         else
             list.add(getClassData(actualTypeArgument, json, rootJson, t, jsonPaths));
@@ -292,10 +288,10 @@ public class Deserialization {
         TypeUtil actualTypeArgument = fieldType.getSetElementType();
         Set<Object> set = (Set<Object>) fieldType.getSetType().newInstance();
 
-        if(json.isLsonArray()) {
+        if (json.isLsonArray()) {
             for (int i = 0; i < json.getAsLsonArray().size(); i++) {
                 LsonElement lsonElement = json.getAsLsonArray().get(i);
-                if(actualTypeArgument.isPrimitivePlus())
+                if (actualTypeArgument.isPrimitivePlus())
                     set.add(getJsonPrimitiveData(lsonElement));
                 else {
                     ArrayList<Object> tempPaths = (ArrayList<Object>) jsonPaths.clone();
@@ -303,8 +299,7 @@ public class Deserialization {
                     set.add(getClassData(actualTypeArgument, lsonElement, rootJson, t, tempPaths));
                 }
             }
-        }
-        else if(json.isLsonPrimitive())
+        } else if (json.isLsonPrimitive())
             set.add(getJsonPrimitiveData(json));
         else
             set.add(getClassData(actualTypeArgument, json, rootJson, t, jsonPaths));
@@ -313,55 +308,51 @@ public class Deserialization {
 
     private Object getFilterData(PathType.PathFilter.PathFilterPart part, int index, LsonElement rootJson, ArrayList<Object> rootPath, Object t) {
         Object result = null;
-        if(part.mode == PathType.PathFilter.PathFilterPart.FilterPartMode.PATH) {
+        if (part.mode == PathType.PathFilter.PathFilterPart.FilterPartMode.PATH) {
             rootPath.add(new PathType.PathIndexArray(new ArrayList<>(Collections.singletonList(index))));
             result = finalValueHandle(getValue(rootJson, part.part, rootPath, TypeUtil.nullType(), t), TypeUtil.nullType());
             rootPath.remove(rootPath.size() - 1);
 
-            if(result instanceof Object[])
+            if (result instanceof Object[])
                 result = ((Object[]) result)[0];
-        }
-        else if(part.mode == PathType.PathFilter.PathFilterPart.FilterPartMode.ARRAY)
+        } else if (part.mode == PathType.PathFilter.PathFilterPart.FilterPartMode.ARRAY)
             result = part.part;
-        else if(part.mode == PathType.PathFilter.PathFilterPart.FilterPartMode.SINGLE)
+        else if (part.mode == PathType.PathFilter.PathFilterPart.FilterPartMode.SINGLE)
             result = part.part.get(0);
         return result;
     }
 
     private boolean compare(Object left, PathType.PathFilter.FilterComparator comparator, Object right) {
-        if(comparator == PathType.PathFilter.FilterComparator.EXISTENCE) {
-            if(left instanceof Boolean)
+        if (comparator == PathType.PathFilter.FilterComparator.EXISTENCE) {
+            if (left instanceof Boolean)
                 return (boolean) left;
-            else if(left instanceof String)
+            else if (left instanceof String)
                 return !left.equals("");
-            else if(left instanceof Number)
+            else if (left instanceof Number)
                 return ((Number) left).doubleValue() != 0;
             return left != null;
         }
-        if(left != null && right != null) {
-            if(comparator == PathType.PathFilter.FilterComparator.EQUAL) {
-                if(left instanceof Number && right instanceof Number)
+        if (left != null && right != null) {
+            if (comparator == PathType.PathFilter.FilterComparator.EQUAL) {
+                if (left instanceof Number && right instanceof Number)
                     return ((Number) left).doubleValue() == ((Number) right).doubleValue();
                 return left == right || left.equals(right);
-            }
-            else if(comparator == PathType.PathFilter.FilterComparator.NOT_EQUAL) {
-                if(left instanceof Number && right instanceof Number)
+            } else if (comparator == PathType.PathFilter.FilterComparator.NOT_EQUAL) {
+                if (left instanceof Number && right instanceof Number)
                     return ((Number) left).doubleValue() != ((Number) right).doubleValue();
                 return left != right;
-            }
-            else if(left instanceof Number && right instanceof Number) {
-                if(comparator == PathType.PathFilter.FilterComparator.LESS)
+            } else if (left instanceof Number && right instanceof Number) {
+                if (comparator == PathType.PathFilter.FilterComparator.LESS)
                     return ((Number) left).doubleValue() < ((Number) right).doubleValue();
-                else if(comparator == PathType.PathFilter.FilterComparator.LESS_EQUAL)
+                else if (comparator == PathType.PathFilter.FilterComparator.LESS_EQUAL)
                     return ((Number) left).doubleValue() <= ((Number) right).doubleValue();
-                else if(comparator == PathType.PathFilter.FilterComparator.GREATER)
+                else if (comparator == PathType.PathFilter.FilterComparator.GREATER)
                     return ((Number) left).doubleValue() > ((Number) right).doubleValue();
-                else if(comparator == PathType.PathFilter.FilterComparator.GREATER_EQUAL)
+                else if (comparator == PathType.PathFilter.FilterComparator.GREATER_EQUAL)
                     return ((Number) left).doubleValue() >= ((Number) right).doubleValue();
-            }
-            else if(comparator == PathType.PathFilter.FilterComparator.IN && right instanceof ArrayList)
+            } else if (comparator == PathType.PathFilter.FilterComparator.IN && right instanceof ArrayList)
                 return DataProcessUtil.getIndex(left, (ArrayList<?>) right) > -1;
-            else if(comparator == PathType.PathFilter.FilterComparator.NOT_IN && right instanceof ArrayList)
+            else if (comparator == PathType.PathFilter.FilterComparator.NOT_IN && right instanceof ArrayList)
                 return DataProcessUtil.getIndex(left, (ArrayList<?>) right) == -1;
         }
         return false;
@@ -369,33 +360,30 @@ public class Deserialization {
 
     @SuppressWarnings("unchecked")
     private <T> Object handleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, T t) {
-        if(value == null) return null;
+        if (value == null) return null;
 
         TypeUtil valueClass = new TypeUtil(value.getClass());
-        if(valueClass.isArrayType()) {
-            if(lsonDefinedAnnotation.isIgnoreArray())
+        if (valueClass.isArrayType()) {
+            if (lsonDefinedAnnotation.isIgnoreArray())
                 value = handleSingleAnnotation(finalValueHandle(value, valueClass), annotation, lsonDefinedAnnotation, t);
             else
                 for (int i = 0; i < Array.getLength(value); i++)
                     Array.set(value, i, handleAnnotation(Array.get(value, i), annotation, lsonDefinedAnnotation, t));
-        }
-        else if(valueClass.isListType()) {
-            if(lsonDefinedAnnotation.isIgnoreList())
+        } else if (valueClass.isListType()) {
+            if (lsonDefinedAnnotation.isIgnoreList())
                 value = handleSingleAnnotation(finalValueHandle(value, valueClass), annotation, lsonDefinedAnnotation, t);
             else
                 for (int i = 0; i < ((List<?>) value).size(); i++)
                     ((List<Object>) value).set(i, handleAnnotation(((List<?>) value).get(i), annotation, lsonDefinedAnnotation, t));
-        }
-        else if(valueClass.isMapType()) {
-            if(lsonDefinedAnnotation.isIgnoreMap())
+        } else if (valueClass.isMapType()) {
+            if (lsonDefinedAnnotation.isIgnoreMap())
                 value = handleSingleAnnotation(finalValueHandle(value, valueClass), annotation, lsonDefinedAnnotation, t);
             else {
                 Object[] keys = ((Map<?, ?>) value).keySet().toArray();
                 for (Object key : keys)
                     ((Map<Object, Object>) value).put(key, handleAnnotation(((Map<?, ?>) value).get(key), annotation, lsonDefinedAnnotation, t));
             }
-        }
-        else
+        } else
             value = handleSingleAnnotation(value, annotation, lsonDefinedAnnotation, t);
         return value;
     }
@@ -415,16 +403,16 @@ public class Deserialization {
     private <T> Object handleSingleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, T t) {
         try {
             Object o = value;
-            if(o instanceof DeserializationValueUtil)
+            if (o instanceof DeserializationValueUtil)
                 o = handleAnnotationType((DeserializationValueUtil) value, lsonDefinedAnnotation.acceptableDeserializationType());
 
             Method method = lsonDefinedAnnotation.config().getDeclaredMethod("deserialization", Object.class, Object.class, Object.class);
             Object object = method.invoke(lsonDefinedAnnotation.config().newInstance(), o, annotation, t);
 
             TypeUtil typeUtil = new TypeUtil(object);
-            if(value instanceof DeserializationValueUtil && !typeUtil.isPrimitivePlus())
+            if (value instanceof DeserializationValueUtil && !typeUtil.isPrimitivePlus())
                 return ((DeserializationValueUtil) value).set(object);
-            else if(typeUtil.isPrimitivePlus())
+            else if (typeUtil.isPrimitivePlus())
                 return new DeserializationValueUtil(object);
             return object;
         } catch (NoSuchMethodException | InvocationTargetException | java.lang.InstantiationException | IllegalAccessException ignored) {
@@ -433,18 +421,18 @@ public class Deserialization {
     }
 
     private void handleMethod(TypeUtil typeUtil, Object t, LsonCallMethod.CallMethodTiming callMethodTiming) {
-        if(t != null) {
-            Method[] methods = typeUtil.getAsClass().getDeclaredMethods();
-            for (Method method : methods) {
-                try {
-                    LsonCallMethod lsonCallMethod = method.getAnnotation(LsonCallMethod.class);
-                    if(lsonCallMethod != null && DataProcessUtil.getIndex(callMethodTiming, lsonCallMethod.timing()) > -1) {
-                        method.setAccessible(true);
-                        method.invoke(t);
-                    }
-                } catch (RuntimeException | IllegalAccessException | InvocationTargetException e) {
-                    e.printStackTrace();
+        if (t == null)
+            return;
+        Method[] methods = typeUtil.getAsClass().getDeclaredMethods();
+        for (Method method : methods) {
+            try {
+                LsonCallMethod lsonCallMethod = method.getAnnotation(LsonCallMethod.class);
+                if (lsonCallMethod != null && DataProcessUtil.getIndex(callMethodTiming, lsonCallMethod.timing()) > -1) {
+                    method.setAccessible(true);
+                    method.invoke(t);
                 }
+            } catch (RuntimeException | IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -452,27 +440,27 @@ public class Deserialization {
     private DeserializationValueUtil getJsonPrimitiveData(LsonElement json) {
         while (json.isLsonArray())
             json = json.getAsLsonArray().get(0);
-        if(json.isLsonPrimitive())
+        if (json.isLsonPrimitive())
             return new DeserializationValueUtil(json.getAsLsonPrimitive().get(), json.getAsLsonPrimitive().getValueClass());
         return null;
     }
 
     private Object getClassData(TypeUtil fieldType, LsonElement json, LsonElement rootJson, Object t, ArrayList<Object> paths) {
         try {
-            if(fieldType == null) return null;
+            if (fieldType == null) return null;
 
-            if(fieldType.isMapType())
+            if (fieldType.isMapType())
                 return getMapData(json, rootJson, fieldType, paths, t);
-            else if(fieldType.isArrayType())
+            else if (fieldType.isArrayType())
                 return getArrayData(json, rootJson, fieldType, paths, t);
-            else if(fieldType.isListType())
+            else if (fieldType.isListType())
                 return getListData(json, rootJson, fieldType, paths, t);
-            else if(fieldType.isSetType())
+            else if (fieldType.isSetType())
                 return getSetData(json, rootJson, fieldType, paths, t);
-            else if(fieldType.getName().equals(Object.class.getName()))
+            else if (fieldType.getName().equals(Object.class.getName()))
                 return getJsonPrimitiveData(json);
             else if (lson.getTypeAdapterList().has(fieldType))
-                return lson.getTypeAdapterList().get(fieldType).deserialization(json);
+                return lson.getTypeAdapterList().get(fieldType.getAsClass()).deserialization(json);
             return deserialization(rootJson, fieldType, t, paths);
         } catch (RuntimeException | java.lang.InstantiationException | IllegalAccessException ignored) {
         }
@@ -482,12 +470,12 @@ public class Deserialization {
     @SuppressWarnings("unchecked")
     public Object finalValueHandle(Object value, TypeUtil fieldType) {
         try {
-            if(value == null) return null;
+            if (value == null) return null;
 
             TypeUtil valueClass = new TypeUtil(value.getClass());
-            if(valueClass.isArrayType()) {
+            if (valueClass.isArrayType()) {
                 Object finalValue;
-                if(fieldType.getArrayElementType().getAsClass().equals(DeserializationValueUtil.class))
+                if (fieldType.getArrayElementType().getAsClass().equals(DeserializationValueUtil.class))
                     finalValue = Array.newInstance(((DeserializationValueUtil) Array.get(value, 0)).getType(), Array.getLength(value));
                 else
                     finalValue = Array.newInstance(fieldType.getArrayElementType().getAsClass(), Array.getLength(value));
@@ -495,32 +483,28 @@ public class Deserialization {
                 for (int i = 0; i < Array.getLength(value); i++)
                     Array.set(finalValue, i, finalValueHandle(Array.get(value, i), fieldType.getArrayElementType()));
                 return finalValue;
-            }
-            else if(valueClass.isListType()) {
+            } else if (valueClass.isListType()) {
                 TypeUtil type = fieldType.getListElementType();
                 List<Object> finalValue = (List<Object>) valueClass.getListType().newInstance();
                 for (int i = 0; i < ((List<?>) value).size(); i++)
                     finalValue.add(finalValueHandle(((List<?>) value).get(i), type));
                 return finalValue;
-            }
-            else if(valueClass.isMapType()) {
+            } else if (valueClass.isMapType()) {
                 TypeUtil type = fieldType.getMapElementType();
                 Map<String, Object> finalValue = (Map<String, Object>) valueClass.getMapType().newInstance();
                 for (Object key : ((Map<?, ?>) value).keySet().toArray())
                     finalValue.put((String) key, finalValueHandle(((Map<?, ?>) value).get(key), type));
                 return finalValue;
-            }
-            else if(value instanceof DeserializationValueUtil) {
-                if(((DeserializationValueUtil) value).getCurrentType() == Double.class)
+            } else if (value instanceof DeserializationValueUtil) {
+                if (((DeserializationValueUtil) value).getCurrentType() == Double.class)
                     return finalValueHandle((DeserializationValueUtil) value, fieldType);
-                else if(((DeserializationValueUtil) value).getCurrentType() == StringBuilder.class)
+                else if (((DeserializationValueUtil) value).getCurrentType() == StringBuilder.class)
                     return ((DeserializationValueUtil) value).get().toString();
-                else if(((DeserializationValueUtil) value).getCurrentType() == Boolean.class)
+                else if (((DeserializationValueUtil) value).getCurrentType() == Boolean.class)
                     return ((DeserializationValueUtil) value).get();
                 else
                     return ((DeserializationValueUtil) value).get(fieldType);
-            }
-            else
+            } else
                 return value;
         } catch (RuntimeException | java.lang.InstantiationException | IllegalAccessException ignored) {
         }
@@ -528,7 +512,7 @@ public class Deserialization {
     }
 
     private Object finalValueHandle(DeserializationValueUtil value, TypeUtil fieldType) {
-        if(!fieldType.isNull()) {
+        if (!fieldType.isNull()) {
             switch (fieldType.getName()) {
                 case "int":
                 case "java.lang.Integer":
@@ -545,8 +529,7 @@ public class Deserialization {
                 case "java.lang.String":
                     return finalValueHandle(value, TypeUtil.nullType()).toString();
             }
-        }
-        else {
+        } else {
             switch (value.getType().getName()) {
                 case "int":
                 case "java.lang.Integer":

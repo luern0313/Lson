@@ -32,54 +32,52 @@ import cn.luern0313.lson.util.TypeUtil;
  * @author luern0313
  */
 
-public class Serialization
-{
+public class Serialization {
+    private final Lson lson;
+
+    public Serialization(Lson lson) {
+        this.lson = lson;
+    }
+
     @SuppressWarnings("unchecked")
-    public static LsonElement toJson(Object object)
-    {
-        try
-        {
-            if(object == null) return null;
+    public LsonElement toJson(Object object) {
+        try {
+            if (object == null) return null;
 
             TypeUtil typeUtil = new TypeUtil(object.getClass());
-            if(typeUtil.isPrimitivePlus())
+            if (typeUtil.isPrimitivePlus())
                 return new LsonPrimitive(object);
-            else if(typeUtil.isArrayType())
+            else if (typeUtil.isArrayType())
                 return arrayToJson(object);
-            else if(typeUtil.isListType())
+            else if (typeUtil.isListType())
                 return listToJson((List<?>) object);
-            else if(typeUtil.isMapType())
+            else if (typeUtil.isMapType())
                 return mapToJson((Map<String, ?>) object);
-            else if(typeUtil.isSetType())
+            else if (typeUtil.isSetType())
                 return setToJson((Set<?>) object);
-            else if(typeUtil.isBuiltInClass())
-                return builtInClassToJson(object, typeUtil);
+            else if (lson.getTypeAdapterList().has(typeUtil))
+                return handleTypeAdapter(object);
             return classToJson(object, typeUtil);
-        }
-        catch (RuntimeException ignored)
-        {
+        } catch (RuntimeException ignored) {
         }
         return null;
     }
 
-    private static LsonElement arrayToJson(Object array)
-    {
+    private LsonElement arrayToJson(Object array) {
         LsonArray lsonArray = new LsonArray();
         for (int i = 0; i < Array.getLength(array); i++)
             lsonArray.add(toJson(Array.get(array, i)));
         return lsonArray;
     }
 
-    private static LsonElement listToJson(List<?> list)
-    {
+    private LsonElement listToJson(List<?> list) {
         LsonArray lsonArray = new LsonArray();
         for (int i = 0; i < list.size(); i++)
             lsonArray.add(toJson(list.get(i)));
         return lsonArray;
     }
 
-    private static LsonElement mapToJson(Map<String, ?> map)
-    {
+    private LsonElement mapToJson(Map<String, ?> map) {
         LsonObject lsonObject = new LsonObject();
         String[] keys = map.keySet().toArray(new String[0]);
         for (String key : keys)
@@ -87,69 +85,46 @@ public class Serialization
         return lsonObject;
     }
 
-    private static LsonElement setToJson(Set<?> set)
-    {
+    private LsonElement setToJson(Set<?> set) {
         LsonArray lsonArray = new LsonArray();
         for (Object o : set)
             lsonArray.add(toJson(o));
         return lsonArray;
     }
 
-    private static LsonElement builtInClassToJson(Object object, TypeUtil typeUtil)
-    {
-        if(typeUtil.getName().equals(StringBuilder.class.getName()))
-            return new LsonPrimitive(object.toString());
-        else if(typeUtil.getName().equals(StringBuffer.class.getName()))
-            return new LsonPrimitive(object.toString());
-        else if(typeUtil.getName().equals(java.util.Date.class.getName()))
-            return new LsonPrimitive(((java.util.Date) object).getTime());
-        else if(typeUtil.getName().equals(java.sql.Date.class.getName()))
-            return new LsonPrimitive(((java.util.Date) object).getTime());
-        else if(typeUtil.getName().equals(LsonElement.class.getName()))
-            return (LsonElement) object;
-        else if(typeUtil.getName().equals(LsonObject.class.getName()))
-            return ((LsonElement) object).getAsLsonObject();
-        else if(typeUtil.getName().equals(LsonArray.class.getName()))
-            return ((LsonElement) object).getAsLsonArray();
-        else if(typeUtil.getName().equals(LsonPrimitive.class.getName()))
-            return ((LsonElement) object).getAsLsonPrimitive();
-        return null;
+    @SuppressWarnings("unchecked")
+    private <T> LsonElement handleTypeAdapter(T t) {
+        Class<T> clz = (Class<T>) t.getClass();
+        return lson.getTypeAdapterList().get(clz).serialization(t);
     }
 
-    private static LsonElement classToJson(Object object, TypeUtil typeUtil)
-    {
+    private LsonElement classToJson(Object object, TypeUtil typeUtil) {
         handleMethod(object, LsonCallMethod.CallMethodTiming.AFTER_SERIALIZATION);
         LsonObject lsonObject = new LsonObject();
         Field[] fields = typeUtil.getAsClass().getDeclaredFields();
-        for (Field field : fields)
-        {
-            try
-            {
+        for (Field field : fields) {
+            try {
                 LsonPath path = field.getAnnotation(LsonPath.class);
-                if(path != null)
-                {
+                if (path != null) {
                     String[] pathArray = path.value();
-                    if(pathArray.length == 1 && pathArray[0].equals(""))
+                    if (pathArray.length == 1 && pathArray[0].equals(""))
                         pathArray[0] = DataProcessUtil.getUnderScoreCase(field.getName());
                     field.setAccessible(true);
                     LsonElement fieldElement = toJson(field.get(object));
                     Object value = getDeserializationValue(fieldElement);
 
                     Annotation[] annotations = field.getAnnotations();
-                    for (int i = annotations.length - 1; i >= 0; i--)
-                    {
+                    for (int i = annotations.length - 1; i >= 0; i--) {
                         LsonDefinedAnnotation lsonDefinedAnnotation = annotations[i].annotationType().getAnnotation(LsonDefinedAnnotation.class);
-                        if(lsonDefinedAnnotation != null && !annotations[i].annotationType().getName().equals(LsonPath.class.getName()))
+                        if (lsonDefinedAnnotation != null && !annotations[i].annotationType().getName().equals(LsonPath.class.getName()))
                             value = handleAnnotation(value, annotations[i], lsonDefinedAnnotation, object);
                     }
 
                     value = finalValueHandle(value);
-                    if(value != null)
+                    if (value != null)
                         setValue((LsonElement) value, pathArray[0], new ArrayList<>(), lsonObject);
                 }
-            }
-            catch (RuntimeException | IllegalAccessException e)
-            {
+            } catch (RuntimeException | IllegalAccessException e) {
                 e.printStackTrace();
             }
         }
@@ -157,19 +132,15 @@ public class Serialization
         return lsonObject;
     }
 
-    private static Object getDeserializationValue(LsonElement lsonElement)
-    {
-        if(lsonElement != null && lsonElement.isLsonPrimitive())
+    private Object getDeserializationValue(LsonElement lsonElement) {
+        if (lsonElement != null && lsonElement.isLsonPrimitive())
             return new DeserializationValueUtil(lsonElement.getAsLsonPrimitive().get(), lsonElement.getAsLsonPrimitive().get().getClass());
-        else if(lsonElement != null && lsonElement.isLsonArray())
-        {
+        else if (lsonElement != null && lsonElement.isLsonArray()) {
             ArrayList<Object> list = new ArrayList<>();
             for (int i = 0; i < lsonElement.getAsLsonArray().size(); i++)
                 list.add(getDeserializationValue(lsonElement.getAsLsonArray().get(i)));
             return list;
-        }
-        else if(lsonElement != null && lsonElement.isLsonObject())
-        {
+        } else if (lsonElement != null && lsonElement.isLsonObject()) {
             LinkedHashMap<String, Object> map = new LinkedHashMap<>();
             String[] keys = lsonElement.getAsLsonObject().getKeys();
             for (String key : keys)
@@ -180,108 +151,85 @@ public class Serialization
     }
 
     @SuppressWarnings("unchecked")
-    public static void setValue(LsonElement value, String pathString, ArrayList<String> rootPath, LsonElement rootJson)
-    {
+    public void setValue(LsonElement value, String pathString, ArrayList<String> rootPath, LsonElement rootJson) {
         ArrayList<Object> jsonPaths = PathParser.parse(pathString);
         jsonPaths.addAll(0, rootPath);
 
         ArrayList<LsonElement> jsonTempArrayList = new ArrayList<>(Collections.singletonList(rootJson));
-        for (int i = 0; i < jsonPaths.size(); i++)
-        {
+        for (int i = 0; i < jsonPaths.size(); i++) {
             Object pathType = jsonPaths.get(i);
             ArrayList<LsonElement> jsonArrayList = (ArrayList<LsonElement>) jsonTempArrayList.clone();
             jsonTempArrayList.clear();
-            for (int j = 0; j < jsonArrayList.size(); j++)
-            {
+            for (int j = 0; j < jsonArrayList.size(); j++) {
                 LsonElement json = jsonArrayList.get(j);
-                if(json == null) continue;
+                if (json == null) continue;
 
-                if(pathType instanceof PathType.PathJsonRoot)
+                if (pathType instanceof PathType.PathJsonRoot)
                     jsonTempArrayList.add(j, rootJson);
-                else if(pathType instanceof PathType.PathJsonCurrent)
+                else if (pathType instanceof PathType.PathJsonCurrent)
                     jsonTempArrayList.add(j, rootJson);
-                else if(pathType instanceof PathType.PathPath)
-                {
-                    if(i < jsonPaths.size() -1)
-                    {
-                        if(json.isLsonObject())
-                        {
+                else if (pathType instanceof PathType.PathPath) {
+                    if (i < jsonPaths.size() -1) {
+                        if (json.isLsonObject()) {
                             Object nextPath = jsonPaths.get(i + 1);
-                            if(nextPath instanceof PathType.PathIndex || nextPath instanceof PathType.PathIndexArray || nextPath instanceof PathType.PathFilter)
+                            if (nextPath instanceof PathType.PathIndex || nextPath instanceof PathType.PathIndexArray || nextPath instanceof PathType.PathFilter)
                                 jsonTempArrayList.add(json.getAsLsonObject().hasPut(((PathType.PathPath) pathType).path, LsonArray.class));
                             else
                                 jsonTempArrayList.add(json.getAsLsonObject().hasPut(((PathType.PathPath) pathType).path, LsonObject.class));
-                        }
-                        else if(json.isLsonArray())
+                        } else if (json.isLsonArray())
                             for (int k = 0; k < value.getAsLsonArray().size(); k++)
                                 jsonTempArrayList.add(json.getAsLsonObject().hasPut(((PathType.PathPath) pathType).path, LsonObject.class));
-                    }
-                    else
-                    {
-                        if(jsonArrayList.size() > 1 && value.isLsonArray())
+                    } else {
+                        if (jsonArrayList.size() > 1 && value.isLsonArray())
                             for (int k = 0; k < jsonArrayList.size(); k++)
                                 jsonArrayList.get(k).getAsLsonObject().put(((PathType.PathPath) pathType).path, value.getAsLsonArray().get(k));
-                        else if(value.isLsonArray() && value.getAsLsonArray().size() == 1)
+                        else if (value.isLsonArray() && value.getAsLsonArray().size() == 1)
                             jsonArrayList.get(0).getAsLsonObject().put(((PathType.PathPath) pathType).path, value.getAsLsonArray().get(0));
                         else
                             jsonArrayList.get(0).getAsLsonObject().put(((PathType.PathPath) pathType).path, value);
                     }
-                }
-                else if(pathType instanceof PathType.PathIndexArray && json.isLsonArray())
-                {
-                    if(i < jsonPaths.size() - 1)
-                    {
+                } else if (pathType instanceof PathType.PathIndexArray && json.isLsonArray()) {
+                    if (i < jsonPaths.size() - 1) {
                         for (int k = 0; k < ((PathType.PathIndexArray) pathType).index.size(); k++)
-                            if(((PathType.PathIndexArray) pathType).index.get(k) instanceof Integer)
+                            if (((PathType.PathIndexArray) pathType).index.get(k) instanceof Integer)
                                 jsonTempArrayList.add(json.getAsLsonArray().hasSet((int) ((PathType.PathIndexArray) pathType).index.get(k), LsonObject.class));
-                    }
-                    else
-                    {
-                        for (int k = 0; k < jsonArrayList.size(); k++)
-                        {
+                    } else {
+                        for (int k = 0; k < jsonArrayList.size(); k++) {
                             LsonElement lsonElement = jsonArrayList.get(k);
-                            if(lsonElement.isLsonArray())
+                            if (lsonElement.isLsonArray())
                                 for (int l = 0; l < ((PathType.PathIndexArray) pathType).index.size(); l++)
-                                    if(((PathType.PathIndexArray) pathType).index.get(l) instanceof Integer)
+                                    if (((PathType.PathIndexArray) pathType).index.get(l) instanceof Integer)
                                         lsonElement.getAsLsonArray().set((int) ((PathType.PathIndexArray) pathType).index.get(l), value);
                         }
                     }
                 }
-                else if(pathType instanceof PathType.PathIndex && json.isLsonArray())
-                {
+                else if (pathType instanceof PathType.PathIndex && json.isLsonArray()) {
                     int start = ((PathType.PathIndex) pathType).start;
-                    if(start < 0) start += json.getAsLsonArray().size();
+                    if (start < 0) start += json.getAsLsonArray().size();
                     int end = ((PathType.PathIndex) pathType).end;
-                    if(end < 0) end += json.getAsLsonArray().size();
-                    if(((PathType.PathIndex) pathType).step > 0 && end >= start)
-                    {
-                        for (int k = start; k < Math.min(end, start + value.getAsLsonArray().size()); k += ((PathType.PathIndex) pathType).step)
-                        {
-                            if(i < jsonPaths.size() - 1)
+                    if (end < 0) end += json.getAsLsonArray().size();
+                    if (((PathType.PathIndex) pathType).step > 0 && end >= start) {
+                        for (int k = start; k < Math.min(end, start + value.getAsLsonArray().size()); k += ((PathType.PathIndex) pathType).step) {
+                            if (i < jsonPaths.size() - 1)
                                 jsonTempArrayList.add(json.getAsLsonArray().hasSet(k, LsonObject.class));
-                            else
-                            {
-                                for (int l = 0; l < jsonArrayList.size(); l++)
-                                {
+                            else {
+                                for (int l = 0; l < jsonArrayList.size(); l++) {
                                     LsonElement lsonElement = jsonArrayList.get(l);
-                                    if(lsonElement.isLsonArray())
+                                    if (lsonElement.isLsonArray())
                                         lsonElement.getAsLsonArray().set(k, value);
                                 }
                             }
                         }
                     }
                 }
-                else if(pathType instanceof PathType.PathFilter && json.isLsonArray())
-                {
-                    if(i < jsonPaths.size() - 1)
+                else if (pathType instanceof PathType.PathFilter && json.isLsonArray()) {
+                    if (i < jsonPaths.size() - 1)
                         for (int k = 0; k < value.getAsLsonArray().size(); k++)
                             jsonTempArrayList.add(json.getAsLsonArray().add(new LsonObject()));
-                    else
-                    {
-                        for (int k = 0; k < jsonArrayList.size(); k++)
-                        {
+                    else {
+                        for (int k = 0; k < jsonArrayList.size(); k++) {
                             LsonElement lsonElement = jsonArrayList.get(k);
-                            if(lsonElement.isLsonArray())
+                            if (lsonElement.isLsonArray())
                                 lsonElement.getAsLsonArray().add(value);
                         }
                     }
@@ -291,50 +239,42 @@ public class Serialization
     }
 
     @SuppressWarnings("unchecked")
-    private static Object handleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, Object object)
-    {
-        if(value == null) return null;
+    private Object handleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, Object object) {
+        if (value == null) return null;
 
         TypeUtil valueClass = new TypeUtil(value.getClass());
-        if(valueClass.isArrayType() && !lsonDefinedAnnotation.isIgnoreArray())
+        if (valueClass.isArrayType() && !lsonDefinedAnnotation.isIgnoreArray())
             for (int i = 0; i < Array.getLength(value); i++)
                 Array.set(value, i, handleAnnotation(Array.get(value, i), annotation, lsonDefinedAnnotation, object));
-        else if(valueClass.isListType() && !lsonDefinedAnnotation.isIgnoreList())
+        else if (valueClass.isListType() && !lsonDefinedAnnotation.isIgnoreList())
             for (int i = 0; i < ((List<?>) value).size(); i++)
                 ((List<Object>) value).set(i, handleAnnotation(((List<?>) value).get(i), annotation, lsonDefinedAnnotation, object));
-        else if(valueClass.isListType() && !lsonDefinedAnnotation.isIgnoreMap())
-        {
+        else if (valueClass.isListType() && !lsonDefinedAnnotation.isIgnoreMap()) {
             Object[] keys = ((Map<?, ?>) value).keySet().toArray();
             for (Object key : keys)
                 ((Map<Object, Object>) value).put(key, handleAnnotation(((Map<?, ?>) value).get(key), annotation, lsonDefinedAnnotation, object));
-        }
-        else if(value instanceof DeserializationValueUtil)
-        {
+        } else if (value instanceof DeserializationValueUtil) {
             Object o = handleAnnotationType((DeserializationValueUtil) value, lsonDefinedAnnotation.acceptableSerializationType());
-            if(o != null)
-            {
+            if (o != null) {
                 Object result = handleSingleAnnotation(o, annotation, lsonDefinedAnnotation, object);
                 TypeUtil resultType = new TypeUtil(result);
-                if(resultType.isPrimitivePlus() || resultType.isBuiltInClass())
+                if (resultType.isPrimitivePlus() || resultType.isBuiltInClass())
                     ((DeserializationValueUtil) value).set(handleSingleAnnotation(o, annotation, lsonDefinedAnnotation, object));
                 else
                     value = result;
             }
 
-            if(value instanceof DeserializationValueUtil && !((DeserializationValueUtil) value).isNull())
+            if (value instanceof DeserializationValueUtil && !((DeserializationValueUtil) value).isNull())
                 ((DeserializationValueUtil) value).set(handleAnnotationType((DeserializationValueUtil) value, lsonDefinedAnnotation.acceptableDeserializationType()));
-            else if(value instanceof DeserializationValueUtil)
+            else if (value instanceof DeserializationValueUtil)
                 return null;
-        }
-        else
+        } else
             value = handleSingleAnnotation(value, annotation, lsonDefinedAnnotation, object);
         return value;
     }
 
-    private static Object handleAnnotationType(DeserializationValueUtil deserializationValueUtil, LsonDefinedAnnotation.AcceptableType acceptableType)
-    {
-        switch (acceptableType)
-        {
+    private Object handleAnnotationType(DeserializationValueUtil deserializationValueUtil, LsonDefinedAnnotation.AcceptableType acceptableType) {
+        switch (acceptableType) {
             case STRING:
                 return deserializationValueUtil.getAsStringBuilder();
             case NUMBER:
@@ -345,94 +285,69 @@ public class Serialization
         return deserializationValueUtil.get();
     }
 
-    private static Object handleSingleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, Object object)
-    {
-        try
-        {
+    private Object handleSingleAnnotation(Object value, Annotation annotation, LsonDefinedAnnotation lsonDefinedAnnotation, Object object) {
+        try {
             Method method = lsonDefinedAnnotation.config().getDeclaredMethod("serialization", Object.class, Object.class, Object.class);
             return method.invoke(lsonDefinedAnnotation.config().newInstance(), value, annotation, object);
-        }
-        catch (NoSuchMethodException | InvocationTargetException | java.lang.InstantiationException | IllegalAccessException ignored)
-        {
+        } catch (NoSuchMethodException | InvocationTargetException | java.lang.InstantiationException | IllegalAccessException ignored) {
         }
         return null;
     }
 
-    private static void handleMethod(Object t, LsonCallMethod.CallMethodTiming callMethodTiming)
-    {
-        if(t != null)
-        {
+    private void handleMethod(Object t, LsonCallMethod.CallMethodTiming callMethodTiming) {
+        if (t != null) {
             Class<?> clz = t.getClass();
             Method[] methods = clz.getDeclaredMethods();
-            for (Method method : methods)
-            {
-                try
-                {
+            for (Method method : methods) {
+                try {
                     LsonCallMethod lsonCallMethod = method.getAnnotation(LsonCallMethod.class);
-                    if(lsonCallMethod != null && DataProcessUtil.getIndex(callMethodTiming, lsonCallMethod.timing()) > -1)
-                    {
+                    if (lsonCallMethod != null && DataProcessUtil.getIndex(callMethodTiming, lsonCallMethod.timing()) > -1) {
                         method.setAccessible(true);
                         method.invoke(t);
                     }
-                }
-                catch (RuntimeException | IllegalAccessException | InvocationTargetException e)
-                {
+                } catch (RuntimeException | IllegalAccessException | InvocationTargetException e) {
                     e.printStackTrace();
                 }
             }
         }
     }
 
-    private static LsonElement finalValueHandle(Object value)
-    {
-        try
-        {
-            if(value == null) return null;
+    private LsonElement finalValueHandle(Object value) {
+        try {
+            if (value == null) return null;
 
             TypeUtil valueClass = new TypeUtil(value.getClass());
-            if(valueClass.isArrayType())
-            {
+            if (valueClass.isArrayType()) {
                 LsonArray finalValue = new LsonArray();
                 for (int i = 0; i < Array.getLength(value); i++)
                     finalValue.add(finalValueHandle(Array.get(value, i)));
                 return finalValue;
-            }
-            else if(valueClass.isListType())
-            {
+            } else if (valueClass.isListType()) {
                 LsonArray finalValue = new LsonArray();
                 for (int i = 0; i < ((List<?>) value).size(); i++)
                     finalValue.add(finalValueHandle(((List<?>) value).get(i)));
                 return finalValue;
-            }
-            else if(valueClass.isMapType())
-            {
+            } else if (valueClass.isMapType()) {
                 LsonObject finalValue = new LsonObject();
                 for (Object key : ((Map<?, ?>) value).keySet().toArray())
                     finalValue.put((String) key, finalValueHandle(((Map<?, ?>) value).get(key)));
                 return finalValue;
-            }
-            else if(value instanceof DeserializationValueUtil)
-            {
-                if(((DeserializationValueUtil) value).get() instanceof Double)
+            } else if (value instanceof DeserializationValueUtil) {
+                if (((DeserializationValueUtil) value).get() instanceof Double)
                     return new LsonPrimitive(finalValueHandle((DeserializationValueUtil) value));
-                else if(((DeserializationValueUtil) value).get() instanceof StringBuilder)
+                else if (((DeserializationValueUtil) value).get() instanceof StringBuilder)
                     return new LsonPrimitive(((DeserializationValueUtil) value).get().toString());
                 else
                     return new LsonPrimitive(((DeserializationValueUtil) value).get());
-            }
-            else
+            } else
                 return new LsonPrimitive(value);
-        }
-        catch (RuntimeException ignored)
-        {
+        } catch (RuntimeException ignored) {
         }
         return null;
     }
 
-    private static Object finalValueHandle(DeserializationValueUtil value)
-    {
-        switch (value.getType().getName())
-        {
+    private Object finalValueHandle(DeserializationValueUtil value) {
+        switch (value.getType().getName()) {
             case "int":
             case "java.lang.Integer":
                 return ((Number) value.get()).intValue();
