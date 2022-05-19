@@ -15,8 +15,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface LsonPath
-{
+public @interface LsonPath {
     /**
      * json路径数组。
      *

@@ -23,8 +23,7 @@ import cn.luern0313.lson.util.DataProcessUtil;
         acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.BOOLEAN)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface LsonBooleanFormatAsString
-{
+public @interface LsonBooleanFormatAsString {
     /**
      * 若此数组不为空，且传入的数据在此数组中，则输出true。
      *
@@ -41,26 +40,24 @@ public @interface LsonBooleanFormatAsString
 
     /**
      * 用于排序注解的执行顺序，见{@link AnnotationOrder}。
+     *
      * @return 注解执行顺序
      */
     @AnnotationOrder int order() default Integer.MAX_VALUE;
 
-    class LsonBooleanFormatAsStringConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonBooleanFormatAsString>
-    {
+    class LsonBooleanFormatAsStringConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonBooleanFormatAsString> {
         @Override
-        public Object deserialization(Object value, LsonBooleanFormatAsString lsonBooleanFormatAsString, Object object)
-        {
+        public Object deserialization(Object value, LsonBooleanFormatAsString lsonBooleanFormatAsString, Object object) {
             int result = -1;
-            if(lsonBooleanFormatAsString.equal().length > 0)
+            if (lsonBooleanFormatAsString.equal().length > 0)
                 result = DataProcessUtil.getIndex(((StringBuilder) value).toString(), lsonBooleanFormatAsString.equal()) > -1 ? 1 : 0;
-            if(lsonBooleanFormatAsString.notEqual().length > 0)
+            if (lsonBooleanFormatAsString.notEqual().length > 0)
                 result = (DataProcessUtil.getIndex(((StringBuilder) value).toString(), lsonBooleanFormatAsString.notEqual()) == -1 && result != 0) ? 1 : 0;
             return result != -1 ? result == 1 : !((StringBuilder) value).toString().equals("");
         }
 
         @Override
-        public Object serialization(Object value, LsonBooleanFormatAsString lsonBooleanFormatAsString, Object object)
-        {
+        public Object serialization(Object value, LsonBooleanFormatAsString lsonBooleanFormatAsString, Object object) {
             return null;
         }
     }

@@ -26,8 +26,7 @@ import cn.luern0313.lson.util.TypeUtil;
         isIgnoreArray = true, isIgnoreList = true, isIgnoreMap = true)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface LsonJoinArray
-{
+public @interface LsonJoinArray {
     /**
      * 连接符，用于连接数组。
      *
@@ -37,26 +36,24 @@ public @interface LsonJoinArray
 
     /**
      * 用于排序注解的执行顺序，见{@link AnnotationOrder}。
+     *
      * @return 注解执行顺序
      */
     @AnnotationOrder int order() default Integer.MAX_VALUE;
 
-    class LsonJoinArrayConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonJoinArray>
-    {
+    class LsonJoinArrayConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonJoinArray> {
         @Override
-        public Object deserialization(Object value, LsonJoinArray lsonJoinArray, Object object)
-        {
+        public Object deserialization(Object value, LsonJoinArray lsonJoinArray, Object object) {
             TypeUtil typeUtil = new TypeUtil(value);
-            if(typeUtil.isListType())
+            if (typeUtil.isListType())
                 return DataProcessUtil.join((List<?>) value, lsonJoinArray.value());
-            else if(typeUtil.isArrayType())
+            else if (typeUtil.isArrayType())
                 return DataProcessUtil.join((Object[]) value, lsonJoinArray.value());
             return null;
         }
 
         @Override
-        public Object serialization(Object value, LsonJoinArray lsonJoinArray, Object object)
-        {
+        public Object serialization(Object value, LsonJoinArray lsonJoinArray, Object object) {
             return ((StringBuilder) value).toString().split(lsonJoinArray.value());
         }
     }

@@ -28,8 +28,7 @@ import cn.luern0313.lson.util.TypeUtil;
         isIgnoreArray = true, isIgnoreList = true, isIgnoreMap = true)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface LsonSplitString
-{
+public @interface LsonSplitString {
     /**
      * 分割符，用于分割字符串。
      *
@@ -49,42 +48,36 @@ public @interface LsonSplitString
 
     /**
      * 用于排序注解的执行顺序，见{@link AnnotationOrder}。
+     *
      * @return 注解执行顺序
      */
     @AnnotationOrder int order() default Integer.MAX_VALUE;
 
-    class LsonSplitStringConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonSplitString>
-    {
+    class LsonSplitStringConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonSplitString> {
         @SuppressWarnings("unchecked")
         @Override
-        public Object deserialization(Object value, LsonSplitString lsonSplitString, Object object)
-        {
-            try
-            {
+        public Object deserialization(Object value, LsonSplitString lsonSplitString, Object object) {
+            try {
                 TypeUtil typeUtil = new TypeUtil(lsonSplitString.arrayType());
                 String[] array = ((StringBuilder) value).toString().split(lsonSplitString.value());
-                if(typeUtil.isArrayType() && typeUtil.getArrayElementType().getAsClass() == String.class)
+                if (typeUtil.isArrayType() && typeUtil.getArrayElementType().getAsClass() == String.class)
                     return array;
-                else if(typeUtil.isListType())
-                {
+                else if (typeUtil.isListType()) {
                     List<String> list = (List<String>) typeUtil.getListType().newInstance();
                     list.addAll(Arrays.asList(array));
                     return list;
                 }
-            }
-            catch (InstantiationException | IllegalAccessException ignored)
-            {
+            } catch (InstantiationException | IllegalAccessException ignored) {
             }
             return null;
         }
 
         @Override
-        public Object serialization(Object value, LsonSplitString lsonSplitString, Object object)
-        {
+        public Object serialization(Object value, LsonSplitString lsonSplitString, Object object) {
             TypeUtil typeUtil = new TypeUtil(value);
-            if(typeUtil.isListType())
+            if (typeUtil.isListType())
                 return DataProcessUtil.join((ArrayList<?>) value, lsonSplitString.value());
-            else if(typeUtil.isArrayType())
+            else if (typeUtil.isArrayType())
                 return DataProcessUtil.join((Object[]) value, lsonSplitString.value());
             return null;
         }

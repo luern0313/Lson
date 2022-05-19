@@ -26,8 +26,7 @@ import cn.luern0313.lson.util.DataProcessUtil;
         acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.STRING)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface LsonReplaceAll
-{
+public @interface LsonReplaceAll {
     /**
      * 要替换的文本或正则表达式。
      *
@@ -44,15 +43,14 @@ public @interface LsonReplaceAll
 
     /**
      * 用于排序注解的执行顺序，见{@link AnnotationOrder}。
+     *
      * @return 注解执行顺序
      */
     @AnnotationOrder int order() default Integer.MAX_VALUE;
 
-    class LsonReplaceAllConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonReplaceAll>
-    {
+    class LsonReplaceAllConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonReplaceAll> {
         @Override
-        public Object deserialization(Object value, LsonReplaceAll lsonReplaceAll, Object object)
-        {
+        public Object deserialization(Object value, LsonReplaceAll lsonReplaceAll, Object object) {
             String[] regexArray = lsonReplaceAll.regex();
             String[] replacementArray = lsonReplaceAll.replacement();
             for (int i = 0; i < regexArray.length; i++)
@@ -61,8 +59,7 @@ public @interface LsonReplaceAll
         }
 
         @Override
-        public Object serialization(Object value, LsonReplaceAll lsonReplaceAll, Object object)
-        {
+        public Object serialization(Object value, LsonReplaceAll lsonReplaceAll, Object object) {
             String[] regexArray = lsonReplaceAll.regex();
             String[] replacementArray = lsonReplaceAll.replacement();
             for (int i = 0; i < regexArray.length; i++)

@@ -26,166 +26,126 @@ import static cn.luern0313.lson.json.Status.STATUS_EXPECT_SINGLE_ELEMENT;
  * @author luern0313
  */
 
-public class LsonParser
-{
+public class LsonParser {
     final TokenReader reader;
 
-    public LsonParser(Reader reader)
-    {
+    public LsonParser(Reader reader) {
         this.reader = new TokenReader(new CharReaderUtil(reader));
     }
 
-    static boolean hasStatus(int status, int expectedStatus)
-    {
+    private static boolean hasStatus(int status, int expectedStatus) {
         return ((status & expectedStatus) > 0);
     }
 
-    public static LsonElement parse(Reader r)
-    {
+    public static LsonElement parse(Reader r) {
         TokenReader reader = new TokenReader(new CharReaderUtil(r));
         Stack stack = new Stack();
         int status = STATUS_EXPECT_OBJECT_BEGIN.index | STATUS_EXPECT_ARRAY_BEGIN.index | STATUS_EXPECT_SINGLE_ELEMENT.index;
-        while (true)
-        {
+        while (true) {
             TokenType currentToken = reader.readNextToken();
-            switch (currentToken)
-            {
-                case OBJECT_BEGIN:
-                {
-                    if(hasStatus(status, STATUS_EXPECT_OBJECT_BEGIN.index))
-                    {
+            switch (currentToken) {
+                case OBJECT_BEGIN: {
+                    if (hasStatus(status, STATUS_EXPECT_OBJECT_BEGIN.index)) {
                         stack.push(StackValue.newJsonObject());
                         status = STATUS_EXPECT_OBJECT_KEY.index | STATUS_EXPECT_OBJECT_END.index;
                         continue;
                     }
                     throw new JSONParseException("Unexpected {", reader.reader.getErrorMessage());
                 }
-                case ARRAY_BEGIN:
-                {
-                    if(hasStatus(status, STATUS_EXPECT_ARRAY_BEGIN.index))
-                    {
+                case ARRAY_BEGIN: {
+                    if (hasStatus(status, STATUS_EXPECT_ARRAY_BEGIN.index)) {
                         stack.push(StackValue.newJsonArray());
                         status = STATUS_EXPECT_ARRAY_ELEMENT.index | STATUS_EXPECT_OBJECT_BEGIN.index | STATUS_EXPECT_ARRAY_BEGIN.index | STATUS_EXPECT_ARRAY_END.index;
                         continue;
                     }
                     throw new JSONParseException("Unexpected [", reader.reader.getErrorMessage());
                 }
-                case STRING:
-                {
+                case STRING: {
                     String string = reader.readString();
                     LsonPrimitive lsonPrimitive = new LsonPrimitive(string);
-                    if(hasStatus(status, STATUS_EXPECT_OBJECT_KEY.index))
-                    {
+                    if (hasStatus(status, STATUS_EXPECT_OBJECT_KEY.index)) {
                         stack.push(StackValue.newJsonObjectKey(string));
                         status = STATUS_EXPECT_COLON.index;
                         continue;
-                    }
-                    else if(hasStatus(status, STATUS_EXPECT_OBJECT_VALUE.index))
-                    {
+                    } else if (hasStatus(status, STATUS_EXPECT_OBJECT_VALUE.index)) {
                         String key = stack.pop(StackValue.TYPE_OBJECT_KEY).getAsJsonObjectKeyValue().key;
                         stack.peek(StackValue.TYPE_OBJECT).getAsJsonObjectValue().put(key, lsonPrimitive);
                         status = STATUS_EXPECT_COMMA.index | STATUS_EXPECT_OBJECT_END.index;
                         continue;
-                    }
-                    else if(hasStatus(status, STATUS_EXPECT_ARRAY_ELEMENT.index))
-                    {
+                    } else if (hasStatus(status, STATUS_EXPECT_ARRAY_ELEMENT.index)) {
                         stack.peek(StackValue.TYPE_ARRAY).getAsJsonArrayValue().add(lsonPrimitive);
                         status = STATUS_EXPECT_COMMA.index | STATUS_EXPECT_ARRAY_END.index;
                         continue;
-                    }
-                    else if(hasStatus(status, STATUS_EXPECT_SINGLE_ELEMENT.index))
-                    {
+                    } else if (hasStatus(status, STATUS_EXPECT_SINGLE_ELEMENT.index)) {
                         stack.push(StackValue.newJsonSingle(lsonPrimitive));
                         status = STATUS_EXPECT_END_DOCUMENT.index;
                         continue;
                     }
                     throw new JSONParseException("Unexpected string", reader.reader.getErrorMessage());
                 }
-                case NUMBER:
-                {
+                case NUMBER: {
                     Number number = reader.readNumber();
                     LsonPrimitive lsonPrimitive = new LsonPrimitive(number);
-                    if(hasStatus(status, STATUS_EXPECT_OBJECT_VALUE.index))
-                    {
+                    if (hasStatus(status, STATUS_EXPECT_OBJECT_VALUE.index)) {
                         String key = stack.pop(StackValue.TYPE_OBJECT_KEY).getAsJsonObjectKeyValue().key;
                         stack.peek(StackValue.TYPE_OBJECT).getAsJsonObjectValue().put(key, lsonPrimitive);
                         status = STATUS_EXPECT_COMMA.index | STATUS_EXPECT_OBJECT_END.index;
                         continue;
-                    }
-                    else if(hasStatus(status, STATUS_EXPECT_ARRAY_ELEMENT.index))
-                    {
+                    } else if (hasStatus(status, STATUS_EXPECT_ARRAY_ELEMENT.index)) {
                         stack.peek(StackValue.TYPE_ARRAY).getAsJsonArrayValue().add(lsonPrimitive);
                         status = STATUS_EXPECT_COMMA.index | STATUS_EXPECT_ARRAY_END.index;
                         continue;
-                    }
-                    else if(hasStatus(status, STATUS_EXPECT_SINGLE_ELEMENT.index))
-                    {
+                    } else if (hasStatus(status, STATUS_EXPECT_SINGLE_ELEMENT.index)) {
                         stack.push(StackValue.newJsonSingle(lsonPrimitive));
                         status = STATUS_EXPECT_END_DOCUMENT.index;
                         continue;
                     }
                     throw new JSONParseException("Unexpected number", reader.reader.getErrorMessage());
                 }
-                case BOOLEAN:
-                {
+                case BOOLEAN: {
                     boolean bool = reader.readBoolean();
                     LsonPrimitive lsonPrimitive = new LsonPrimitive(bool);
-                    if(hasStatus(status, STATUS_EXPECT_OBJECT_VALUE.index))
-                    {
+                    if (hasStatus(status, STATUS_EXPECT_OBJECT_VALUE.index)) {
                         String key = stack.pop(StackValue.TYPE_OBJECT_KEY).getAsJsonObjectKeyValue().key;
                         stack.peek(StackValue.TYPE_OBJECT).getAsJsonObjectValue().put(key, lsonPrimitive);
                         status = STATUS_EXPECT_COMMA.index | STATUS_EXPECT_OBJECT_END.index;
                         continue;
-                    }
-                    else if(hasStatus(status, STATUS_EXPECT_ARRAY_ELEMENT.index))
-                    {
+                    } else if (hasStatus(status, STATUS_EXPECT_ARRAY_ELEMENT.index)) {
                         stack.peek(StackValue.TYPE_ARRAY).getAsJsonArrayValue().add(lsonPrimitive);
                         status = STATUS_EXPECT_COMMA.index | STATUS_EXPECT_ARRAY_END.index;
                         continue;
-                    }
-                    else if(hasStatus(status, STATUS_EXPECT_SINGLE_ELEMENT.index))
-                    {
+                    } else if (hasStatus(status, STATUS_EXPECT_SINGLE_ELEMENT.index)) {
                         stack.push(StackValue.newJsonSingle(lsonPrimitive));
                         status = STATUS_EXPECT_END_DOCUMENT.index;
                         continue;
                     }
                     throw new JSONParseException("Unexpected boolean", reader.reader.getErrorMessage());
                 }
-                case NULL:
-                {
+                case NULL: {
                     reader.readNull();
-                    if(hasStatus(status, STATUS_EXPECT_OBJECT_VALUE.index))
-                    {
+                    if (hasStatus(status, STATUS_EXPECT_OBJECT_VALUE.index)) {
                         String key = stack.pop(StackValue.TYPE_OBJECT_KEY).getAsJsonObjectKeyValue().key;
                         stack.peek(StackValue.TYPE_OBJECT).getAsJsonObjectValue().put(key, null);
                         status = STATUS_EXPECT_COMMA.index | STATUS_EXPECT_OBJECT_END.index;
                         continue;
-                    }
-                    else if(hasStatus(status, STATUS_EXPECT_ARRAY_ELEMENT.index))
-                    {
+                    } else if (hasStatus(status, STATUS_EXPECT_ARRAY_ELEMENT.index)) {
                         stack.peek(StackValue.TYPE_ARRAY).getAsJsonArrayValue().add(null);
                         status = STATUS_EXPECT_COMMA.index | STATUS_EXPECT_ARRAY_END.index;
                         continue;
-                    }
-                    else if(hasStatus(status, STATUS_EXPECT_SINGLE_ELEMENT.index))
-                    {
+                    } else if (hasStatus(status, STATUS_EXPECT_SINGLE_ELEMENT.index)) {
                         stack.push(StackValue.newJsonSingle(null));
                         status = STATUS_EXPECT_END_DOCUMENT.index;
                         continue;
                     }
                     throw new JSONParseException("Unexpected null", reader.reader.getErrorMessage());
                 }
-                case SPLIT_COMMA: // ,
-                {
-                    if(hasStatus(status, STATUS_EXPECT_COMMA.index))
-                    {
-                        if (hasStatus(status, STATUS_EXPECT_OBJECT_END.index))
-                        {
+                case SPLIT_COMMA: { // ,
+                    if (hasStatus(status, STATUS_EXPECT_COMMA.index)) {
+                        if (hasStatus(status, STATUS_EXPECT_OBJECT_END.index)) {
                             status = STATUS_EXPECT_OBJECT_KEY.index;
                             continue;
                         }
-                        if (hasStatus(status, STATUS_EXPECT_ARRAY_END.index))
-                        {
+                        if (hasStatus(status, STATUS_EXPECT_ARRAY_END.index)) {
                             status = STATUS_EXPECT_ARRAY_ELEMENT.index | STATUS_EXPECT_ARRAY_BEGIN.index | STATUS_EXPECT_OBJECT_BEGIN.index;
                             continue;
                         }
@@ -193,32 +153,25 @@ public class LsonParser
                     throw new JSONParseException("Unexpected ,", reader.reader.getErrorMessage());
                 }
                 case SPLIT_COLON: // :
-                    if (hasStatus(status, STATUS_EXPECT_COLON.index))
-                    {
+                    if (hasStatus(status, STATUS_EXPECT_COLON.index)) {
                         status = STATUS_EXPECT_OBJECT_VALUE.index | STATUS_EXPECT_OBJECT_BEGIN.index | STATUS_EXPECT_ARRAY_BEGIN.index;
                         continue;
                     }
                     throw new JSONParseException("Unexpected :", reader.reader.getErrorMessage());
                 case ARRAY_END:
-                    if(hasStatus(status, STATUS_EXPECT_ARRAY_END.index))
-                    {
-                        if(stack.pos == 1)
-                        {
+                    if (hasStatus(status, STATUS_EXPECT_ARRAY_END.index)) {
+                        if (stack.pos == 1) {
                             status = STATUS_EXPECT_END_DOCUMENT.index;
                             continue;
-                        }
-                        else
-                        {
+                        } else {
                             StackValue array = stack.pop(StackValue.TYPE_ARRAY);
-                            if(stack.getTopValueType() == StackValue.TYPE_OBJECT_KEY)
-                            {
+                            if (stack.getTopValueType() == StackValue.TYPE_OBJECT_KEY) {
                                 String key = stack.pop(StackValue.TYPE_OBJECT_KEY).getAsJsonObjectKeyValue().key;
                                 stack.peek(StackValue.TYPE_OBJECT).getAsJsonObjectValue().put(key, array.getAsJsonArrayValue().lsonArray);
                                 status = STATUS_EXPECT_COMMA.index | STATUS_EXPECT_OBJECT_END.index;
                                 continue;
                             }
-                            if(stack.getTopValueType() == StackValue.TYPE_ARRAY)
-                            {
+                            if (stack.getTopValueType() == StackValue.TYPE_ARRAY) {
                                 stack.peek(StackValue.TYPE_ARRAY).getAsJsonArrayValue().add(array.getAsJsonArrayValue().lsonArray);
                                 status = STATUS_EXPECT_COMMA.index | STATUS_EXPECT_ARRAY_END.index;
                                 continue;
@@ -227,25 +180,19 @@ public class LsonParser
                     }
                     throw new JSONParseException("Unexpected ]", reader.reader.getErrorMessage());
                 case OBJECT_END:
-                    if (hasStatus(status, STATUS_EXPECT_OBJECT_END.index))
-                    {
-                        if(stack.pos == 1)
-                        {
+                    if (hasStatus(status, STATUS_EXPECT_OBJECT_END.index)) {
+                        if (stack.pos == 1) {
                             status = STATUS_EXPECT_END_DOCUMENT.index;
                             continue;
-                        }
-                        else
-                        {
+                        } else {
                             StackValue object = stack.pop(StackValue.TYPE_OBJECT);
-                            if (stack.getTopValueType() == StackValue.TYPE_OBJECT_KEY)
-                            {
+                            if (stack.getTopValueType() == StackValue.TYPE_OBJECT_KEY) {
                                 String key = stack.pop(StackValue.TYPE_OBJECT_KEY).getAsJsonObjectKeyValue().key;
                                 stack.peek(StackValue.TYPE_OBJECT).getAsJsonObjectValue().put(key, object.getAsJsonObjectValue().lsonObject);
                                 status = STATUS_EXPECT_COMMA.index | STATUS_EXPECT_OBJECT_END.index;
                                 continue;
                             }
-                            if (stack.getTopValueType() == StackValue.TYPE_ARRAY)
-                            {
+                            if (stack.getTopValueType() == StackValue.TYPE_ARRAY) {
                                 stack.peek(StackValue.TYPE_ARRAY).getAsJsonArrayValue().add(object.getAsJsonObjectValue().lsonObject);
                                 status = STATUS_EXPECT_COMMA.index | STATUS_EXPECT_ARRAY_END.index;
                                 continue;
@@ -254,13 +201,12 @@ public class LsonParser
                     }
                     throw new JSONParseException("Unexpected }", reader.reader.getErrorMessage());
                 case END_DOCUMENT:
-                    if(hasStatus(status, STATUS_EXPECT_END_DOCUMENT.index))
-                    {
-                        if(stack.getTopValueType() == StackValue.TYPE_OBJECT)
+                    if (hasStatus(status, STATUS_EXPECT_END_DOCUMENT.index)) {
+                        if (stack.getTopValueType() == StackValue.TYPE_OBJECT)
                             return stack.pop().getAsJsonObjectValue().lsonObject;
-                        else if(stack.getTopValueType() == StackValue.TYPE_ARRAY)
+                        else if (stack.getTopValueType() == StackValue.TYPE_ARRAY)
                             return stack.pop().getAsJsonArrayValue().lsonArray;
-                        else if(stack.getTopValueType() == StackValue.TYPE_SINGLE)
+                        else if (stack.getTopValueType() == StackValue.TYPE_SINGLE)
                             return stack.pop().getAsJsonSingleValue().value;
                         else
                             return LsonNull.getJsonNull();

@@ -27,8 +27,7 @@ import cn.luern0313.lson.annotation.other.AnnotationOrder;
         acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.NUMBER)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface LsonNumberOperations
-{
+public @interface LsonNumberOperations {
     /**
      * 要对数字进行运算的运算符。
      *
@@ -54,13 +53,13 @@ public @interface LsonNumberOperations
 
     /**
      * 用于排序注解的执行顺序，见{@link AnnotationOrder}。
+     *
      * @return 注解执行顺序
      */
     @AnnotationOrder int order() default Integer.MAX_VALUE;
 
     //TODO 支持求余等更多运算符
-    enum Operator
-    {
+    enum Operator {
         /**
          * 加
          */
@@ -82,34 +81,30 @@ public @interface LsonNumberOperations
         DIVISION
     }
 
-    class LsonNumberOperationsConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonNumberOperations>
-    {
+    class LsonNumberOperationsConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonNumberOperations> {
         @Override
-        public Object deserialization(Object value, LsonNumberOperations lsonNumberOperations, Object object)
-        {
+        public Object deserialization(Object value, LsonNumberOperations lsonNumberOperations, Object object) {
             double result = operationsHandler((Double) value, lsonNumberOperations.operator(), lsonNumberOperations.number());
-            if(lsonNumberOperations.isCastInteger())
+            if (lsonNumberOperations.isCastInteger())
                 return (int) result;
             else
                 return result;
         }
 
         @Override
-        public Object serialization(Object value, LsonNumberOperations lsonNumberOperations, Object object)
-        {
+        public Object serialization(Object value, LsonNumberOperations lsonNumberOperations, Object object) {
             Operator operator = Operator.values()[lsonNumberOperations.operator().ordinal() - (lsonNumberOperations.operator().ordinal() % 2 * 2 - 1)];
             return operationsHandler((Double) value, operator, lsonNumberOperations.number());
         }
 
-        private Double operationsHandler(double left, Operator operator, double right)
-        {
-            if(operator == Operator.ADD)
+        private Double operationsHandler(double left, Operator operator, double right) {
+            if (operator == Operator.ADD)
                 return left + right;
-            else if(operator == Operator.MINUS)
+            else if (operator == Operator.MINUS)
                 return left - right;
-            else if(operator == Operator.MULTIPLY)
+            else if (operator == Operator.MULTIPLY)
                 return left * right;
-            else if(operator == Operator.DIVISION)
+            else if (operator == Operator.DIVISION)
                 return left / right;
             return 0d;
         }

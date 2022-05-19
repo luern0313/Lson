@@ -13,8 +13,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface LsonCallMethod
-{
+public @interface LsonCallMethod {
     /**
      * 在何时调用此方法，可传入多个值。
      *
@@ -22,8 +21,7 @@ public @interface LsonCallMethod
      */
     CallMethodTiming[] timing();
 
-    enum CallMethodTiming
-    {
+    enum CallMethodTiming {
         /**
          * 在反序列化之前调用此方法。
          */

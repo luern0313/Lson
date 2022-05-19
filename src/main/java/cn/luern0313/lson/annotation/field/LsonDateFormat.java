@@ -23,8 +23,7 @@ import cn.luern0313.lson.util.DataProcessUtil;
         acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.STRING)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface LsonDateFormat
-{
+public @interface LsonDateFormat {
     /**
      * 时间格式，用于格式化时间。
      *
@@ -41,12 +40,12 @@ public @interface LsonDateFormat
 
     /**
      * 用于排序注解的执行顺序，见{@link AnnotationOrder}。
+     *
      * @return 注解执行顺序
      */
     @AnnotationOrder int order() default Integer.MAX_VALUE;
 
-    enum LsonDateFormatMode
-    {
+    enum LsonDateFormatMode {
         /**
          * 秒级时间戳（10位）
          */
@@ -58,17 +57,14 @@ public @interface LsonDateFormat
         MILLI_SECOND
     }
 
-    class LsonDateFormatConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonDateFormat>
-    {
+    class LsonDateFormatConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonDateFormat> {
         @Override
-        public Object deserialization(Object value, LsonDateFormat lsonDateFormat, Object object)
-        {
+        public Object deserialization(Object value, LsonDateFormat lsonDateFormat, Object object) {
             return DataProcessUtil.getTime(((Number) value).longValue() * (lsonDateFormat.mode() == LsonDateFormat.LsonDateFormatMode.SECOND ? 1000 : 0), lsonDateFormat.value());
         }
 
         @Override
-        public Object serialization(Object value, LsonDateFormat lsonDateFormat, Object object)
-        {
+        public Object serialization(Object value, LsonDateFormat lsonDateFormat, Object object) {
             return DataProcessUtil.getTimeStamp(value.toString(), lsonDateFormat.value(), lsonDateFormat.mode());
         }
     }

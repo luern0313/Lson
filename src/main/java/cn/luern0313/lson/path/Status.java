@@ -4,8 +4,7 @@ package cn.luern0313.lson.path;
  * 被 luern0313 创建于 2020/8/10.
  */
 
-enum Status
-{
+enum Status {
     STATUS_EXPECT_JSON_ROOT,
     STATUS_EXPECT_JSON_CURRENT,
     STATUS_EXPECT_POINT,
@@ -25,8 +24,7 @@ enum Status
 
     int index;
 
-    Status()
-    {
+    Status() {
         this.index = 1 << ordinal();
     }
 }

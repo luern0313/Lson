@@ -19,8 +19,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.ANNOTATION_TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface LsonDefinedAnnotation
-{
+public @interface LsonDefinedAnnotation {
     /**
      * 注明用来处理注解类的Class，该类需要实现接口{@link LsonDefinedAnnotationConfig}。
      *
@@ -82,8 +81,7 @@ public @interface LsonDefinedAnnotation
      */
     boolean isIgnoreMap() default false;
 
-    enum AcceptableType
-    {
+    enum AcceptableType {
         NOT_HANDLE,
         STRING,
         NUMBER,
@@ -93,15 +91,14 @@ public @interface LsonDefinedAnnotation
     /**
      * @param <Annotation> 该注解的类型
      */
-    interface LsonDefinedAnnotationConfig<Annotation>
-    {
+    interface LsonDefinedAnnotationConfig<Annotation> {
         /**
          * 在反序列化过程中处理注解。
          *
-         * @param value 处理前的值，该值类型与{@link LsonDefinedAnnotation#acceptableDeserializationType()}
-         *              注明的类型相同。
+         * @param value      处理前的值，该值类型与{@link LsonDefinedAnnotation#acceptableDeserializationType()}
+         *                   注明的类型相同。
          * @param annotation 此注解类的实例。
-         * @param object 反序列化目标类的实例。
+         * @param object     反序列化目标类的实例。
          * @return 处理完成的值。
          */
         Object deserialization(Object value, Annotation annotation, Object object);
@@ -109,10 +106,10 @@ public @interface LsonDefinedAnnotation
         /**
          * 在序列化过程中处理注解。
          *
-         * @param value 处理前的值，该值类型与{@link LsonDefinedAnnotation#acceptableDeserializationType()}
-         *              注明的类型相同。
+         * @param value      处理前的值，该值类型与{@link LsonDefinedAnnotation#acceptableDeserializationType()}
+         *                   注明的类型相同。
          * @param annotation 此注解类的实例。
-         * @param object 要序列化的目标对象。
+         * @param object     要序列化的目标对象。
          * @return 处理完成的值。
          */
         Object serialization(Object value, Annotation annotation, Object object);

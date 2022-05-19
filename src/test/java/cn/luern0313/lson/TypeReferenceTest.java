@@ -11,8 +11,7 @@ import static org.junit.Assert.assertNull;
 /**
  * 被 luern 创建于 2021/12/8.
  */
-public class TypeReferenceTest
-{
+public class TypeReferenceTest {
     public A<B<C>, D> testA;
     public B<C> testB;
 
@@ -20,15 +19,13 @@ public class TypeReferenceTest
     private Type testTypeB;
 
     @Before
-    public void before() throws Exception
-    {
+    public void before() throws Exception {
         testTypeA = TypeReferenceTest.class.getField("testA").getGenericType();
         testTypeB = TypeReferenceTest.class.getField("testB").getGenericType();
     }
 
     @Test
-    public void testTypeReferenceConstructor()
-    {
+    public void testTypeReferenceConstructor() {
         TypeReference<?> emptyTypeReference = new TypeReference(){};
         assertNull(emptyTypeReference.type);
         assertNull(emptyTypeReference.rawType);
@@ -52,8 +49,7 @@ public class TypeReferenceTest
     }
 
     @Test
-    public void testTypeReferenceMethod()
-    {
+    public void testTypeReferenceMethod() {
         TypeReference<?> emptyTypeReference = new TypeReference<>(null);
         assertNull(emptyTypeReference.type);
         assertNull(emptyTypeReference.rawType);
@@ -77,22 +73,18 @@ public class TypeReferenceTest
 
     }
 
-    private static class A<A, B>
-    {
+    private static class A<A, B> {
         A a;
         B b;
     }
 
-    private static class B<A>
-    {
+    private static class B<A> {
         A a;
     }
 
-    private static class C
-    {
+    private static class C {
     }
 
-    private static class D
-    {
+    private static class D {
     }
 }

@@ -18,6 +18,5 @@ import cn.luern0313.lson.annotation.field.LsonPath;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface AnnotationOrder
-{
+public @interface AnnotationOrder {
 }

@@ -22,32 +22,29 @@ import cn.luern0313.lson.annotation.other.AnnotationOrder;
  * @author luern0313
  */
 
-@LsonDefinedAnnotation(config = LsonParseJsonString.LsonParseJsonStringConfig.class,
+@LsonDefinedAnnotation(config = LsonParseJSONString.LsonParseJSONStringConfig.class,
         acceptableDeserializationType = LsonDefinedAnnotation.AcceptableType.STRING,
         acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.NOT_HANDLE)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface LsonParseJsonString
-{
+public @interface LsonParseJSONString {
     Class<?> value();
 
     /**
      * 用于排序注解的执行顺序，见{@link AnnotationOrder}。
+     *
      * @return 注解执行顺序
      */
     @AnnotationOrder int order() default Integer.MAX_VALUE;
 
-    class LsonParseJsonStringConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonParseJsonString>
-    {
+    class LsonParseJSONStringConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonParseJSONString> {
         @Override
-        public Object deserialization(Object value, LsonParseJsonString lsonParseJsonString, Object object)
-        {
+        public Object deserialization(Object value, LsonParseJSONString lsonParseJsonString, Object object) {
             return Lson.def().fromJson(Lson.def().parse(((StringBuilder) value).toString()), lsonParseJsonString.value());
         }
 
         @Override
-        public Object serialization(Object value, LsonParseJsonString lsonParseJsonString, Object object)
-        {
+        public Object serialization(Object value, LsonParseJSONString lsonParseJsonString, Object object) {
             return Lson.def().toJson(value);
         }
     }

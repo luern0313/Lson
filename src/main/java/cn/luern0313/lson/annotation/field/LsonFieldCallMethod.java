@@ -25,8 +25,7 @@ import cn.luern0313.lson.annotation.other.AnnotationOrder;
         isIgnoreArray = true, isIgnoreList = true, isIgnoreMap = true)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface LsonFieldCallMethod
-{
+public @interface LsonFieldCallMethod {
     /**
      * 反序列化中，需要调用的方法名称。
      *
@@ -43,46 +42,36 @@ public @interface LsonFieldCallMethod
 
     /**
      * 用于排序注解的执行顺序，见{@link AnnotationOrder}。
+     *
      * @return 注解执行顺序
      */
     @AnnotationOrder int order() default Integer.MAX_VALUE;
 
-    class LsonCallMethodConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonFieldCallMethod>
-    {
+    class LsonCallMethodConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonFieldCallMethod> {
         @Override
-        public Object deserialization(Object value, LsonFieldCallMethod lsonFieldCallMethod, Object object)
-        {
-            try
-            {
-                if(!lsonFieldCallMethod.deserialization().equals(""))
-                {
+        public Object deserialization(Object value, LsonFieldCallMethod lsonFieldCallMethod, Object object) {
+            try {
+                if (!lsonFieldCallMethod.deserialization().equals("")) {
                     Class<?> clz = object.getClass();
                     Method method = clz.getDeclaredMethod(lsonFieldCallMethod.deserialization(), value.getClass());
                     method.setAccessible(true);
                     return method.invoke(object, value);
                 }
-            }
-            catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored)
-            {
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
             }
             return null;
         }
 
         @Override
-        public Object serialization(Object value, LsonFieldCallMethod lsonFieldCallMethod, Object object)
-        {
-            try
-            {
-                if(!lsonFieldCallMethod.serialization().equals(""))
-                {
+        public Object serialization(Object value, LsonFieldCallMethod lsonFieldCallMethod, Object object) {
+            try {
+                if (!lsonFieldCallMethod.serialization().equals("")) {
                     Class<?> clz = object.getClass();
                     Method method = clz.getDeclaredMethod(lsonFieldCallMethod.serialization(), value.getClass());
                     method.setAccessible(true);
                     return method.invoke(object, value);
                 }
-            }
-            catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored)
-            {
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
             }
             return null;
         }

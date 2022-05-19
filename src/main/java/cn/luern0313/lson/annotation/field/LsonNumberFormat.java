@@ -26,8 +26,7 @@ import cn.luern0313.lson.util.DataProcessUtil;
         acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.NUMBER)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface LsonNumberFormat
-{
+public @interface LsonNumberFormat {
     /**
      * 保留数字的位数。
      *
@@ -59,12 +58,12 @@ public @interface LsonNumberFormat
 
     /**
      * 用于排序注解的执行顺序，见{@link AnnotationOrder}。
+     *
      * @return 注解执行顺序
      */
     @AnnotationOrder int order() default Integer.MAX_VALUE;
 
-    enum NumberFormatMode
-    {
+    enum NumberFormatMode {
         /**
          * 向下取整
          */
@@ -103,8 +102,7 @@ public @interface LsonNumberFormat
          */
         HALF_EVEN;
 
-        public static Map<NumberFormatMode, Integer> modeIntegerMap = new HashMap<NumberFormatMode, Integer>()
-        {{
+        public static Map<NumberFormatMode, Integer> modeIntegerMap = new HashMap<NumberFormatMode, Integer>() {{
             put(DOWN, BigDecimal.ROUND_DOWN);
             put(UP, BigDecimal.ROUND_UP);
             put(CEILING, BigDecimal.ROUND_CEILING);
@@ -115,17 +113,14 @@ public @interface LsonNumberFormat
         }};
     }
 
-    class LsonNumberFormatConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonNumberFormat>
-    {
+    class LsonNumberFormatConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonNumberFormat> {
         @Override
-        public Object deserialization(Object value, LsonNumberFormat lsonNumberFormat, Object object)
-        {
+        public Object deserialization(Object value, LsonNumberFormat lsonNumberFormat, Object object) {
             return DataProcessUtil.getNumberFormat(value, lsonNumberFormat.digit(), lsonNumberFormat.mode(), lsonNumberFormat.isCastInteger());
         }
 
         @Override
-        public Object serialization(Object value, LsonNumberFormat lsonNumberFormat, Object object)
-        {
+        public Object serialization(Object value, LsonNumberFormat lsonNumberFormat, Object object) {
             return value;
         }
     }

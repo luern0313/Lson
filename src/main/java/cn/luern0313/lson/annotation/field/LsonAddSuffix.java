@@ -22,8 +22,7 @@ import cn.luern0313.lson.annotation.other.AnnotationOrder;
         acceptableSerializationType = LsonDefinedAnnotation.AcceptableType.STRING)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface LsonAddSuffix
-{
+public @interface LsonAddSuffix {
     /**
      * 你要添加的后缀。
      *
@@ -33,22 +32,20 @@ public @interface LsonAddSuffix
 
     /**
      * 用于排序注解的执行顺序，见{@link AnnotationOrder}。
+     *
      * @return 注解执行顺序
      */
     @AnnotationOrder int order() default Integer.MAX_VALUE;
 
-    class LsonAddSuffixConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonAddSuffix>
-    {
+    class LsonAddSuffixConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonAddSuffix> {
         @Override
-        public Object deserialization(Object value, LsonAddSuffix lsonAddSuffix, Object object)
-        {
+        public Object deserialization(Object value, LsonAddSuffix lsonAddSuffix, Object object) {
             return ((StringBuilder) value).append(lsonAddSuffix.value());
         }
 
         @Override
-        public Object serialization(Object value, LsonAddSuffix lsonAddSuffix, Object object)
-        {
-            if(((StringBuilder) value).lastIndexOf(lsonAddSuffix.value()) == ((StringBuilder) value).length() - lsonAddSuffix.value().length())
+        public Object serialization(Object value, LsonAddSuffix lsonAddSuffix, Object object) {
+            if (((StringBuilder) value).lastIndexOf(lsonAddSuffix.value()) == ((StringBuilder) value).length() - lsonAddSuffix.value().length())
                 return ((StringBuilder) value).delete(((StringBuilder) value).length() - lsonAddSuffix.value().length(), ((StringBuilder) value).length());
             return value;
         }

@@ -8,38 +8,30 @@ import cn.luern0313.lson.util.CharReaderUtil;
  * 被 luern0313 创建于 2020/8/9.
  */
 
-class TokenReader
-{
+class TokenReader {
     CharReaderUtil reader;
 
-    TokenReader(CharReaderUtil reader)
-    {
+    TokenReader(CharReaderUtil reader) {
         this.reader = reader;
     }
 
-    boolean isWhiteSpace(char ch)
-    {
+    boolean isWhiteSpace(char ch) {
         return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r';
     }
 
-    TokenType readNextToken()
-    {
+    TokenType readNextToken() {
         char ch;
-        while (true)
-        {
-            if(reader.hasMore())
-            {
+        while (true) {
+            if (reader.hasMore()) {
                 ch = reader.peek();
-                if(isWhiteSpace(ch))
+                if (isWhiteSpace(ch))
                     reader.next();
                 else
                     break;
-            }
-            else
+            } else
                 return TokenType.END_DOCUMENT;
         }
-        switch (ch)
-        {
+        switch (ch) {
             case '$':
                 reader.next();
                 return TokenType.JSON_ROOT;
@@ -66,8 +58,7 @@ class TokenReader
                 return TokenType.SYNTAX_ASTERISK;
             case '?':
                 reader.next();
-                if(reader.peek() == '(')
-                {
+                if (reader.peek() == '(') {
                     reader.next();
                     return TokenType.FILTER_START;
                 }
@@ -78,129 +69,110 @@ class TokenReader
                 return TokenType.NUMBER;
         }
         Character[] comparison = new Character[]{'=', '<', '>', '!'};
-        if(ch >= '0' && ch <= '9')
+        if (ch >= '0' && ch <= '9')
             return TokenType.NUMBER;
-        else if(DataProcessUtil.getIndex(ch, comparison) > -1)
+        else if (DataProcessUtil.getIndex(ch, comparison) > -1)
             return TokenType.FILTER_COMPARISON;
         else
             return TokenType.STRING;
     }
 
-    String readString(boolean isExpressionPath, boolean isDeleteQuotationMarks)
-    {
+    String readString(boolean isExpressionPath, boolean isDeleteQuotationMarks) {
         return readStringBuilder(isExpressionPath, isDeleteQuotationMarks).toString();
     }
 
-    StringBuilder readStringBuilder(boolean isExpressionPath, boolean isDeleteQuotationMarks)
-    {
+    StringBuilder readStringBuilder(boolean isExpressionPath, boolean isDeleteQuotationMarks) {
         Character[] expressionStopChar = new Character[]{']', ','};
         Character[] pathStopChar = new Character[]{'.', ',', ':', '[', ']', '(', ')', '*', '-', '<', '>', '?', '@', '$', '~', '=', '!', '/', ' '};
         StringBuilder sb = new StringBuilder(16);
         boolean isQuotationMarks = false;
-        while (reader.hasMore())
-        {
+        while (reader.hasMore()) {
             char ch = reader.peek();
-            if((!isExpressionPath && DataProcessUtil.getIndex(ch, pathStopChar) > -1) || (isExpressionPath && isQuotationMarks && DataProcessUtil.getIndex(ch, expressionStopChar) > -1))
+            if ((!isExpressionPath && DataProcessUtil.getIndex(ch, pathStopChar) > -1) || (isExpressionPath && isQuotationMarks && DataProcessUtil.getIndex(ch, expressionStopChar) > -1))
                 break;
-            else
-            {
-                if(isExpressionPath && (ch == '\'' || ch == '"'))
+            else {
+                if (isExpressionPath && (ch == '\'' || ch == '"'))
                     isQuotationMarks = true;
                 reader.next();
                 sb.append(ch);
             }
         }
 
-        if(isDeleteQuotationMarks)
+        if (isDeleteQuotationMarks)
             deleteQuotationMarks(sb);
         return sb;
     }
 
-    static boolean isHasQuotationMarks(StringBuilder sb)
-    {
+    static boolean isHasQuotationMarks(StringBuilder sb) {
         return (sb.charAt(0) == '\'' && sb.charAt(sb.length() - 1) == '\'') || (sb.charAt(0) == '"' && sb.charAt(sb.length() - 1) == '"');
     }
 
-    static void deleteQuotationMarks(StringBuilder sb)
-    {
-        if(isHasQuotationMarks(sb))
-        {
+    static void deleteQuotationMarks(StringBuilder sb) {
+        if (isHasQuotationMarks(sb)) {
             sb.deleteCharAt(0);
             sb.deleteCharAt(sb.length() - 1);
         }
     }
 
-    PathType.PathFilter.FilterComparator readComparator()
-    {
+    PathType.PathFilter.FilterComparator readComparator() {
         char ch = reader.next();
-        switch (ch)
-        {
+        switch (ch) {
             case '<':
-                if(reader.peek() == '=')
-                {
+                if (reader.peek() == '=') {
                     reader.next();
                     return PathType.PathFilter.FilterComparator.LESS_EQUAL;
                 }
                 return PathType.PathFilter.FilterComparator.LESS;
             case '>':
-                if(reader.peek() == '=')
-                {
+                if (reader.peek() == '=') {
                     reader.next();
                     return PathType.PathFilter.FilterComparator.GREATER_EQUAL;
                 }
                 return PathType.PathFilter.FilterComparator.GREATER;
             case '=':
-                if(reader.peek() == '=')
-                {
+                if (reader.peek() == '=') {
                     reader.next();
                     return PathType.PathFilter.FilterComparator.EQUAL;
                 }
                 break;
             case '!':
-                if(reader.peek() == '=')
-                {
+                if (reader.peek() == '=') {
                     reader.next();
                     return PathType.PathFilter.FilterComparator.NOT_EQUAL;
                 }
                 break;
             case 'i':
-                if(reader.peek() == 'n')
-                {
+                if (reader.peek() == 'n') {
                     reader.next();
                     return PathType.PathFilter.FilterComparator.IN;
                 }
                 break;
             case 'n':
-                if(reader.next(2).equals("in"))
+                if (reader.next(2).equals("in"))
                     return PathType.PathFilter.FilterComparator.NOT_IN;
         }
         throw new PathParseException("Unexpected char: " + reader.next(), reader.getErrorMessage());
     }
 
-    Number readNumber()
-    {
+    Number readNumber() {
         StringBuilder sb = new StringBuilder();
         char ch;
 
-        while (reader.hasMore())
-        {
+        while (reader.hasMore()) {
             ch = reader.peek();
-            if((ch >= '0' && ch <= '9') || ch == '-' || ch == '.')
-            {
+            if ((ch >= '0' && ch <= '9') || ch == '-' || ch == '.') {
                 reader.next();
                 sb.append(ch);
-            }
-            else
+            } else
                 break;
         }
 
         String number = sb.toString();
-        if(number.contains("."))
+        if (number.contains("."))
             return Double.valueOf(number);
-        else
-        {
+        else {
             long longNumber = Long.parseLong(number);
-            if(longNumber > Integer.MIN_VALUE && longNumber < Integer.MAX_VALUE)
+            if (longNumber > Integer.MIN_VALUE && longNumber < Integer.MAX_VALUE)
                 return (int) longNumber;
             else return longNumber;
         }

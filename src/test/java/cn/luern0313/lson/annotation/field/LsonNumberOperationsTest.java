@@ -10,21 +10,18 @@ import static org.junit.Assert.assertEquals;
  * 被 luern 创建于 2021/12/12.
  */
 
-public class LsonNumberOperationsTest
-{
+public class LsonNumberOperationsTest {
     LsonNumberOperations lsonNumberOperations;
     LsonNumberOperations.LsonNumberOperationsConfig config;
 
     @Before
-    public void before()
-    {
+    public void before() {
         lsonNumberOperations = Mockito.mock(LsonNumberOperations.class);
         config = new LsonNumberOperations.LsonNumberOperationsConfig();
     }
 
     @Test
-    public void deserialization()
-    {
+    public void deserialization() {
         // 0.0 + 0.0 = 0.0
         Mockito.when(lsonNumberOperations.number()).thenReturn(0d);
         Mockito.when(lsonNumberOperations.operator()).thenReturn(LsonNumberOperations.Operator.ADD);
@@ -69,8 +66,7 @@ public class LsonNumberOperationsTest
     }
 
     @Test
-    public void serialization()
-    {
+    public void serialization() {
         // 0.0 - 0.0 = 0.0
         Mockito.when(lsonNumberOperations.number()).thenReturn(0d);
         Mockito.when(lsonNumberOperations.operator()).thenReturn(LsonNumberOperations.Operator.ADD);

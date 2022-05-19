@@ -7,35 +7,29 @@ import cn.luern0313.lson.util.CharReaderUtil;
  * 被 luern0313 创建于 2020/8/22.
  */
 
-class TokenReader
-{
+class TokenReader {
     CharReaderUtil reader;
 
-    TokenReader(CharReaderUtil reader)
-    {
+    TokenReader(CharReaderUtil reader) {
         this.reader = reader;
     }
 
-    boolean isWhiteSpace(char ch)
-    {
+    boolean isWhiteSpace(char ch) {
         return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r';
     }
 
-    TokenType readNextToken()
-    {
+    TokenType readNextToken() {
         char ch;
-        while (true)
-        {
-            if(!reader.hasMore())
+        while (true) {
+            if (!reader.hasMore())
                 return TokenType.END_DOCUMENT;
-            if(isWhiteSpace(ch = reader.peek()))
+            if (isWhiteSpace(ch = reader.peek()))
                 reader.next();
             else
                 break;
         }
 
-        switch (ch)
-        {
+        switch (ch) {
             case '{':
                 reader.next();
                 return TokenType.OBJECT_BEGIN;
@@ -62,26 +56,22 @@ class TokenReader
             case 'f':
                 return TokenType.BOOLEAN;
         }
-        if(ch >= '0' && ch <= '9')
+        if (ch >= '0' && ch <= '9')
             return TokenType.NUMBER;
-        else if(ch == '"')
+        else if (ch == '"')
             return TokenType.STRING;
         throw new JSONParseException("Unexpected char " + ch, reader.getErrorMessage());
     }
 
-    String readString()
-    {
+    String readString() {
         StringBuilder sb = new StringBuilder();
         reader.next();
-        while (true)
-        {
+        while (true) {
             char ch = reader.next();
 
-            if(ch == '\\')
-            {
+            if (ch == '\\') {
                 ch = reader.next();
-                switch (ch)
-                {
+                switch (ch) {
                     case '\"':
                         sb.append('\"');
                         break;
@@ -108,14 +98,13 @@ class TokenReader
                         break;
                     case 'u':
                         int u = 0;
-                        for (int i = 0; i < 4; i++)
-                        {
+                        for (int i = 0; i < 4; i++) {
                             char uch = reader.next();
-                            if(uch >= '0' && uch <= '9')
+                            if (uch >= '0' && uch <= '9')
                                 u = (u << 4) + (uch - '0');
-                            else if(uch >= 'a' && uch <= 'f')
+                            else if (uch >= 'a' && uch <= 'f')
                                 u = (u << 4) + (uch - 'a') + 10;
-                            else if(uch >= 'A' && uch <= 'F')
+                            else if (uch >= 'A' && uch <= 'F')
                                 u = (u << 4) + (uch - 'A') + 10;
                             else
                                 throw new JSONParseException("Unexpected char: " + uch, reader.getErrorMessage());
@@ -125,70 +114,60 @@ class TokenReader
                     default:
                         throw new JSONParseException("Unexpected char: " + ch, reader.getErrorMessage());
                 }
-            }
-            else if(ch == '"')
+            } else if (ch == '"')
                 return sb.toString();
-            else if(ch == '\r' || ch == '\n')
+            else if (ch == '\r' || ch == '\n')
                 throw new JSONParseException("Invalid character");
             else
                 sb.append(ch);
         }
     }
 
-    private boolean isEscape()
-    {
+    private boolean isEscape() {
         char ch = reader.next();
         return (ch == '"' || ch == '\\' || ch == 'u' || ch == 'r' || ch == 'n' || ch == 'b' || ch == 't' || ch == 'f' || ch == '/');
     }
 
-    private boolean isHex(char ch)
-    {
+    private boolean isHex(char ch) {
         return ((ch >= '0' && ch <= '9') || ('a' <= ch && ch <= 'f') || ('A' <= ch && ch <= 'F'));
     }
 
-    Number readNumber()
-    {
+    Number readNumber() {
         StringBuilder sb = new StringBuilder();
         char ch;
 
-        while (reader.hasMore())
-        {
+        while (reader.hasMore()) {
             ch = reader.peek();
-            if((ch >= '0' && ch <= '9') || ch == '-' || ch == '.' || ch == 'e' || ch == 'E' || ch == '+')
-            {
+            if ((ch >= '0' && ch <= '9') || ch == '-' || ch == '.' || ch == 'e' || ch == 'E' || ch == '+') {
                 reader.next();
                 sb.append(ch);
-            }
-            else
+            } else
                 break;
         }
 
         String number = sb.toString();
-        if(number.contains(".") || number.contains("e") || number.contains("E"))
+        if (number.contains(".") || number.contains("e") || number.contains("E"))
             return Double.valueOf(number);
-        else
-        {
+        else {
             long longNumber = Long.parseLong(number);
-            if(longNumber > Integer.MIN_VALUE && longNumber < Integer.MAX_VALUE)
+            if (longNumber > Integer.MIN_VALUE && longNumber < Integer.MAX_VALUE)
                 return (int) longNumber;
             else
                 return longNumber;
         }
     }
 
-    boolean readBoolean()
-    {
+    boolean readBoolean() {
         char ch = reader.next();
-        if(ch == 't' && reader.next() == 'r' && reader.next() == 'u' && reader.next() == 'e')
+        if (ch == 't' && reader.next() == 'r' && reader.next() == 'u' && reader.next() == 'e')
             return true;
-        else if(ch == 'f' && reader.next() == 'a' && reader.next() == 'l' && reader.next() == 's' && reader.next() == 'e')
+        else if (ch == 'f' && reader.next() == 'a' && reader.next() == 'l' && reader.next() == 's' && reader.next() == 'e')
             return false;
         throw new JSONParseException("Unexpected boolean");
     }
 
-    void readNull()
-    {
-        if(!(reader.next() == 'n' && reader.next() == 'u' && reader.next() == 'l' && reader.next() == 'l'))
+    void readNull() {
+        if (!(reader.next() == 'n' && reader.next() == 'u' && reader.next() == 'l' && reader.next() == 'l'))
             throw new JSONParseException("Unexpected null");
     }
 }

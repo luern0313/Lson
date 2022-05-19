@@ -10,21 +10,18 @@ import static org.junit.Assert.assertEquals;
  * 被 luern 创建于 2021/12/8.
  */
 
-public class LsonAddSuffixTest
-{
+public class LsonAddSuffixTest {
     LsonAddSuffix lsonAddSuffix;
     LsonAddSuffix.LsonAddSuffixConfig config;
 
     @Before
-    public void before()
-    {
+    public void before() {
         lsonAddSuffix = Mockito.mock(LsonAddSuffix.class);
         config = new LsonAddSuffix.LsonAddSuffixConfig();
     }
 
     @Test
-    public void deserialization()
-    {
+    public void deserialization() {
         StringBuilder stringBuilder = new StringBuilder();
 
         Mockito.when(lsonAddSuffix.value()).thenReturn("");
@@ -44,8 +41,7 @@ public class LsonAddSuffixTest
     }
 
     @Test
-    public void serialization()
-    {
+    public void serialization() {
         StringBuilder stringBuilder = new StringBuilder();
 
         Mockito.when(lsonAddSuffix.value()).thenReturn("");
