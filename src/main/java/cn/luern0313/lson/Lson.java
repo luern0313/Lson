@@ -64,10 +64,10 @@ public class Lson {
     }
 
     /**
-     * 将一个JSON字符串解析为LsonElement对象。
+     * 将一个JSON字符串解析为LsonElement对象
      *
-     * @param json 要解析的JSON字符串。
-     * @return LsonElement对象。
+     * @param json 要解析的JSON字符串
+     * @return LsonElement对象
      * @author luern0313
      */
     public LsonElement parse(String json) {
@@ -75,10 +75,10 @@ public class Lson {
     }
 
     /**
-     * 将一个JSON字符串解析为LsonElement对象。
+     * 将一个JSON字符串解析为LsonElement对象
      *
-     * @param reader 要解析的JSON字符串流。
-     * @return LsonElement对象。
+     * @param reader 要解析的JSON字符串流
+     * @return LsonElement对象
      * @author luern0313
      */
     public LsonElement parse(Reader reader) {
@@ -86,10 +86,10 @@ public class Lson {
     }
 
     /**
-     * 将一个JSON字符串解析为LsonObject对象。
+     * 将一个JSON字符串解析为LsonObject对象
      *
-     * @param json 要解析的JSON字符串。
-     * @return LsonObject对象。
+     * @param json 要解析的JSON字符串
+     * @return LsonObject对象
      * @author luern0313
      */
     public LsonObject parseAsObject(String json) {
@@ -97,10 +97,10 @@ public class Lson {
     }
 
     /**
-     * 将一个JSON字符串解析为LsonArray对象。
+     * 将一个JSON字符串解析为LsonArray对象
      *
-     * @param json 要解析的JSON字符串。
-     * @return LsonArray对象。
+     * @param json 要解析的JSON字符串
+     * @return LsonArray对象
      * @author luern0313
      */
     public LsonArray parseAsArray(String json) {
@@ -108,12 +108,12 @@ public class Lson {
     }
 
     /**
-     * 将json反序列化为指定的实体类。
+     * 将json反序列化为指定的实体类
      *
-     * @param json           Lson解析过的json对象。
-     * @param clz            要反序列化实体类的Class对象。
-     * @param <T>            反序列化为的实体类。
-     * @return 返回反序列化后的实体类。
+     * @param json           Lson解析过的json对象
+     * @param clz            要反序列化实体类的Class对象
+     * @param <T>            反序列化为的实体类
+     * @return 返回反序列化后的实体类
      * @author luern0313
      */
     public <T> T fromJson(LsonElement json, Class<T> clz) {
@@ -121,16 +121,42 @@ public class Lson {
     }
 
     /**
-     * 将json反序列化为指定的实体类。
+     * 将json反序列化为指定的实体类
      *
-     * @param json           Lson解析过的json对象。
-     * @param typeReference  {@link TypeReference}类，用于泛型类的反序列化。
-     * @param <T>            反序列化为的实体类。
-     * @return 返回反序列化后的实体类。
+     * @param json           JSON字符串
+     * @param clz            要反序列化实体类的Class对象
+     * @param <T>            反序列化为的实体类
+     * @return 返回反序列化后的实体类
+     * @author luern0313
+     */
+    public <T> T fromJson(String json, Class<T> clz) {
+        return fromJson(this.parse(json), new TypeUtil(clz));
+    }
+
+    /**
+     * 将json反序列化为指定的实体类
+     *
+     * @param json           Lson解析过的JSON对象
+     * @param typeReference  {@link TypeReference}类，用于泛型类的反序列化
+     * @param <T>            反序列化为的实体类
+     * @return 返回反序列化后的实体类
      * @author luern0313
      */
     public <T> T fromJson(LsonElement json, TypeReference<T> typeReference) {
         return fromJson(json, new TypeUtil(typeReference.rawType, typeReference));
+    }
+
+    /**
+     * 将json反序列化为指定的实体类
+     *
+     * @param json           JSON字符串
+     * @param typeReference  {@link TypeReference}类，用于泛型类的反序列化
+     * @param <T>            反序列化为的实体类
+     * @return 返回反序列化后的实体类
+     * @author luern0313
+     */
+    public <T> T fromJson(String json, TypeReference<T> typeReference) {
+        return fromJson(this.parse(json), new TypeUtil(typeReference.rawType, typeReference));
     }
 
     private <T> T fromJson(LsonElement json, TypeUtil typeUtil) {
@@ -140,11 +166,11 @@ public class Lson {
     }
 
     /**
-     * 获取json中对应JSONPath的值。
+     * 获取json中对应JSONPath的值
      *
-     * @param json Lson解析过的json对象。
-     * @param path JSONPath，用于描述要取到的值在json中的位置。
-     * @return JSONPath对应的值。
+     * @param json Lson解析过的json对象
+     * @param path JSONPath，用于描述要取到的值在json中的位置
+     * @return JSONPath对应的值
      * @author luern0313
      */
     public Object getValue(LsonElement json, String path) {
@@ -152,13 +178,13 @@ public class Lson {
     }
 
     /**
-     * 获取json中对应JSONPath的值，并指明该值的类型。
+     * 获取json中对应JSONPath的值，并指明该值的类型
      *
-     * @param json Lson解析过的json对象。
-     * @param path JSONPath，用于描述要取到的值在json中的位置。
-     * @param clz  该值的类型，Lson会尝试将该值转为指定的类型。
-     * @param <T>  指定的类型。
-     * @return JSONPath对应的值。
+     * @param json Lson解析过的json对象
+     * @param path JSONPath，用于描述要取到的值在json中的位置
+     * @param clz  该值的类型，Lson会尝试将该值转为指定的类型
+     * @param <T>  指定的类型
+     * @return JSONPath对应的值
      * @author luern0313
      */
     @SuppressWarnings("unchecked")
@@ -173,10 +199,10 @@ public class Lson {
     }
 
     /**
-     * 将任意类型数据序列化为json。
+     * 将任意类型数据序列化为json
      *
-     * @param object 要序列化的数据。
-     * @return 序列化结果。
+     * @param object 要序列化的数据
+     * @return 序列化结果
      * @author luern0313
      */
     public String toJson(Object object) {
@@ -184,10 +210,10 @@ public class Lson {
     }
 
     /**
-     * 将任意类型数据序列化为LsonElement。
+     * 将任意类型数据序列化为LsonElement
      *
-     * @param object 要序列化的数据。
-     * @return 序列化结果。
+     * @param object 要序列化的数据
+     * @return 序列化结果
      * @author luern0313
      */
     public LsonElement toJsonElement(Object object) {
@@ -197,12 +223,12 @@ public class Lson {
     }
 
     /**
-     * 根据JSONPath将数据填充至LsonElement中。
+     * 根据JSONPath将数据填充至LsonElement中
      *
-     * @param lsonElement 被填充的LsonElement。
-     * @param path        标注数据位置的JSONPath。
-     * @param value       要填充的数据。
-     * @return 填充完成的LsonElement。
+     * @param lsonElement 被填充的LsonElement
+     * @param path        标注数据位置的JSONPath
+     * @param value       要填充的数据
+     * @return 填充完成的LsonElement
      */
     public LsonElement putValue(LsonElement lsonElement, String path, Object value) {
         if (serialization == null)
