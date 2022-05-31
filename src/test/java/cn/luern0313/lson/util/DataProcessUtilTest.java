@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class DataProcessUtilTest {
     @Test
-    public void getSize() {
+    public void getSizeTest() {
         assertEquals(DataProcessUtil.getSize(Long.MIN_VALUE), "0.0B");
         assertEquals(DataProcessUtil.getSize(-1), "0.0B");
         assertEquals(DataProcessUtil.getSize(0), "0.0B");
@@ -34,21 +34,21 @@ public class DataProcessUtilTest {
     }
 
     @Test
-    public void getIndex() {
+    public void getIndexTest1() {
         assertEquals(DataProcessUtil.getIndex(null, new String[]{}), -1);
         assertEquals(DataProcessUtil.getIndex("哈哈哈", new String[]{"1", "a", "哈哈哈哈", "啊啊"}), -1);
         assertEquals(DataProcessUtil.getIndex("哈哈哈哈", new String[]{"1", "a", "哈哈哈哈", "啊啊"}), 2);
     }
 
     @Test
-    public void testGetIndex() {
+    public void getIndexTest2() {
         assertEquals(DataProcessUtil.getIndex(0d, new double[]{}), -1);
         assertEquals(DataProcessUtil.getIndex(0d, new double[]{1, 2.3333, 114.514}), -1);
         assertEquals(DataProcessUtil.getIndex(114.514, new double[]{1, 2.3333, 114.514}), 2);
     }
 
     @Test
-    public void testGetIndex1() {
+    public void getIndexTest3() {
         ArrayList<String> arrayList = new ArrayList<>();
         assertEquals(DataProcessUtil.getIndex(null, arrayList), -1);
         arrayList.add("1");
@@ -60,7 +60,7 @@ public class DataProcessUtilTest {
     }
 
     @Test
-    public void getTime() {
+    public void getTimeTest() {
         assertEquals(DataProcessUtil.getTime(-1, ""), "");
         assertEquals(DataProcessUtil.getTime(0, ""), "");
         assertEquals(DataProcessUtil.getTime(0, "yyyy-MM-dd HH:mm:ss"), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date(0)));
@@ -68,7 +68,7 @@ public class DataProcessUtilTest {
     }
 
     @Test
-    public void getTimeStamp() throws ParseException {
+    public void getTimeStampTest() throws ParseException {
         assertEquals(DataProcessUtil.getTimeStamp(null, null, null), 0);
         assertEquals(DataProcessUtil.getTimeStamp("", "", LsonDateFormat.LsonDateFormatMode.MILLI_SECOND), 0);
         assertEquals(DataProcessUtil.getTimeStamp("1970-01-01 08:00:00", "yyyy-MM-dd HH:mm:ss", LsonDateFormat.LsonDateFormatMode.MILLI_SECOND), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse("1970-01-01 08:00:00").getTime());
@@ -77,12 +77,12 @@ public class DataProcessUtilTest {
     }
 
     @Test
-    public void getNumberFormat() {
+    public void getNumberFormatTest() {
         //assertEquals(DataProcessUtil.getNumberFormat(0, 0, LsonNumberFormat.NumberFormatMode.DOWN), 0);
     }
 
     @Test
-    public void replaceAll() {
+    public void replaceAllTest() {
         DataProcessUtil.replaceAll(null, null, null);
         StringBuilder stringBuilder = new StringBuilder();
         DataProcessUtil.replaceAll(stringBuilder, "", "");
@@ -95,7 +95,7 @@ public class DataProcessUtilTest {
     }
 
     @Test
-    public void isDouble() {
+    public void isDoubleTest() {
         assertFalse(DataProcessUtil.isDouble(null));
         assertFalse(DataProcessUtil.isDouble(""));
         assertTrue(DataProcessUtil.isDouble("1"));
@@ -104,7 +104,16 @@ public class DataProcessUtilTest {
     }
 
     @Test
-    public void getUnderScoreCase() {
+    public void parseDoubleOrNullTest() {
+        assertNull(DataProcessUtil.parseDoubleOrNull(null));
+        assertNull(DataProcessUtil.parseDoubleOrNull(""));
+        assertEquals(DataProcessUtil.parseDoubleOrNull("1"), new Double(1.0));
+        assertEquals(DataProcessUtil.parseDoubleOrNull("1.0"), new Double(1.0));
+        assertNull(DataProcessUtil.parseDoubleOrNull("1.0啊啊啊啊"));
+    }
+
+    @Test
+    public void getUnderScoreCaseTest() {
         assertNull(DataProcessUtil.getUnderScoreCase(null));
         assertEquals(DataProcessUtil.getUnderScoreCase(""), "");
         assertEquals(DataProcessUtil.getUnderScoreCase("add"), "add");
@@ -113,7 +122,7 @@ public class DataProcessUtilTest {
     }
 
     @Test
-    public void getCamelCase() {
+    public void getCamelCaseTest() {
         assertNull(DataProcessUtil.getCamelCase(null));
         assertEquals(DataProcessUtil.getCamelCase(""), "");
         assertEquals(DataProcessUtil.getCamelCase("add"), "add");
@@ -122,7 +131,7 @@ public class DataProcessUtilTest {
     }
 
     @Test
-    public void join() {
+    public void joinTest1() {
         ArrayList<String> stringArrayList = null;
         assertNull(DataProcessUtil.join(stringArrayList, null));
         stringArrayList = new ArrayList<>();
@@ -136,7 +145,7 @@ public class DataProcessUtilTest {
     }
 
     @Test
-    public void testJoin() {
+    public void joinTest2() {
         Object[] array = null;
         assertNull(DataProcessUtil.join(array, null));
         assertEquals(DataProcessUtil.join(new String[]{}, null), "");

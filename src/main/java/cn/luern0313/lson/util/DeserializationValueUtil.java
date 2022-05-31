@@ -73,9 +73,7 @@ public class DeserializationValueUtil {
     }
 
     public Number getAsNumber() {
-        if (DataProcessUtil.isDouble(value.toString()))
-            return Double.parseDouble(value.toString());
-        return null;
+        return DataProcessUtil.parseDoubleOrNull(value.toString());
     }
 
     public Boolean getAsBoolean() {

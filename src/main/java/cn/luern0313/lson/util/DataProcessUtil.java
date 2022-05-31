@@ -126,6 +126,14 @@ public class DataProcessUtil {
         }
     }
 
+    public static Double parseDoubleOrNull(String string) {
+        try {
+            return Double.parseDouble(string);
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
     /**
      * 将小驼峰命名法转换为下划线命名法。
      *
