@@ -13,7 +13,7 @@ public class LsonPrimitive extends LsonElement {
         this.value = value;
     }
 
-    public boolean isNull(int index) {
+    public boolean isNull() {
         return get() == null;
     }
 
