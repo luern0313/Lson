@@ -117,7 +117,7 @@ public class LsonPrimitive extends LsonElement {
         return value.getClass();
     }
 
-    public String unescapeString(String string) {
+    private String unescapeString(String string) {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < string.length(); i++) {
             char ch = string.charAt(i);
