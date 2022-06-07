@@ -17,7 +17,9 @@ public interface TypeAdapter<T> {
      * @param value json中的元素，这个变量不会为null，但可能为LsonNull
      * @return 该类的实例
      */
-    T deserialization(@NotNull LsonElement value);
+    default T deserialization(@NotNull LsonElement value) {
+        return null;
+    }
 
     /**
      * 自定义某个类的序列化过程
@@ -25,5 +27,7 @@ public interface TypeAdapter<T> {
      * @param obj 该类的实例
      * @return 序列化后的LsonElement实例
      */
-    LsonElement serialization(T obj);
+    default LsonElement serialization(T obj) {
+        return null;
+    }
 }
