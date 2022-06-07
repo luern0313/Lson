@@ -2,6 +2,7 @@ package cn.luern0313.lson;
 
 import cn.luern0313.lson.adapter.TypeAdapter;
 import cn.luern0313.lson.constructor.CustomConstructor;
+import cn.luern0313.lson.constructor.InstanceResult;
 import cn.luern0313.lson.deserialization.BaseModel;
 import cn.luern0313.lson.deserialization.BaseModel2;
 import cn.luern0313.lson.deserialization.JSON1;
@@ -9,6 +10,7 @@ import cn.luern0313.lson.deserialization.JSON2;
 import cn.luern0313.lson.deserialization.JSON3;
 import cn.luern0313.lson.deserialization.JSON4;
 import cn.luern0313.lson.deserialization.JSON5;
+import cn.luern0313.lson.deserialization.JSON6;
 import cn.luern0313.lson.element.LsonElement;
 import cn.luern0313.lson.element.LsonPrimitive;
 
@@ -88,5 +90,51 @@ public class DeserializationTest {
             }
         }).build();
         JSON5.INSTANCE.check(lson5.fromJson(lson5.parse(JSON5.INSTANCE.json()), new TypeReference<JSON5.ColorModel>(){}));
+    }
+
+    @Test
+    public void fromJsonTest6() {
+        Lson lson6 = new Lson.LsonBuilder().setCustomConstructor(new CustomConstructor<JSON6.ItemModel.N1>() {
+            @Override
+            public JSON6.ItemModel.N1 create(@Nullable Type type) {
+                return new JSON6.ItemModel.N1(1);
+            }
+        }).setCustomConstructor(new CustomConstructor<InstanceResult<? extends JSON6.ItemModel.N23>>() {
+            @Override
+            public InstanceResult<? extends JSON6.ItemModel.N23> create(@Nullable Type type) {
+                if (type == JSON6.ItemModel.N2.class) {
+                    return new InstanceResult<>(new JSON6.ItemModel.N2(2));
+                } else if (type == JSON6.ItemModel.N3.class) {
+                    return new InstanceResult<>(new JSON6.ItemModel.N3(3));
+                }
+                return null;
+            }
+        }).setCustomConstructor(new CustomConstructor<JSON6.ItemModel.N4<Integer>>() {
+            @Override
+            public JSON6.ItemModel.N4<Integer> create(@NotNull Type type) {
+                return new JSON6.ItemModel.N4<>(4);
+            }
+        }).setCustomConstructor(new CustomConstructor<JSON6.ItemModel.N4<String>>() {
+            @Override
+            public JSON6.ItemModel.N4<String> create(@NotNull Type type) {
+                return new JSON6.ItemModel.N4<>("4");
+            }
+        }).setCustomConstructor(new CustomConstructor<InstanceResult<JSON6.ItemModel.N5>>() {
+            @Override
+            public InstanceResult<JSON6.ItemModel.N5> create(@NotNull Type type) {
+                return new InstanceResult<>(new JSON6.ItemModel.N5(5));
+            }
+        }).setCustomConstructor(new CustomConstructor<JSON6.ItemModel.N6<Integer>>() {
+            @Override
+            public JSON6.ItemModel.N6<Integer> create(@NotNull Type type) {
+                return new JSON6.ItemModel.N6<>(6);
+            }
+        }).setCustomConstructor(new CustomConstructor<JSON6.ItemModel.N6<String>>() {
+            @Override
+            public JSON6.ItemModel.N6<String> create(@NotNull Type type) {
+                return new JSON6.ItemModel.N6<>("6");
+            }
+        }).build();
+        JSON6.INSTANCE.check(lson6.fromJson(JSON6.INSTANCE.json(), JSON6.ItemModel.class));
     }
 }

@@ -26,7 +26,11 @@ public class ClassConstructor {
             if (customConstructorList != null) {
                 CustomConstructor<?> customConstructor = customConstructorList.get(typeUtil);
                 if (customConstructor != null) {
-                    return customConstructor.create(typeUtil.getAsType());
+                    Object instance = customConstructor.create(typeUtil.getAsType());
+                    if (instance instanceof InstanceResult)
+                        return ((InstanceResult<?>) instance).getInstance();
+                    else
+                        return instance;
                 }
             }
         } catch (RuntimeException ignored) {

@@ -8,5 +8,5 @@ import java.lang.reflect.Type
  * <p>创建于 2022/5/3.
  */
 interface CustomConstructor<T> {
-    fun create(type: Type?): T
+    fun create(type: Type): T
 }
