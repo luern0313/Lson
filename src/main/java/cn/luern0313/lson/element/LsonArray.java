@@ -55,11 +55,15 @@ public class LsonArray extends LsonElement {
     }
 
     public String getString(int key, String def) {
+        return getString(key, def, false);
+    }
+
+    public String getString(int key, String def, boolean isEscape) {
         LsonElement lsonElement = list.get(key);
         if (lsonElement == null || !(lsonElement.isLsonPrimitive() && lsonElement.getAsLsonPrimitive().isString()))
             return def;
         else
-            return lsonElement.getAsLsonPrimitive().getAsString();
+            return lsonElement.getAsLsonPrimitive().getAsString(isEscape);
     }
 
     public int getInt(int key) {
