@@ -18,7 +18,7 @@ import java.lang.reflect.Type
 class DeserializationTestKt {
     @Test
     fun fromJsonTest1() {
-        JSON1.check(Lson.def().fromJson(Lson.def().parse(JSON1.json())))
+        JSON1.check(Lson.def().fromJson(JSON1.json()))
     }
 
     @Test

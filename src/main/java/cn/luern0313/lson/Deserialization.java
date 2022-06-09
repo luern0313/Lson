@@ -50,14 +50,16 @@ public class Deserialization {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T deserialization(LsonElement json, TypeUtil clz, Object genericSuperObject, ArrayList<Object> rootJsonPath) {
-        T t = (T) lson.getClassConstructor().create(clz, genericSuperObject);
+    private <T> T create(TypeUtil clz, Object genericSuperObject) {
+        return (T) lson.getClassConstructor().create(clz, genericSuperObject);
+    }
 
+    private <T> T deserialization(LsonElement json, TypeUtil clz, T t, ArrayList<Object> rootJsonPath) {
         handleMethod(clz, t, LsonCallMethod.CallMethodTiming.BEFORE_DESERIALIZATION);
 
         TypeUtil superClass = new TypeUtil(clz.getAsClass().getSuperclass());
         if (superClass.getAsClass() != Object.class)
-            fromJson(json, superClass, t, rootJsonPath);
+            deserialization(json, superClass, t, rootJsonPath);
 
         Field[] fieldArray = clz.getAsClass().getDeclaredFields();
         for (Field field : fieldArray) {
@@ -461,7 +463,7 @@ public class Deserialization {
                 return getJsonPrimitiveData(json);
             else if (lson.getTypeAdapterList().has(fieldType))
                 return lson.getTypeAdapterList().get(fieldType.getAsClass()).deserialization(json);
-            return deserialization(rootJson, fieldType, t, paths);
+            return deserialization(rootJson, fieldType, create(fieldType, t), paths);
         } catch (RuntimeException | java.lang.InstantiationException | IllegalAccessException ignored) {
         }
         return null;
