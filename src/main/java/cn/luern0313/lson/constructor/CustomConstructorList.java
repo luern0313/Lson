@@ -7,14 +7,12 @@ import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 import cn.luern0313.lson.TypeReference;
 import cn.luern0313.lson.util.TypeUtil;
-import javafx.util.Pair;
+import kotlin.Pair;
 
 /**
  * 自定义实例化管理list
@@ -57,8 +55,8 @@ public class CustomConstructorList {
             }
         }
         if (typeList != null && typeList.size() > 0) {
-            Collections.sort(typeList, (o1, o2) -> o1.getKey() - o2.getKey());
-            return customConstructorMap.get(typeList.get(0).getValue());
+            Collections.sort(typeList, (o1, o2) -> o1.getFirst() - o2.getFirst());
+            return customConstructorMap.get(typeList.get(0).getSecond());
         }
         return null;
     }
