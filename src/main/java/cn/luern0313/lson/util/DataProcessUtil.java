@@ -231,4 +231,30 @@ public class DataProcessUtil {
         }
         return parameterTypes;
     }
+
+    public static String unescapeString(String string) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < string.length(); i++) {
+            char ch = string.charAt(i);
+            if (ch == '\"')
+                stringBuilder.append("\\\"");
+            else if (ch == '\\')
+                stringBuilder.append("\\\\");
+            else if (ch == '/')
+                stringBuilder.append("\\/");
+            else if (ch == '\b')
+                stringBuilder.append("\\b");
+            else if (ch == '\f')
+                stringBuilder.append("\\f");
+            else if (ch == '\n')
+                stringBuilder.append("\\n");
+            else if (ch == '\r')
+                stringBuilder.append("\\r");
+            else if (ch == '\t')
+                stringBuilder.append("\\t");
+            else
+                stringBuilder.append(ch);
+        }
+        return stringBuilder.toString();
+    }
 }
