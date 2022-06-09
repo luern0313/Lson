@@ -44,12 +44,12 @@ public class DeserializationTest {
     public void fromJsonTest4() {
         Lson lson4 = new Lson.LsonBuilder().setCustomConstructor(new CustomConstructor<JSON4.FeedItemModel>() {
             @Override
-            public JSON4.FeedItemModel create(@Nullable Type type) {
+            public JSON4.FeedItemModel create(Type type) {
                 return new JSON4.FeedItemModel(123);
             }
         }).setCustomConstructor(new CustomConstructor<JSON4.FeedItemModel.FeedUserModel>() {
             @Override
-            public JSON4.FeedItemModel.FeedUserModel create(@Nullable Type type) {
+            public JSON4.FeedItemModel.FeedUserModel create(Type type) {
                 return new JSON4.FeedItemModel.FeedUserModel(1234);
             }
         }).build();
@@ -96,12 +96,12 @@ public class DeserializationTest {
     public void fromJsonTest6() {
         Lson lson6 = new Lson.LsonBuilder().setCustomConstructor(new CustomConstructor<JSON6.ItemModel.N1>() {
             @Override
-            public JSON6.ItemModel.N1 create(@Nullable Type type) {
+            public JSON6.ItemModel.N1 create(Type type) {
                 return new JSON6.ItemModel.N1(1);
             }
         }).setCustomConstructor(new CustomConstructor<InstanceResult<? extends JSON6.ItemModel.N23>>() {
             @Override
-            public InstanceResult<? extends JSON6.ItemModel.N23> create(@Nullable Type type) {
+            public InstanceResult<? extends JSON6.ItemModel.N23> create(Type type) {
                 if (type == JSON6.ItemModel.N2.class) {
                     return new InstanceResult<>(new JSON6.ItemModel.N2(2));
                 } else if (type == JSON6.ItemModel.N3.class) {
@@ -111,27 +111,27 @@ public class DeserializationTest {
             }
         }).setCustomConstructor(new CustomConstructor<JSON6.ItemModel.N4<Integer>>() {
             @Override
-            public JSON6.ItemModel.N4<Integer> create(@NotNull Type type) {
+            public JSON6.ItemModel.N4<Integer> create(Type type) {
                 return new JSON6.ItemModel.N4<>(4);
             }
         }).setCustomConstructor(new CustomConstructor<JSON6.ItemModel.N4<String>>() {
             @Override
-            public JSON6.ItemModel.N4<String> create(@NotNull Type type) {
+            public JSON6.ItemModel.N4<String> create(Type type) {
                 return new JSON6.ItemModel.N4<>("4");
             }
         }).setCustomConstructor(new CustomConstructor<InstanceResult<JSON6.ItemModel.N5>>() {
             @Override
-            public InstanceResult<JSON6.ItemModel.N5> create(@NotNull Type type) {
+            public InstanceResult<JSON6.ItemModel.N5> create(Type type) {
                 return new InstanceResult<>(new JSON6.ItemModel.N5(5));
             }
         }).setCustomConstructor(new CustomConstructor<JSON6.ItemModel.N6<Integer>>() {
             @Override
-            public JSON6.ItemModel.N6<Integer> create(@NotNull Type type) {
+            public JSON6.ItemModel.N6<Integer> create(Type type) {
                 return new JSON6.ItemModel.N6<>(6);
             }
         }).setCustomConstructor(new CustomConstructor<JSON6.ItemModel.N6<String>>() {
             @Override
-            public JSON6.ItemModel.N6<String> create(@NotNull Type type) {
+            public JSON6.ItemModel.N6<String> create(Type type) {
                 return new JSON6.ItemModel.N6<>("6");
             }
         }).build();

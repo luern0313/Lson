@@ -9,6 +9,7 @@ import cn.luern0313.lson.element.LsonObject
 import cn.luern0313.lson.element.LsonPrimitive
 import org.junit.Test
 import java.awt.Color
+import java.lang.Exception
 import java.lang.reflect.Type
 
 /**
@@ -32,11 +33,11 @@ class DeserializationTestKt {
 
     @Test
     fun fromJsonTest4() {
-        val lson4: Lson = Lson.LsonBuilder().setCustomConstructor(object : CustomConstructor<JSON4.FeedItemModel> {
-                override fun create(type: Type): JSON4.FeedItemModel {
-                    return JSON4.FeedItemModel(123)
-                }
-            }).setCustomConstructor(object : CustomConstructor<JSON4.FeedItemModel.FeedUserModel> {
+        val lson4: Lson = Lson.LsonBuilder().setCustomConstructor(object : CustomConstructor<JSON4.FeedItemModel>() {
+            override fun create(type: Type): JSON4.FeedItemModel {
+                return JSON4.FeedItemModel(123)
+            }
+        }).setCustomConstructor(object : CustomConstructor<JSON4.FeedItemModel.FeedUserModel>() {
                 override fun create(type: Type): JSON4.FeedItemModel.FeedUserModel {
                     return JSON4.FeedItemModel.FeedUserModel(1234)
                 }
@@ -49,7 +50,7 @@ class DeserializationTestKt {
         val lson5: Lson = Lson.LsonBuilder().setTypeAdapter(object : TypeAdapter<Color> {
             override fun deserialization(value: LsonElement): Color? {
                 return when (value) {
-                    is LsonPrimitive -> Color.decode(value.asString);
+                    is LsonPrimitive -> Color.decode(value.asString)
                     is LsonObject -> des(value["r"], value["g"], value["b"])
                     is LsonArray -> des(value[0], value[1], value[2])
                     else -> null

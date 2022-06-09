@@ -31,7 +31,7 @@ public class CustomConstructorList {
 
     public void add(CustomConstructor<?> customConstructor) {
         if (customConstructor != null) {
-            Type type = ((ParameterizedType) customConstructor.getClass().getGenericInterfaces()[0]).getActualTypeArguments()[0];
+            Type type = ((ParameterizedType) customConstructor.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
             if (type instanceof ParameterizedType && ((ParameterizedType) type).getRawType() == InstanceResult.class)
                 customConstructorMap.put(((ParameterizedType) type).getActualTypeArguments()[0], customConstructor);
             else
