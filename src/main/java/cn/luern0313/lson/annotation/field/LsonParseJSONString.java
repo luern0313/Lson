@@ -8,6 +8,8 @@ import java.lang.annotation.Target;
 import cn.luern0313.lson.Lson;
 import cn.luern0313.lson.annotation.LsonDefinedAnnotation;
 import cn.luern0313.lson.annotation.other.AnnotationOrder;
+import cn.luern0313.lson.element.LsonPrimitive;
+import cn.luern0313.lson.util.DataProcessUtil;
 
 /**
  * 处理json中的json字符串。
@@ -40,7 +42,7 @@ public @interface LsonParseJSONString {
     class LsonParseJSONStringConfig implements LsonDefinedAnnotation.LsonDefinedAnnotationConfig<LsonParseJSONString> {
         @Override
         public Object deserialization(Object value, LsonParseJSONString lsonParseJsonString, Object object) {
-            return Lson.def().fromJson(Lson.def().parse(((StringBuilder) value).toString()), lsonParseJsonString.value());
+            return Lson.def().fromJson(DataProcessUtil.unescapeString(((StringBuilder) value).toString()), lsonParseJsonString.value());
         }
 
         @Override

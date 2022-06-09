@@ -1,5 +1,7 @@
 package cn.luern0313.lson.element;
 
+import cn.luern0313.lson.util.DataProcessUtil;
+
 /**
  * JSON元素类。
  *
@@ -13,7 +15,7 @@ public class LsonPrimitive extends LsonElement {
         this.value = value;
     }
 
-    public boolean isNull(int index) {
+    public boolean isNull() {
         return get() == null;
     }
 
@@ -64,11 +66,15 @@ public class LsonPrimitive extends LsonElement {
     }
 
     public String getAsString() {
+        return getAsString(false);
+    }
+
+    public String getAsString(boolean isEscape) {
         if (isBoolean())
             return String.valueOf(getAsBoolean());
         else if (isNumber())
             return String.valueOf(getAsNumber().toString());
-        return unescapeString((String) value);
+        return isEscape ? ((String) value) : DataProcessUtil.unescapeString((String) value);
     }
 
     public Number getAsNumber() {
@@ -115,32 +121,6 @@ public class LsonPrimitive extends LsonElement {
 
     public Class<?> getValueClass() {
         return value.getClass();
-    }
-
-    private String unescapeString(String string) {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < string.length(); i++) {
-            char ch = string.charAt(i);
-            if (ch == '\"')
-                stringBuilder.append("\\\"");
-            else if (ch == '\\')
-                stringBuilder.append("\\\\");
-            else if (ch == '/')
-                stringBuilder.append("\\/");
-            else if (ch == '\b')
-                stringBuilder.append("\\b");
-            else if (ch == '\f')
-                stringBuilder.append("\\f");
-            else if (ch == '\n')
-                stringBuilder.append("\\n");
-            else if (ch == '\r')
-                stringBuilder.append("\\r");
-            else if (ch == '\t')
-                stringBuilder.append("\\t");
-            else
-                stringBuilder.append(ch);
-        }
-        return stringBuilder.toString();
     }
 
     @Override
