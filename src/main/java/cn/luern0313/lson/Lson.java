@@ -116,8 +116,8 @@ public class Lson {
      * @return 返回反序列化后的实体类
      * @author luern0313
      */
-    public <T> T fromJson(LsonElement json, Class<T> clz) {
-        return fromJson(json, new TypeUtil(clz));
+    public <T> T fromJson(LsonElement json, Class<T> clz, Object... parameter) {
+        return fromJson(json, new TypeUtil(clz), parameter);
     }
 
     /**
@@ -129,8 +129,8 @@ public class Lson {
      * @return 返回反序列化后的实体类
      * @author luern0313
      */
-    public <T> T fromJson(String json, Class<T> clz) {
-        return fromJson(this.parse(json), new TypeUtil(clz));
+    public <T> T fromJson(String json, Class<T> clz, Object... parameter) {
+        return fromJson(this.parse(json), new TypeUtil(clz), parameter);
     }
 
     /**
@@ -142,8 +142,8 @@ public class Lson {
      * @return 返回反序列化后的实体类
      * @author luern0313
      */
-    public <T> T fromJson(LsonElement json, TypeReference<T> typeReference) {
-        return fromJson(json, new TypeUtil(typeReference.rawType, typeReference));
+    public <T> T fromJson(LsonElement json, TypeReference<T> typeReference, Object... parameter) {
+        return fromJson(json, new TypeUtil(typeReference.rawType, typeReference), parameter);
     }
 
     /**
@@ -155,13 +155,14 @@ public class Lson {
      * @return 返回反序列化后的实体类
      * @author luern0313
      */
-    public <T> T fromJson(String json, TypeReference<T> typeReference) {
-        return fromJson(this.parse(json), new TypeUtil(typeReference.rawType, typeReference));
+    public <T> T fromJson(String json, TypeReference<T> typeReference, Object... parameter) {
+        return fromJson(this.parse(json), new TypeUtil(typeReference.rawType, typeReference), parameter);
     }
 
-    private <T> T fromJson(LsonElement json, TypeUtil typeUtil) {
+    private <T> T fromJson(LsonElement json, TypeUtil typeUtil, Object[] parameter) {
         if (deserialization == null)
             deserialization = new Deserialization(this);
+        classConstructor.setParameter(parameter);
         return deserialization.fromJson(json, typeUtil, null, new ArrayList<>());
     }
 

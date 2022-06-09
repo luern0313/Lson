@@ -34,11 +34,11 @@ class DeserializationTestKt {
     @Test
     fun fromJsonTest4() {
         val lson4: Lson = Lson.LsonBuilder().setCustomConstructor(object : CustomConstructor<JSON4.FeedItemModel>() {
-            override fun create(type: Type): JSON4.FeedItemModel {
+            override fun create(type: Type, vararg parameter: Any?): JSON4.FeedItemModel {
                 return JSON4.FeedItemModel(123)
             }
         }).setCustomConstructor(object : CustomConstructor<JSON4.FeedItemModel.FeedUserModel>() {
-                override fun create(type: Type): JSON4.FeedItemModel.FeedUserModel {
+                override fun create(type: Type, vararg parameter: Any?): JSON4.FeedItemModel.FeedUserModel {
                     return JSON4.FeedItemModel.FeedUserModel(1234)
                 }
             }).build()

@@ -16,9 +16,14 @@ import sun.misc.Unsafe;
 
 public class ClassConstructor {
     private final CustomConstructorList customConstructorList;
+    private Object[] parameter;
 
     public ClassConstructor(CustomConstructorList customConstructorList) {
         this.customConstructorList = customConstructorList;
+    }
+
+    public void setParameter(Object[] parameter) {
+        this.parameter = parameter;
     }
 
     public Object create(TypeUtil typeUtil, Object genericSuperclass) {
@@ -27,7 +32,7 @@ public class ClassConstructor {
                 CustomConstructor<?> customConstructor = customConstructorList.get(typeUtil);
                 if (customConstructor != null) {
                     try {
-                        Object instance = customConstructor.create(typeUtil.getAsType());
+                        Object instance = customConstructor.create(typeUtil.getAsType(), parameter);
                         if (instance instanceof InstanceResult)
                             return ((InstanceResult<?>) instance).getInstance();
                         else
