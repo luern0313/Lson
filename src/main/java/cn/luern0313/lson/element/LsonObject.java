@@ -110,11 +110,15 @@ public class LsonObject extends LsonElement {
     }
 
     public String getString(String key, String def) {
+        return getString(key, def, false);
+    }
+
+    public String getString(String key, String def, boolean isEscape) {
         LsonElement lsonElement = map.get(key);
         if (lsonElement == null || !(lsonElement.isLsonPrimitive() && lsonElement.getAsLsonPrimitive().isString()))
             return def;
         else
-            return lsonElement.getAsLsonPrimitive().getAsString();
+            return lsonElement.getAsLsonPrimitive().getAsString(isEscape);
     }
 
     public int getInt(String key) {
