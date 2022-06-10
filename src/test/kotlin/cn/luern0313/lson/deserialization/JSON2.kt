@@ -20,7 +20,7 @@ object JSON2: DeserializationJSONChecker<BaseModel<JSON2.FeedModel>> {
                 "image": "https://i0.hdslb.com/bfs/album/b26706e3fe65c681c6265797324ec6201f1ec4f6.jpg",
                 "topic": "春始万物生",
                 "watching": 22678,
-                "watching_users_profile_photo": ["", "", ""],
+                "watching_users_profile_photo": ["Alex", "Bob", "Cary", "David"],
                 "like": 13596,
                 "reply": 1164,
                 "share": 431,
@@ -37,7 +37,7 @@ object JSON2: DeserializationJSONChecker<BaseModel<JSON2.FeedModel>> {
                 "image": "https://i0.hdslb.com/bfs/album/37ab6d28d8d2bb3655d08f66c340952fbf99603e.jpg",
                 "topic": "为高考加油",
                 "watching": 846,
-                "watching_users_profile_photo": ["", "", ""],
+                "watching_users_profile_photo": ["Rock", "Sam", "Tom"],
                 "like": 348,
                 "reply": 54,
                 "share": 32,
@@ -63,10 +63,19 @@ object JSON2: DeserializationJSONChecker<BaseModel<JSON2.FeedModel>> {
         assertEquals(model.data?.feed?.size, 2)
         assertEquals(model.data?.feed?.get(0)?.content, "《唐顿庄园2》定档5月20日，华美精致的英伦风尚即将与你大银幕邂逅！当古老庄园里拍起了电影，当老伯爵夫人的过往秘密被揭开，一个全新的时代即将到来。")
         assertEquals(model.data?.feed?.get(0)?.topic, "春始万物生")
+        assertEquals(model.data?.feed?.get(0)?.watchingUsersProfilePhoto?.size, 4)
+        assertEquals(model.data?.feed?.get(0)?.watchingUsersProfilePhoto?.get(0), "Alex")
+        assertEquals(model.data?.feed?.get(0)?.watchingUsersProfilePhoto?.get(1), "Bob")
+        assertEquals(model.data?.feed?.get(0)?.watchingUsersProfilePhoto?.get(2), "Cary")
+        assertEquals(model.data?.feed?.get(0)?.watchingUsersProfilePhoto?.get(3), "David")
         assertEquals(model.data?.feed?.get(0)?.user?.userName, "陪你聊电影")
         assertEquals(model.data?.feed?.get(0)?.user?.userId, "100002")
         assertEquals(model.data?.feed?.get(1)?.content, "雨生百谷，万物更新\n今天是春季的最后一个节气谷雨，因此时节降水增多，利于谷物生长而得名。\n在古代，人们在谷雨这天喝谷雨茶、赏牡丹。")
         assertEquals(model.data?.feed?.get(1)?.topic, "为高考加油")
+        assertEquals(model.data?.feed?.get(1)?.watchingUsersProfilePhoto?.size, 3)
+        assertEquals(model.data?.feed?.get(1)?.watchingUsersProfilePhoto?.get(0), "Rock")
+        assertEquals(model.data?.feed?.get(1)?.watchingUsersProfilePhoto?.get(1), "Sam")
+        assertEquals(model.data?.feed?.get(1)?.watchingUsersProfilePhoto?.get(2), "Tom")
         assertEquals(model.data?.feed?.get(1)?.user?.userName, "国风阁小书童")
         assertEquals(model.data?.feed?.get(1)?.user?.userId, "100001")
     }
@@ -85,6 +94,9 @@ object JSON2: DeserializationJSONChecker<BaseModel<JSON2.FeedModel>> {
 
         @LsonPath
         var topic: String? = null
+
+        @LsonPath
+        var watchingUsersProfilePhoto: Array<String>? = null
 
         class FeedUserModel {
             @LsonPath

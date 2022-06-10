@@ -143,7 +143,7 @@ public class Lson {
      * @author luern0313
      */
     public <T> T fromJson(LsonElement json, TypeReference<T> typeReference, Object... parameter) {
-        return fromJson(json, new TypeUtil(typeReference.rawType, typeReference), parameter);
+        return fromJson(json, new TypeUtil(typeReference.type, typeReference), parameter);
     }
 
     /**
@@ -156,7 +156,7 @@ public class Lson {
      * @author luern0313
      */
     public <T> T fromJson(String json, TypeReference<T> typeReference, Object... parameter) {
-        return fromJson(this.parse(json), new TypeUtil(typeReference.rawType, typeReference), parameter);
+        return fromJson(this.parse(json), new TypeUtil(typeReference.type, typeReference), parameter);
     }
 
     private <T> T fromJson(LsonElement json, TypeUtil typeUtil, Object[] parameter) {

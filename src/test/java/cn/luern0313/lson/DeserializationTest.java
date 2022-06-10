@@ -11,6 +11,7 @@ import cn.luern0313.lson.deserialization.JSON3;
 import cn.luern0313.lson.deserialization.JSON4;
 import cn.luern0313.lson.deserialization.JSON5;
 import cn.luern0313.lson.deserialization.JSON6;
+import cn.luern0313.lson.deserialization.JSON7;
 import cn.luern0313.lson.element.LsonElement;
 import cn.luern0313.lson.element.LsonPrimitive;
 
@@ -20,6 +21,7 @@ import org.junit.Test;
 
 import java.awt.Color;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 
 /**
  * 被 luern 创建于 2022/4/24.
@@ -136,5 +138,10 @@ public class DeserializationTest {
             }
         }).build();
         JSON6.INSTANCE.check(lson6.fromJson(JSON6.INSTANCE.json(), JSON6.ItemModel.class));
+    }
+
+    @Test
+    public void fromJsonTest7() {
+        JSON7.INSTANCE.check(Lson.def().fromJson(JSON7.INSTANCE.json(), new TypeReference<ArrayList<JSON7.FeedItemModel>>(){}));
     }
 }
