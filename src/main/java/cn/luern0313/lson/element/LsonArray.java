@@ -55,7 +55,7 @@ public class LsonArray extends LsonElement {
     }
 
     public String getString(int key, String def) {
-        return getString(key, def, false);
+        return getString(key, def, true);
     }
 
     public String getString(int key, String def, boolean isEscape) {

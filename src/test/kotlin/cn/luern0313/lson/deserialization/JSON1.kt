@@ -12,7 +12,7 @@ import kotlin.test.assertNull
 object JSON1: DeserializationJSONChecker<JSON1.FeedItemModel> {
     private val json = """
         {
-            "content": "《唐顿庄园2》定档5月20日，华美精致的英伦风尚即将与你大银幕邂逅！当古老庄园里拍起了电影，当老伯爵夫人的过往秘密被揭开，一个全新的时代即将到来。",
+            "content": "《唐顿庄园2》定档5月20日，华美精致的英伦风尚即将与你大银幕邂逅！\n当古老庄园里拍起了电影，当老伯爵夫人的过往秘密被揭开，一个全新的时代即将到来。",
             "topic": "春始万物生",
             "user": {
                 "user_id": "100002",
@@ -30,7 +30,7 @@ object JSON1: DeserializationJSONChecker<JSON1.FeedItemModel> {
     }
 
     override fun check(model: FeedItemModel) {
-        assertEquals(model.content, "《唐顿庄园2》定档5月20日，华美精致的英伦风尚即将与你大银幕邂逅！当古老庄园里拍起了电影，当老伯爵夫人的过往秘密被揭开，一个全新的时代即将到来。")
+        assertEquals(model.content, "《唐顿庄园2》定档5月20日，华美精致的英伦风尚即将与你大银幕邂逅！\n当古老庄园里拍起了电影，当老伯爵夫人的过往秘密被揭开，一个全新的时代即将到来。")
         assertEquals(model.topic, "春始万物生")
         assertEquals(model.userLv?.lv, 6)
         assertEquals(model.userLv?.isHardcode, true)

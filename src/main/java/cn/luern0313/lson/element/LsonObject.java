@@ -110,7 +110,7 @@ public class LsonObject extends LsonElement {
     }
 
     public String getString(String key, String def) {
-        return getString(key, def, false);
+        return getString(key, def, true);
     }
 
     public String getString(String key, String def, boolean isEscape) {

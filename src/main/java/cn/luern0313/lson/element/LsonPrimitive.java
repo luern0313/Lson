@@ -66,7 +66,7 @@ public class LsonPrimitive extends LsonElement {
     }
 
     public String getAsString() {
-        return getAsString(false);
+        return getAsString(true);
     }
 
     public String getAsString(boolean isEscape) {
@@ -126,7 +126,7 @@ public class LsonPrimitive extends LsonElement {
     @Override
     public String toString() {
         if (isString())
-            return "\"" + getAsString() + "\"";
+            return "\"" + getAsString(false) + "\"";
         return getAsString();
     }
 
