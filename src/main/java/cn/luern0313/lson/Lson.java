@@ -112,6 +112,7 @@ public class Lson {
      *
      * @param json           Lson解析过的json对象
      * @param clz            要反序列化实体类的Class对象
+     * @param parameter
      * @param <T>            反序列化为的实体类
      * @return 返回反序列化后的实体类
      * @author luern0313

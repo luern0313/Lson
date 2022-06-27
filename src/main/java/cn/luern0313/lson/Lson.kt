@@ -20,8 +20,8 @@ import kotlin.reflect.typeOf
  * @author luern0313
  */
 @OptIn(ExperimentalStdlibApi::class)
-inline fun <reified T> Lson.fromJson(json: LsonElement?): T {
-    return fromJson(json, TypeReference(typeOf<T>().javaType))
+inline fun <reified T> Lson.fromJson(json: LsonElement?, vararg parameter: Any): T {
+    return fromJson(json, TypeReference(typeOf<T>().javaType), *parameter)
 }
 
 /**
@@ -31,11 +31,12 @@ inline fun <reified T> Lson.fromJson(json: LsonElement?): T {
  *
  * @param json JSON字符串
  * @param <T> 反序列化为的实体类
+ * @param parameter
  * @return 返回反序列化后的实体类
  *
  * @author luern0313
  */
 @OptIn(ExperimentalStdlibApi::class)
-inline fun <reified T> Lson.fromJson(json: String?): T {
-    return fromJson(json, TypeReference(typeOf<T>().javaType))
+inline fun <reified T> Lson.fromJson(json: String?, vararg parameter: Any): T {
+    return fromJson(json, TypeReference(typeOf<T>().javaType), *parameter)
 }
