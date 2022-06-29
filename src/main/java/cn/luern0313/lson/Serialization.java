@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -246,10 +247,17 @@ public class Serialization {
         else if (valueClass.isListType() && !lsonDefinedAnnotation.isIgnoreList())
             for (int i = 0; i < ((List<?>) value).size(); i++)
                 ((List<Object>) value).set(i, handleAnnotation(((List<?>) value).get(i), annotation, lsonDefinedAnnotation, object));
-        else if (valueClass.isListType() && !lsonDefinedAnnotation.isIgnoreMap()) {
+        else if (valueClass.isMapType() && !lsonDefinedAnnotation.isIgnoreMap()) {
             Object[] keys = ((Map<?, ?>) value).keySet().toArray();
             for (Object key : keys)
                 ((Map<Object, Object>) value).put(key, handleAnnotation(((Map<?, ?>) value).get(key), annotation, lsonDefinedAnnotation, object));
+        } else if (valueClass.isSetType()) {
+            Iterator<?> iterator = ((Set<?>) value).iterator();
+            while (iterator.hasNext()) {
+                Object o = iterator.next();
+                iterator.remove();
+                ((Set<Object>) value).add(handleAnnotation(o, annotation, lsonDefinedAnnotation, object));
+            }
         } else if (value instanceof DeserializationValueUtil) {
             Object o = handleAnnotationType((DeserializationValueUtil) value, lsonDefinedAnnotation.acceptableSerializationType());
             if (o != null) {
@@ -328,6 +336,11 @@ public class Serialization {
                 LsonObject finalValue = new LsonObject();
                 for (Object key : ((Map<?, ?>) value).keySet().toArray())
                     finalValue.put((String) key, finalValueHandle(((Map<?, ?>) value).get(key)));
+                return finalValue;
+            } else if (valueClass.isSetType()) {
+                LsonArray finalValue = new LsonArray();
+                for (Object o : (Set<?>) value)
+                    finalValue.add(finalValueHandle(o));
                 return finalValue;
             } else if (value instanceof DeserializationValueUtil) {
                 if (((DeserializationValueUtil) value).get() instanceof Double)

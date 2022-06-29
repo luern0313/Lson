@@ -11,6 +11,7 @@ import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -385,6 +386,17 @@ public class Deserialization {
                 for (Object key : keys)
                     ((Map<Object, Object>) value).put(key, handleAnnotation(((Map<?, ?>) value).get(key), annotation, lsonDefinedAnnotation, t));
             }
+        } else if (valueClass.isSetType()) {
+            if (lsonDefinedAnnotation.isIgnoreSet())
+                value = handleSingleAnnotation(finalValueHandle(value, valueClass), annotation, lsonDefinedAnnotation, t);
+            else {
+                Iterator<?> iterator = ((Set<?>) value).iterator();
+                while (iterator.hasNext()) {
+                    Object o = iterator.next();
+                    iterator.remove();
+                    ((Set<Object>) value).add(handleAnnotation(o, annotation, lsonDefinedAnnotation, t));
+                }
+            }
         } else
             value = handleSingleAnnotation(value, annotation, lsonDefinedAnnotation, t);
         return value;
@@ -470,7 +482,7 @@ public class Deserialization {
     }
 
     @SuppressWarnings("unchecked")
-    public Object finalValueHandle(Object value, TypeUtil fieldType) {
+    public <E1, E2> E1 finalValueHandle(Object value, TypeUtil fieldType) {
         try {
             if (value == null) return null;
 
@@ -484,31 +496,37 @@ public class Deserialization {
 
                 for (int i = 0; i < Array.getLength(value); i++)
                     Array.set(finalValue, i, finalValueHandle(Array.get(value, i), fieldType.getArrayElementType()));
-                return finalValue;
+                return (E1) finalValue;
             } else if (valueClass.isListType()) {
                 TypeUtil type = fieldType.getListElementType();
-                List<Object> finalValue = (List<Object>) valueClass.getListType().newInstance();
-                for (int i = 0; i < ((List<?>) value).size(); i++)
-                    finalValue.add(finalValueHandle(((List<?>) value).get(i), type));
-                return finalValue;
+                for (int i = 0; i < ((List<E2>) value).size(); i++)
+                    ((List<E2>) value).set(i, finalValueHandle(((List<E2>) value).get(i), type));
+                return (E1) value;
             } else if (valueClass.isMapType()) {
                 TypeUtil type = fieldType.getMapElementType();
-                Map<String, Object> finalValue = (Map<String, Object>) valueClass.getMapType().newInstance();
-                for (Object key : ((Map<?, ?>) value).keySet().toArray())
-                    finalValue.put((String) key, finalValueHandle(((Map<?, ?>) value).get(key), type));
-                return finalValue;
+                for (Object key : ((Map<String, E2>) value).keySet().toArray())
+                    ((Map<String, E2>) value).put((String) key, finalValueHandle(((Map<String, E2>) value).get(key), type));
+                return (E1) value;
+            } else if (valueClass.isSetType()) {
+                TypeUtil type = fieldType.getSetElementType();
+                Iterator<?> iterator = ((Set<?>) value).iterator();
+                while (iterator.hasNext()) {
+                    Object o = iterator.next();
+                    iterator.remove();
+                    ((Set<Object>) value).add(finalValueHandle(o, type));
+                }
+                return (E1) value;
             } else if (value instanceof DeserializationValueUtil) {
                 if (((DeserializationValueUtil) value).getCurrentType() == Double.class)
-                    return finalValueHandle((DeserializationValueUtil) value, fieldType);
+                    return (E1) finalValueHandle((DeserializationValueUtil) value, fieldType);
                 else if (((DeserializationValueUtil) value).getCurrentType() == StringBuilder.class)
-                    return ((DeserializationValueUtil) value).get().toString();
+                    return (E1) ((DeserializationValueUtil) value).get().toString();
                 else if (((DeserializationValueUtil) value).getCurrentType() == Boolean.class)
-                    return ((DeserializationValueUtil) value).get();
+                    return (E1) ((DeserializationValueUtil) value).get();
                 else
-                    return ((DeserializationValueUtil) value).get(fieldType);
-            } else
-                return value;
-        } catch (RuntimeException | java.lang.InstantiationException | IllegalAccessException ignored) {
+                    return (E1) ((DeserializationValueUtil) value).get(fieldType);
+            } else return (E1) value;
+        } catch (RuntimeException ignored) {
         }
         return null;
     }

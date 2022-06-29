@@ -74,12 +74,23 @@ public @interface LsonDefinedAnnotation {
      * 标记此自定义注解是否需要忽略{@link java.util.Map}及相关类型。
      *
      * <p>开发者自定义注解如标记了{@link java.util.Map}类型的变量，默认情况下，Lson会逐个将
-     * 数组内元素交由你的注解处理类处理，但如果设置为true，Lson会忽略数组类型，将整个变量传入
+     * Map内元素交由你的注解处理类处理，但如果设置为true，Lson会忽略Map类型，将整个变量传入
      * 你的注解处理类。
      *
      * @return 是否忽略Map及相关类型。
      */
     boolean isIgnoreMap() default false;
+
+    /**
+     * 标记此自定义注解是否需要忽略{@link java.util.Set}及相关类型。
+     *
+     * <p>开发者自定义注解如标记了{@link java.util.Set}类型的变量，默认情况下，Lson会逐个将
+     * 数组内元素交由你的注解处理类处理，但如果设置为true，Lson会忽略数组类型，将整个变量传入
+     * 你的注解处理类。
+     *
+     * @return 是否忽略Map及相关类型。
+     */
+    boolean isIgnoreSet() default false;
 
     enum AcceptableType {
         NOT_HANDLE,
