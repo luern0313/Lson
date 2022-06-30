@@ -252,10 +252,9 @@ public class Serialization {
             for (Object key : keys)
                 ((Map<Object, Object>) value).put(key, handleAnnotation(((Map<?, ?>) value).get(key), annotation, lsonDefinedAnnotation, object));
         } else if (valueClass.isSetType()) {
-            Iterator<?> iterator = ((Set<?>) value).iterator();
-            while (iterator.hasNext()) {
-                Object o = iterator.next();
-                iterator.remove();
+            Object[] objects = ((Set<?>) value).toArray();
+            for (Object o : objects) {
+                ((Set<Object>) value).remove(o);
                 ((Set<Object>) value).add(handleAnnotation(o, annotation, lsonDefinedAnnotation, object));
             }
         } else if (value instanceof DeserializationValueUtil) {

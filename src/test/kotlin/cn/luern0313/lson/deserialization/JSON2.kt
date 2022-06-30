@@ -2,6 +2,7 @@ package cn.luern0313.lson.deserialization
 
 import cn.luern0313.lson.annotation.field.LsonPath
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 /**
  * 测试参数化类型
@@ -68,6 +69,16 @@ object JSON2: DeserializationJSONChecker<BaseModel<JSON2.FeedModel>> {
         assertEquals(model.data?.feed?.get(0)?.watchingUsersProfilePhoto?.get(1), "Bob")
         assertEquals(model.data?.feed?.get(0)?.watchingUsersProfilePhoto?.get(2), "Cary")
         assertEquals(model.data?.feed?.get(0)?.watchingUsersProfilePhoto?.get(3), "David")
+        assertEquals(model.data?.feed?.get(0)?.watchingUsersProfilePhotoList?.size, 4)
+        assertEquals(model.data?.feed?.get(0)?.watchingUsersProfilePhotoList?.get(0), "Alex")
+        assertEquals(model.data?.feed?.get(0)?.watchingUsersProfilePhotoList?.get(1), "Bob")
+        assertEquals(model.data?.feed?.get(0)?.watchingUsersProfilePhotoList?.get(2), "Cary")
+        assertEquals(model.data?.feed?.get(0)?.watchingUsersProfilePhotoList?.get(3), "David")
+        assertEquals(model.data?.feed?.get(0)?.watchingUsersProfilePhotoSet?.size, 4)
+        assertTrue(model.data?.feed?.get(0)?.watchingUsersProfilePhotoSet?.contains("Alex") ?: false)
+        assertTrue(model.data?.feed?.get(0)?.watchingUsersProfilePhotoSet?.contains("Bob") ?: false)
+        assertTrue(model.data?.feed?.get(0)?.watchingUsersProfilePhotoSet?.contains("Cary") ?: false)
+        assertTrue(model.data?.feed?.get(0)?.watchingUsersProfilePhotoSet?.contains("David") ?: false)
         assertEquals(model.data?.feed?.get(0)?.user?.userName, "陪你聊电影")
         assertEquals(model.data?.feed?.get(0)?.user?.userId, "100002")
         assertEquals(model.data?.feed?.get(1)?.content, "雨生百谷，万物更新\n今天是春季的最后一个节气谷雨，因此时节降水增多，利于谷物生长而得名。\n在古代，人们在谷雨这天喝谷雨茶、赏牡丹。")
@@ -76,6 +87,14 @@ object JSON2: DeserializationJSONChecker<BaseModel<JSON2.FeedModel>> {
         assertEquals(model.data?.feed?.get(1)?.watchingUsersProfilePhoto?.get(0), "Rock")
         assertEquals(model.data?.feed?.get(1)?.watchingUsersProfilePhoto?.get(1), "Sam")
         assertEquals(model.data?.feed?.get(1)?.watchingUsersProfilePhoto?.get(2), "Tom")
+        assertEquals(model.data?.feed?.get(1)?.watchingUsersProfilePhotoList?.size, 3)
+        assertEquals(model.data?.feed?.get(1)?.watchingUsersProfilePhotoList?.get(0), "Rock")
+        assertEquals(model.data?.feed?.get(1)?.watchingUsersProfilePhotoList?.get(1), "Sam")
+        assertEquals(model.data?.feed?.get(1)?.watchingUsersProfilePhotoList?.get(2), "Tom")
+        assertEquals(model.data?.feed?.get(1)?.watchingUsersProfilePhotoSet?.size, 3)
+        assertTrue(model.data?.feed?.get(1)?.watchingUsersProfilePhotoSet?.contains("Rock") ?: false)
+        assertTrue(model.data?.feed?.get(1)?.watchingUsersProfilePhotoSet?.contains("Sam") ?: false)
+        assertTrue(model.data?.feed?.get(1)?.watchingUsersProfilePhotoSet?.contains("Tom") ?: false)
         assertEquals(model.data?.feed?.get(1)?.user?.userName, "国风阁小书童")
         assertEquals(model.data?.feed?.get(1)?.user?.userId, "100001")
     }
@@ -97,6 +116,12 @@ object JSON2: DeserializationJSONChecker<BaseModel<JSON2.FeedModel>> {
 
         @LsonPath
         var watchingUsersProfilePhoto: Array<String>? = null
+
+        @LsonPath("watching_users_profile_photo")
+        var watchingUsersProfilePhotoList: List<String>? = null
+
+        @LsonPath("watching_users_profile_photo")
+        var watchingUsersProfilePhotoSet: Set<String>? = null
 
         class FeedUserModel {
             @LsonPath

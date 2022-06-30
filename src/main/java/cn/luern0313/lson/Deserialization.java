@@ -390,10 +390,9 @@ public class Deserialization {
             if (lsonDefinedAnnotation.isIgnoreSet())
                 value = handleSingleAnnotation(finalValueHandle(value, valueClass), annotation, lsonDefinedAnnotation, t);
             else {
-                Iterator<?> iterator = ((Set<?>) value).iterator();
-                while (iterator.hasNext()) {
-                    Object o = iterator.next();
-                    iterator.remove();
+                Object[] objects = ((Set<?>) value).toArray();
+                for (Object o : objects) {
+                    ((Set<Object>) value).remove(o);
                     ((Set<Object>) value).add(handleAnnotation(o, annotation, lsonDefinedAnnotation, t));
                 }
             }
@@ -482,7 +481,7 @@ public class Deserialization {
     }
 
     @SuppressWarnings("unchecked")
-    public <E1, E2> E1 finalValueHandle(Object value, TypeUtil fieldType) {
+    public <E1, E2> E1 finalValueHandle(E1 value, TypeUtil fieldType) {
         try {
             if (value == null) return null;
 
@@ -501,21 +500,20 @@ public class Deserialization {
                 TypeUtil type = fieldType.getListElementType();
                 for (int i = 0; i < ((List<E2>) value).size(); i++)
                     ((List<E2>) value).set(i, finalValueHandle(((List<E2>) value).get(i), type));
-                return (E1) value;
+                return value;
             } else if (valueClass.isMapType()) {
                 TypeUtil type = fieldType.getMapElementType();
                 for (Object key : ((Map<String, E2>) value).keySet().toArray())
                     ((Map<String, E2>) value).put((String) key, finalValueHandle(((Map<String, E2>) value).get(key), type));
-                return (E1) value;
+                return value;
             } else if (valueClass.isSetType()) {
                 TypeUtil type = fieldType.getSetElementType();
-                Iterator<?> iterator = ((Set<?>) value).iterator();
-                while (iterator.hasNext()) {
-                    Object o = iterator.next();
-                    iterator.remove();
-                    ((Set<Object>) value).add(finalValueHandle(o, type));
+                E2[] objects = (E2[]) ((Set<?>) value).toArray();
+                for (E2 o : objects) {
+                    ((Set<E2>) value).remove(o);
+                    ((Set<E2>) value).add(finalValueHandle(o, type));
                 }
-                return (E1) value;
+                return value;
             } else if (value instanceof DeserializationValueUtil) {
                 if (((DeserializationValueUtil) value).getCurrentType() == Double.class)
                     return (E1) finalValueHandle((DeserializationValueUtil) value, fieldType);
@@ -525,7 +523,7 @@ public class Deserialization {
                     return (E1) ((DeserializationValueUtil) value).get();
                 else
                     return (E1) ((DeserializationValueUtil) value).get(fieldType);
-            } else return (E1) value;
+            } else return value;
         } catch (RuntimeException ignored) {
         }
         return null;
