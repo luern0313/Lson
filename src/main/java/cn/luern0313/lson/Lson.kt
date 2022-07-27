@@ -20,7 +20,7 @@ import kotlin.reflect.typeOf
  * @author luern0313
  */
 @OptIn(ExperimentalStdlibApi::class)
-inline fun <reified T> Lson.fromJson(json: LsonElement?, vararg parameter: Any): T {
+inline fun <reified T> Lson.fromJson(json: LsonElement?, vararg parameter: Any?): T {
     return fromJson(json, TypeReference(typeOf<T>().javaType), *parameter)
 }
 
@@ -37,6 +37,6 @@ inline fun <reified T> Lson.fromJson(json: LsonElement?, vararg parameter: Any):
  * @author luern0313
  */
 @OptIn(ExperimentalStdlibApi::class)
-inline fun <reified T> Lson.fromJson(json: String?, vararg parameter: Any): T {
+inline fun <reified T> Lson.fromJson(json: String?, vararg parameter: Any?): T {
     return fromJson(json, TypeReference(typeOf<T>().javaType), *parameter)
 }
