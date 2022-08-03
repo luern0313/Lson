@@ -208,7 +208,10 @@ public class Lson {
      * @author luern0313
      */
     public String toJson(Object object) {
-        return toJsonElement(object).toString();
+        LsonElement lsonElement = toJsonElement(object);
+        if (lsonElement != null)
+            return lsonElement.toString();
+        return null;
     }
 
     /**
