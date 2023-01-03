@@ -10,16 +10,16 @@ A Java library for JSON serialization/deserialization, it has good performance a
 
 [中文](README.md)&#160;&#160;&#160;|&#160;&#160;&#160;English
 
-## 功能
+## Features
 
-* 容易上手，安装即可快速使用
-* 基于注解和JSONPath工作的反序列化/序列化流程，直观、方便、容易使用
-* 支持复杂实体类和变量的反序列化等
-* 对泛型的良好支持
-* 不断更新的内置注解，方便处理数据
-* 可自定义注解，拓展Lson功能
+* Easy to get started, quick to use with installation
+* Intuitive, convenient, and easy to use serialization/deserialization process based on annotations and JSONPath
+* Support for deserializing complex entity classes and variables
+* Good support for generics
+* Continuously updated built-in annotations for easy data processing
+* Customizable annotations to extend Lson's functionality
 
-## 下载
+## Download
 
 ### Gradle
 
@@ -37,67 +37,67 @@ implementation 'cn.luern0313.lson:Lson:0.90'
 </dependency>
 ```
 
-## 快速上手
+## Getting Started
 
-### JSON解析
+### JSON Parsing
 
 ``` java
 LsonElement lsonElement = LsonUtil.parse(jsonString);
 ```
 
-该方法返回一个LsonElement，若你能确定JSON为Object或Array，你也可以使用:  
+This method returns a LsonElement. If you are sure that the JSON is an Object or Array, you can also use:
 
 ``` java
 LsonObject lsonObject = LsonUtil.parseAsObject(jsonString);
 ```
 
-或
+or
 
 ``` java
 LsonArray lsonArray = LsonUtil.parseAsArray(jsonString);
 ```
 
-### JSON反序列化
+### JSON Deserialization
 
 ``` java
 XXXModel model = LsonUtil.fromJson(lsonElement, XXXModel.class);
 ```
 
-你需要一个实体类来供Lson反序列化，在需要反序列化的变量上添加注解@LsonPath，并填写path来描述此变量在JSON中的位置。  
-你还可以使用Lson的内置注解或自定义注解来处理反序列化中的变量。  
-详细用法请查看[Lson Wiki](https://github.com/luern0313/Lson/wiki)。
+You need an entity class for Lson to deserialize, and you need to add the @LsonPath annotation to the variables you want to deserialize and fill in the path to describe the location of this variable in the JSON.
+You can also use Lson's built-in annotations or custom annotations to handle variables in deserialization.
+For more detailed usage, see the [Lson Wiki](https://github.com/luern0313/Lson/wiki)。
 
-### JSON序列化
+### JSON Serialization
 
 ``` java
 String json = LsonUtil.toJson(model);
 ```
 
-同样的，序列化也需要注解@LsonPath来让Lson定位值在json中的具体位置。  
-内置注解和自定义注解同样可以作用于序列化。  
-详细用法请查看[Lson Wiki](https://github.com/luern0313/Lson/wiki)。
+Again, the @LsonPath annotation is also needed for Lson to locate the value in a specific location in the json.
+Built-in and custom annotations can also be used for serialization.
+For more detailed usage, see the [Lson Wiki](https://github.com/luern0313/Lson/wiki)。
 
-## 参与此项目
+## Contribute to this project
 
-欢迎你与本项目一起成长！  
-要贡献你的代码，请Fork后Pull Requests。  
-或[提出Issue](https://github.com/luern0313/Lson/issues)反馈问题或建议。
+You are welcome to grow with this project!
+To contribute your code, please Fork and Pull Requests.
+Or [raise an Issue](https://github.com/luern0313/Lson/issues) to report problems or suggestions.
 
-## 开发者
+## Developers
 
 [luern0313](https://github.com/luern0313)  
 
-特别感谢: [lzjyzq2](https://github.com/lzjyzq2)、[setTile工作室](https://github.com/setTileGroup)
+Special thanks to: [lzjyzq2](https://github.com/lzjyzq2)、[setTile group](https://github.com/setTileGroup)
 
-## 联系我
+## Contact me
 
 Bilibili: [https://space.bilibili.com/8014831](https://space.bilibili.com/8014831)  
 Github: [https://github.com/luern0313](https://github.com/luern0313)  
-个人网站: [https://luern0313.cn](https://luern0313.cn)
+Personal website: [https://luern0313.cn](https://luern0313.cn)
 
-## 许可证
+## License
 
-Lson使用[Apache 2.0 license](LICENSE.txt)。
+Lson uses the[Apache 2.0 license](LICENSE.txt)。
 
 ``` txt
 Copyright 2020 luern0313
